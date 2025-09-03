@@ -4,6 +4,7 @@ import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.service.AuthService;
 import com.elkay.taskstream.payload.GenericResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class AuthController {
      * Login endpoint
      */
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse<HashMap<String, String>>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<GenericResponse<HashMap<String, String>>> login(@Valid @RequestBody LoginRequest loginRequest) {
         String token = authService.login(loginRequest);
         HashMap<String, String> response = new HashMap<>();
         response.put("token", token);
@@ -34,7 +35,7 @@ public class AuthController {
      * Signup endpoint
      */
     @PostMapping("/signup")
-    public ResponseEntity<GenericResponse<String>> signup(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<GenericResponse<String>> signup(@Valid @RequestBody SignupRequest signupRequest) {
         String message = authService.signup(signupRequest);
         return ResponseEntity.ok(new GenericResponse<>(message, false));
     }

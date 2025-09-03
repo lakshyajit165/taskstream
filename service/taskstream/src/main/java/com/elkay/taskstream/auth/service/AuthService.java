@@ -74,7 +74,7 @@ public class AuthService {
     public String login(LoginRequest loginRequest) {
         // Fetch user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User email is invalid"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with email not found"));
 
         // Validate password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
