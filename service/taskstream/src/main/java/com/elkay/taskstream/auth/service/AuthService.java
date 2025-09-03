@@ -8,6 +8,7 @@ import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.RoleRepository;
 import com.elkay.taskstream.auth.repository.UserRepository;
 import com.elkay.taskstream.config.AdminConfig;
+import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.exception.InternalServerError;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
@@ -77,7 +78,7 @@ public class AuthService {
 
         // Validate password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new InternalServerError("Password doesn't match");
+            throw new BadRequestException("Password doesn't match");
         }
 
         // Generate JWT token
