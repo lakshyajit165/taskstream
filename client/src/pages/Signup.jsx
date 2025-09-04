@@ -13,7 +13,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 const Signup = () => {
-  const [values, setValues] = useState({
+  const [signupPayload, setSignupPayload] = useState({
     name: "",
     email: "",
     password: "",
@@ -21,7 +21,7 @@ const Signup = () => {
 
   const [errors, setErrors] = useState({});
 
-  const validate = (fieldValues = values) => {
+  const validate = (fieldValues = signupPayload) => {
     let validationErrors = { ...errors };
 
     if ("name" in fieldValues) {
@@ -60,17 +60,17 @@ const Signup = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const newValues = { ...values, [name]: value };
-    setValues(newValues);
+    const newValues = { ...signupPayload, [name]: value };
+    setSignupPayload(newValues);
     validate({ [name]: value }); // validate live per field
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validationErrors = validate(values);
+    const validationErrors = validate(signupPayload);
 
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Signup form submitted successfully", values);
+      console.log("Signup form submitted successfully", signupPayload);
       // TODO: call backend signup API here
     }
   };
@@ -111,7 +111,7 @@ const Signup = () => {
             label="Name"
             name="name"
             margin="normal"
-            value={values.name}
+            value={signupPayload.name}
             onChange={handleInputChange}
             error={!!errors.name}
           />
@@ -124,7 +124,7 @@ const Signup = () => {
             name="email"
             margin="normal"
             type="email"
-            value={values.email}
+            value={signupPayload.email}
             onChange={handleInputChange}
             error={!!errors.email}
           />
@@ -137,7 +137,7 @@ const Signup = () => {
             name="password"
             margin="normal"
             type="password"
-            value={values.password}
+            value={signupPayload.password}
             onChange={handleInputChange}
             error={!!errors.password}
           />
