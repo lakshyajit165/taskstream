@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import AddTask from "./pages/AddTask";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Projects from "./pages/Projects";
 
 const theme = createTheme({
   typography: {
@@ -27,6 +28,7 @@ function App() {
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
           <Route path="add-task" element={<AddTask />} />
+          <Route path="projects" element={<Projects />} />
         </Route>
       </Routes>
     </ThemeProvider>
