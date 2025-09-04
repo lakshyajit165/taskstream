@@ -7,6 +7,8 @@ import {
   Paper,
   Link,
   Divider,
+  FormHelperText,
+  Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -102,8 +104,10 @@ const Login = () => {
             value={loginPayload.email}
             onChange={handleInputChange}
             error={!!errors.email}
-            helperText={errors.email}
           />
+          <Collapse in={!!errors.email} timeout={300}>
+            <FormHelperText error>{errors.email}</FormHelperText>
+          </Collapse>
           <TextField
             fullWidth
             label="Password"
@@ -113,8 +117,10 @@ const Login = () => {
             value={loginPayload.password}
             onChange={handleInputChange}
             error={!!errors.password}
-            helperText={errors.password}
           />
+          <Collapse in={!!errors.password} timeout={300}>
+            <FormHelperText error>{errors.password}</FormHelperText>
+          </Collapse>
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
             Login
           </Button>
