@@ -1,13 +1,18 @@
 package com.elkay.taskstream.project.controller;
 
+import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.payload.GenericResponse;
 import com.elkay.taskstream.project.model.Project;
+import com.elkay.taskstream.project.payload.ListProjectResponse;
 import com.elkay.taskstream.project.payload.ProjectRequest;
+import com.elkay.taskstream.project.payload.ProjectResponse;
 import com.elkay.taskstream.project.service.ProjectService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -24,19 +29,39 @@ public class ProjectController {
      * Create new project
      */
     @PostMapping()
-    public ResponseEntity<GenericResponse<Project>> createProject(@Valid @RequestBody ProjectRequest projectRequest) {
-        Project project = projectService.createProject(projectRequest);
+    public ResponseEntity<GenericResponse<ProjectResponse>> createProject(@Valid @RequestBody ProjectRequest projectRequest) {
+        ProjectResponse project = projectService.createProject(projectRequest);
         return ResponseEntity.ok(new GenericResponse<>("Project created successfully", false, project));
     }
 
     /**
      * Get all projects of logged-in user
      */
-    @GetMapping
-    public ResponseEntity<GenericResponse<List<Project>>> getMyProjects() {
-        List<Project> projects = projectService.getMyProjects();
-        return ResponseEntity.ok(new GenericResponse<>("Projects fetched successfully", false, projects));
-    }
+//    @GetMapping
+//    public ResponseEntity<GenericResponse<ListProjectResponse>> getMyProjects(
+//            @RequestParam(defaultValue = "1") int page,
+//            @RequestParam(defaultValue = "10") int size
+//    ) {
+//        if (page < 1) {
+//            throw new BadRequestException("Page number must be at least 1");
+//        }
+//        if (size < 1 || size > 10) { // You can tweak max size as per your requirements
+//            throw new BadRequestException("Page size must be between 1 and 10");
+//        }
+//        Page<ProjectResponse> projectPage = projectService.getMyProjects(page, size);
+//
+//        // Build response payload
+//        ListProjectResponse listProjectResponse = new ListProjectResponse();
+//        listProjectResponse.setProjects(projectPage.getContent());
+//        listProjectResponse.setCurrentPage(projectPage.getNumber() + 1);
+//        listProjectResponse.setTotalPages(projectPage.getTotalPages());
+//        listProjectResponse.setTotalItems(projectPage.getTotalElements());
+//
+//
+//        return ResponseEntity.ok(
+//                new GenericResponse<>("Projects fetched successfully", false, listProjectResponse)
+//        );
+//    }
 
     /**
      * Update a project by ID

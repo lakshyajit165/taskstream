@@ -1,16 +1,15 @@
 package com.elkay.taskstream.auth.jwt;
 
 import com.elkay.taskstream.auth.model.Role;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,12 +32,36 @@ public class JWTUtil {
                 .compact();
     }
 
-    public Long extractUserId(String authHeader) {
+    public boolean validateToken(String token) {
+        try {
+            getAllClaims(token); // just try parsing, will throw if invalid
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Extract relevant details from the token
+     * */
+
+    private Claims getAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
-                .parseSignedClaims(authHeader.replace("Bearer ", ""))
-                .getPayload()
-                .get("userId", Long.class);
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public Long extractUserId(String token) {
+        return getAllClaims(token).get("userId", Long.class);
+    }
+
+    public String extractEmail(String token) {
+        return getAllClaims(token).getSubject();
+    }
+
+    public List<String> extractRoles(String token) {
+        return getAllClaims(token).get("roles", List.class);
     }
 }

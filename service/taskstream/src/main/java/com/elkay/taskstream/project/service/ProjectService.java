@@ -1,5 +1,6 @@
 package com.elkay.taskstream.project.service;
 
+import com.elkay.taskstream.auth.jwt.CustomUserDetails;
 import com.elkay.taskstream.auth.jwt.JWTUtil;
 import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.exception.ForbiddenException;
@@ -8,9 +9,15 @@ import com.elkay.taskstream.exception.UnauthorizedException;
 import com.elkay.taskstream.project.model.Project;
 import com.elkay.taskstream.project.model.ProjectTag;
 import com.elkay.taskstream.project.payload.ProjectRequest;
+import com.elkay.taskstream.project.payload.ProjectResponse;
 import com.elkay.taskstream.project.repository.ProjectRepository;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,15 +39,15 @@ public class ProjectService {
     }
 
     private Long getCurrentUserId() {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new UnauthorizedException("Missing or invalid authorization header");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            throw new UnauthorizedException("User not authenticated");
         }
-        return jwtUtil.extractUserId(authHeader);
+        return userDetails.getUserId();
     }
 
     @Transactional
-    public Project createProject(ProjectRequest projectRequest) {
+    public ProjectResponse createProject(ProjectRequest projectRequest) {
         Long authorId = getCurrentUserId();
 
         Project project = new Project(
@@ -61,14 +68,16 @@ public class ProjectService {
 
         project.setTags(tags);
 
-        return projectRepository.save(project);
+        Project saved = projectRepository.save(project);
+        return mapToResponse(saved);
     }
 
-    @Transactional(readOnly = true)
-    public List<Project> getMyProjects() {
-        Long authorId = getCurrentUserId();
-        return projectRepository.findByAuthorId(authorId);
-    }
+//    @Transactional(readOnly = true)
+//    public Page<ProjectResponse> getMyProjects(int page, int size) {
+//        Long authorId = getCurrentUserId();
+//        Pageable pageable = PageRequest.of(page, size);
+//        return projectRepository.findByAuthorId(authorId, pageable);
+//    }
 
     @Transactional
     public Project updateProject(Long projectId, ProjectRequest projectRequest) {
@@ -106,5 +115,21 @@ public class ProjectService {
         }
 
         projectRepository.delete(project);
+    }
+
+    private ProjectResponse mapToResponse(Project project) {
+        List<String> tags = project.getTags().stream()
+                .map(ProjectTag::getName)
+                .toList();
+
+        return new ProjectResponse(
+                project.getId(),
+                project.getTitle(),
+                project.getDescription(),
+                project.getDueDate(),
+                project.getCreatedAt(),
+                project.getUpdatedAt(),
+                tags
+        );
     }
 }

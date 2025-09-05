@@ -1,6 +1,7 @@
 package com.elkay.taskstream.project.model;
 
 import com.elkay.taskstream.auth.model.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
