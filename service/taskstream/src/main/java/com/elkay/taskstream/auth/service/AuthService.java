@@ -83,6 +83,6 @@ public class AuthService {
 
         // Generate JWT token
         Set<Role> roles = user.getRoles();
-        return jwtUtil.generateToken(user.getEmail(), roles);
+        return jwtUtil.generateToken(user.getId(), user.getEmail(), roles);
     }
 }

@@ -31,6 +31,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new GenericResponse<>(ex.getMessage(), true));
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<GenericResponse<Void>> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<GenericResponse<Void>> handleForbiddenException(ForbiddenException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
     // This is triggered when request payload validation fails(jakarta validations)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GenericResponse<?>> handleValidationExceptions(MethodArgumentNotValidException ex) {
