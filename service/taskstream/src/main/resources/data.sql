@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 -- insert default roles
-INSERT INTO roles (id, name, created_at, updated_at)
+MERGE INTO roles (id, name, created_at, updated_at) KEY(id)
 VALUES (1, 'ROLE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO roles (id, name, created_at, updated_at)
+MERGE INTO roles (id, name, created_at, updated_at) KEY(id)
 VALUES (2, 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
