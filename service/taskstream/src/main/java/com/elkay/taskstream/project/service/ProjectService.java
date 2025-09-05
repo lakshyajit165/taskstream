@@ -68,19 +68,19 @@ public class ProjectService {
 
         project.setTags(tags);
 
-        Project saved = projectRepository.save(project);
-        return mapToResponse(saved);
+        Project savedProject = projectRepository.save(project);
+        return mapToResponse(savedProject);
     }
 
-//    @Transactional(readOnly = true)
-//    public Page<ProjectResponse> getMyProjects(int page, int size) {
-//        Long authorId = getCurrentUserId();
-//        Pageable pageable = PageRequest.of(page, size);
-//        return projectRepository.findByAuthorId(authorId, pageable);
-//    }
+    @Transactional(readOnly = true)
+    public Page<ProjectResponse> getMyProjects(int page, int size) {
+        Long authorId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return projectRepository.findByAuthorId(authorId, pageable).map(this::mapToResponse);
+    }
 
     @Transactional
-    public Project updateProject(Long projectId, ProjectRequest projectRequest) {
+    public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest) {
         Long authorId = getCurrentUserId();
 
         Project project = projectRepository.findById(projectId)
@@ -94,13 +94,17 @@ public class ProjectService {
         project.setDescription(projectRequest.getDescription());
         project.setDueDate(projectRequest.getDueDate());
 
+        // ✅ Clear existing tags but keep the same collection instance
         project.getTags().clear();
-        Set<ProjectTag> newTags = projectRequest.getTags().stream()
-                .map(ProjectTag::new)
-                .collect(Collectors.toSet());
-        project.setTags(newTags);
 
-        return projectRepository.save(project);
+        // ✅ Add new tags via helper (keeps bidirectional mapping consistent)
+        projectRequest.getTags().forEach(tagName -> {
+            ProjectTag tag = new ProjectTag(tagName);
+            project.addTag(tag);  // uses your addTag() method
+        });
+
+        Project updatedProject = projectRepository.save(project);
+        return mapToResponse(updatedProject);
     }
 
     @Transactional

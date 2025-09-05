@@ -1,20 +1,18 @@
 package com.elkay.taskstream.project.payload;
 
-import com.elkay.taskstream.project.model.Project;
-
 import java.util.List;
 
-public class ListProjectResponse {
+public class PaginatedProjectResponse {
 
     private List<ProjectResponse> projects;
     private int currentPage;
     private int totalPages;
     private long totalItems;
 
-    public ListProjectResponse() {
+    public PaginatedProjectResponse() {
     }
 
-    public ListProjectResponse(List<ProjectResponse> projects, int currentPage, int totalPages, long totalItems) {
+    public PaginatedProjectResponse(List<ProjectResponse> projects, int currentPage, int totalPages, long totalItems) {
         this.projects = projects;
         this.currentPage = currentPage;
         this.totalPages = totalPages;
