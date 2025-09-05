@@ -8,9 +8,9 @@ import "@fontsource/open-sans/400.css";
 import "@fontsource/open-sans/600.css"; // (optional extra weights)
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>
+	<StrictMode>
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>
+	</StrictMode>
 );
