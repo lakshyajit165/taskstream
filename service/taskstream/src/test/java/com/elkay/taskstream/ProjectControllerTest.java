@@ -88,7 +88,7 @@ public class ProjectControllerTest {
         mockMvc.perform(post("/api/v1/project")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     // ===================== GET PROJECTS =====================

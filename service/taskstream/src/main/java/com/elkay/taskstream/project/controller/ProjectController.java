@@ -39,12 +39,7 @@ public class ProjectController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        if (page < 1) {
-            throw new BadRequestException("Page number must be at least 1");
-        }
-        if (size < 1 || size > 10) { // You can tweak max size as per your requirements
-            throw new BadRequestException("Page size must be between 1 and 10");
-        }
+
         Page<ProjectResponse> projectPage = projectService.getMyProjects(page, size);
 
         // Build response payload
@@ -52,7 +47,7 @@ public class ProjectController {
         listProjectResponse.setProjects(projectPage.getContent());
         listProjectResponse.setCurrentPage(projectPage.getNumber() + 1);
         listProjectResponse.setTotalPages(projectPage.getTotalPages());
-        listProjectResponse.setTotalItems(projectPage.getTotalElements());
+        listProjectResponse.setTotalElements(projectPage.getTotalElements());
 
 
         return ResponseEntity.ok(

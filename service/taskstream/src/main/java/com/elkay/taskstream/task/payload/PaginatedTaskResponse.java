@@ -1,30 +1,32 @@
-package com.elkay.taskstream.project.payload;
+package com.elkay.taskstream.task.payload;
+
+import com.elkay.taskstream.project.payload.ProjectResponse;
+import com.elkay.taskstream.task.model.Task;
 
 import java.util.List;
 
-public class PaginatedProjectResponse {
-
-    private List<ProjectResponse> projects;
+public class PaginatedTaskResponse {
+    private List<Task> tasks;
     private int currentPage;
     private int totalPages;
     private long totalElements;
 
-    public PaginatedProjectResponse() {
+    public PaginatedTaskResponse() {
     }
 
-    public PaginatedProjectResponse(List<ProjectResponse> projects, int currentPage, int totalPages, long totalElements) {
-        this.projects = projects;
+    public PaginatedTaskResponse(List<Task> tasks, int currentPage, int totalPages, long totalElements) {
+        this.tasks = tasks;
         this.currentPage = currentPage;
         this.totalPages = totalPages;
         this.totalElements = totalElements;
     }
 
-    public List<ProjectResponse> getProjects() {
-        return projects;
+    public List<Task> getTasks() {
+        return tasks;
     }
 
-    public void setProjects(List<ProjectResponse> projects) {
-        this.projects = projects;
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public int getCurrentPage() {

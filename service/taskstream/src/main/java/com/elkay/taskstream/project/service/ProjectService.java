@@ -74,6 +74,12 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public Page<ProjectResponse> getMyProjects(int page, int size) {
+        if (page < 1) {
+            throw new BadRequestException("Page number must be at least 1");
+        }
+        if (size < 1 || size > 10) { // You can tweak max size as per your requirements
+            throw new BadRequestException("Page size must be between 1 and 10");
+        }
         Long authorId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page - 1, size);
         return projectRepository.findByAuthorId(authorId, pageable).map(this::mapToResponse);
