@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Projects from "./pages/Projects";
 import { ToastProvider } from "./components/ToastProvider";
+import "./App.css";
 
 const theme = createTheme({
 	components: {
@@ -20,7 +21,7 @@ const theme = createTheme({
 		},
 	},
 	typography: {
-		fontFamily: '"Open Sans", sans-serif',
+		fontFamily: '"Lato", sans-serif',
 	},
 });
 

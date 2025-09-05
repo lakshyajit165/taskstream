@@ -6,6 +6,7 @@ import com.elkay.taskstream.auth.repository.UserRepository;
 import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.exception.ForbiddenException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
+import com.elkay.taskstream.exception.UnauthorizedException;
 import com.elkay.taskstream.project.model.Project;
 import com.elkay.taskstream.project.repository.ProjectRepository;
 import com.elkay.taskstream.task.model.Task;
@@ -36,7 +37,7 @@ public class TaskService {
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
-            throw new RuntimeException("User not authenticated");
+            throw new UnauthorizedException("User not authenticated");
         }
         return userDetails.getUserId();
     }
@@ -45,7 +46,7 @@ public class TaskService {
     public Task createTask(TaskRequest taskRequest) {
         Long projectId = taskRequest.getProjectId();
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project with id " + projectId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if (taskRequest.getDueDate() != null && taskRequest.getDueDate().isAfter(project.getDueDate())) {
             throw new BadRequestException("Task due date cannot be after the project's due date");
@@ -82,7 +83,7 @@ public class TaskService {
             throw new BadRequestException("Page size must be between 1 and 100");
         }
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project with id " + projectId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         PageRequest pageable = PageRequest.of(page - 1, size);
         return taskRepository.findByProjectId(projectId, pageable);
@@ -131,7 +132,7 @@ public class TaskService {
         Long currentUserId = getCurrentUserId();
 
         if (Boolean.TRUE.equals(task.getRestrictedEdit()) && !currentUserId.equals(task.getAssignedTo())) {
-            throw new ForbiddenException("You are not allowed to delete this task");
+            throw new ForbiddenException("User not allowed to delete this task");
         }
 
         taskRepository.delete(task);

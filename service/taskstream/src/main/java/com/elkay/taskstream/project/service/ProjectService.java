@@ -93,7 +93,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if (!project.getAuthor().equals(authorId)) {
-            throw new ForbiddenException("You are not allowed to update this project");
+            throw new ForbiddenException("User not allowed to update this project");
         }
 
         project.setTitle(projectRequest.getTitle());
@@ -121,7 +121,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         if (!project.getAuthor().equals(authorId)) {
-            throw new ForbiddenException("You are not allowed to delete this project");
+            throw new ForbiddenException("User not allowed to delete this project");
         }
 
         projectRepository.delete(project);

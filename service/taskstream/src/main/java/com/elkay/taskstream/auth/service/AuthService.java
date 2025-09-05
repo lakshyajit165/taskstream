@@ -39,7 +39,7 @@ public class AuthService {
     public String signup(SignupRequest signupRequest) {
         // Check if user already exists
         userRepository.findByEmail(signupRequest.getEmail()).ifPresent(u -> {
-            throw new ResourceAlreadyExistsException("User with email already exists");
+            throw new ResourceAlreadyExistsException("User email already exists");
         });
 
         // Encode password
@@ -74,7 +74,7 @@ public class AuthService {
     public String login(LoginRequest loginRequest) {
         // Fetch user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User with email not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
 
         // Validate password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
