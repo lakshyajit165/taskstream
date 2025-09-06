@@ -35,6 +35,22 @@ export const getProjects = async (page, size) => {
 	return data;
 };
 
+export const getProjectById = async (id) => {
+	const response = await fetch(`${BASE_URL}/${id}`, {
+		method: "GET",
+		headers: getRequestHeaders(),
+	});
+
+	const data = await response.json();
+
+	if (!response.ok) {
+		// The server sends { message, error: true } for 4xx/5xx
+		throw new Error(data.message || "Error fetching project");
+	}
+
+	return data;
+};
+
 export const updateProject = async (projectData, id) => {
 	const response = await fetch(`${BASE_URL}/${id}`, {
 		method: "PUT",

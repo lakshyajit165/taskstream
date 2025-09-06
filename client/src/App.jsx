@@ -10,6 +10,9 @@ import { ToastProvider } from "./components/ToastProvider";
 import "./App.css";
 import Tasks from "./pages/Tasks";
 import Settings from "./pages/Settings";
+import CreateAndUpdateProject from "./pages/CreateAndUpdateProject";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const theme = createTheme({
 	components: {
@@ -31,20 +34,24 @@ function App() {
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
 			<ToastProvider>
-				<Routes>
-					{/* Auth pages */}
-					<Route path="/login" element={<Login />} />
-					<Route path="/signup" element={<Signup />} />
+				<LocalizationProvider dateAdapter={AdapterDateFns}>
+					<Routes>
+						{/* Auth pages */}
+						<Route path="/login" element={<Login />} />
+						<Route path="/signup" element={<Signup />} />
 
-					{/* Drawer pages */}
-					<Route path="/*" element={<DrawerMenu />}>
-						<Route index element={<Navigate to="home" replace />} />
-						<Route path="home" element={<Home />} />
-						<Route path="tasks" element={<Tasks />} />
-						<Route path="projects" element={<Projects />} />
-						<Route path="settings" element={<Settings />} />
-					</Route>
-				</Routes>
+						{/* Drawer pages */}
+						<Route path="/*" element={<DrawerMenu />}>
+							<Route index element={<Navigate to="home" replace />} />
+							<Route path="home" element={<Home />} />
+							<Route path="tasks" element={<Tasks />} />
+							<Route path="projects" element={<Projects />} />
+							<Route path="settings" element={<Settings />} />
+							<Route path="projects/new" element={<CreateAndUpdateProject />} />
+							<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
+						</Route>
+					</Routes>
+				</LocalizationProvider>
 			</ToastProvider>
 		</ThemeProvider>
 	);
