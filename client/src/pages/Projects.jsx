@@ -11,7 +11,7 @@ const Projects = () => {
 	const [loading, setLoading] = useState(false);
 	const [projects, setProjects] = useState([]);
 	const [totalPages, setTotalPages] = useState(1);
-	const size = 10;
+	const size = 3;
 
 	useEffect(() => {
 		const fetchProjects = async () => {
@@ -48,7 +48,7 @@ const Projects = () => {
 						Projects
 					</Typography>
 					<Button variant="outlined" onClick={() => navigate("/projects/new")}>
-						Add Project
+						Add
 					</Button>
 				</Box>
 
