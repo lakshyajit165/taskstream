@@ -15,6 +15,7 @@ const Signup = () => {
 	});
 
 	const [errors, setErrors] = useState({});
+	const [loading, setLoading] = useState(false);
 
 	const validate = (fieldValues = signupPayload) => {
 		let validationErrors = { ...errors };
@@ -65,13 +66,16 @@ const Signup = () => {
 		const validationErrors = validate(signupPayload);
 
 		if (Object.keys(validationErrors).length === 0) {
+			setLoading(true);
 			try {
 				const data = await signup(signupPayload);
 				// route to login page here
 				// show toast here
 				showToast(data.message || "Signup successful", "info");
+				setLoading(false);
 				navigate("/login");
 			} catch (error) {
+				setLoading(false);
 				showToast(error.message || "Error signing up user", "error");
 			}
 		}
@@ -120,7 +124,7 @@ const Signup = () => {
 					<Collapse in={!!errors.password} timeout={300}>
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
-					<Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+					<Button loading={loading} loadingIndicator="Signing up..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
 						Submit
 					</Button>
 				</form>

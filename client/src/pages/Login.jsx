@@ -4,16 +4,18 @@ import { Link as RouterLink } from "react-router-dom";
 import { login } from "../api/auth/auth";
 import { ToastContext } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Login = () => {
 	const { showToast } = useContext(ToastContext);
 	const navigate = useNavigate();
+
 	const [loginPayload, setLoginPayload] = useState({
 		email: "",
 		password: "",
 	});
-
 	const [errors, setErrors] = useState({});
+	const [loading, setLoading] = useState(false);
 
 	const validate = (fieldValues = loginPayload) => {
 		let validationErrors = { ...errors };
@@ -54,14 +56,16 @@ const Login = () => {
 		const validationErrors = validate(loginPayload);
 
 		if (Object.keys(validationErrors).length === 0) {
-			console.log("Form submitted successfully", loginPayload);
+			setLoading(true);
 			try {
 				const data = await login(loginPayload);
 				localStorage.setItem("token", data.data.token);
 				showToast(data.message, "info");
+				setLoading(false);
 				navigate("/");
 			} catch (error) {
 				showToast(error.message || "Error logging in user", "error");
+				setLoading(false);
 			}
 		}
 	};
@@ -87,7 +91,7 @@ const Login = () => {
 					maxWidth: { xs: "100%", sm: 500 },
 				}}
 			>
-				<Typography variant="h4" sx={{ pt: 2 }}>
+				<Typography variant="h4" sx={{ pt: 2, my: 2 }}>
 					TaskStream
 				</Typography>
 				<Divider sx={{ my: 2 }} />
@@ -105,11 +109,10 @@ const Login = () => {
 					<Collapse in={!!errors.password} timeout={300}>
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
-					<Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+					<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
 						Submit
 					</Button>
 				</form>
-
 				<Typography variant="body2" sx={{ mt: 2 }}>
 					Don't have an account?{" "}
 					<Link component={RouterLink} to="/signup">
