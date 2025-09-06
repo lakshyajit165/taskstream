@@ -138,7 +138,7 @@ export default function DrawerMenu() {
 				aria-describedby="alert-dialog-description"
 				sx={{
 					"& .MuiPaper-root": {
-						minWidth: "400px",
+						minWidth: "350px",
 					},
 				}}
 			>

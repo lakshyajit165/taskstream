@@ -5,6 +5,7 @@ import com.elkay.taskstream.auth.jwt.JWTAuthenticationEntryPoint;
 import com.elkay.taskstream.auth.jwt.JWTAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,6 +40,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable())) // allow H2 console frames
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/login", "/api/v1/auth/signup", "/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight for all endpoints
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
