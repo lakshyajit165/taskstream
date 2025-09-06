@@ -1,31 +1,19 @@
 import * as React from "react";
-import {
-	Box,
-	Drawer,
-	CssBaseline,
-	Toolbar,
-	Typography,
-	IconButton,
-	List,
-	ListItem,
-	ListItemButton,
-	ListItemIcon,
-	ListItemText,
-	Divider,
-	AppBar,
-} from "@mui/material";
+import { Box, Drawer, CssBaseline, Toolbar, Typography, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, AppBar } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
-import AddTaskIcon from "@mui/icons-material/AddTask";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import FolderIcon from "@mui/icons-material/Folder";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
 
 export default function DrawerMenu() {
 	const [open, setOpen] = React.useState(false);
-	const location = useLocation(); // ✅ get current path
+	const location = useLocation();
 
 	const handleDrawerOpen = () => setOpen(true);
 	const handleDrawerClose = () => setOpen(false);
@@ -34,7 +22,6 @@ export default function DrawerMenu() {
 		<Box sx={{ display: "flex" }}>
 			<CssBaseline />
 
-			{/* Top AppBar */}
 			<AppBar position="fixed">
 				<Toolbar>
 					<IconButton color="inherit" edge="start" onClick={handleDrawerOpen} sx={{ mr: 2 }}>
@@ -46,17 +33,19 @@ export default function DrawerMenu() {
 				</Toolbar>
 			</AppBar>
 
-			{/* Temporary Drawer (overlays content) */}
 			<Drawer
 				variant="temporary"
 				anchor="left"
 				open={open}
 				onClose={handleDrawerClose}
 				sx={{
-					"& .MuiDrawer-paper": { width: drawerWidth },
+					"& .MuiDrawer-paper": {
+						width: drawerWidth,
+						display: "flex", // ➡️ Make drawer a flex container
+						flexDirection: "column", // ➡️ Stack children vertically
+					},
 				}}
 			>
-				{/* Drawer Header with Close Icon */}
 				<Toolbar sx={{ justifyContent: "flex-end" }}>
 					<IconButton onClick={handleDrawerClose}>
 						<ChevronLeftIcon />
@@ -65,54 +54,62 @@ export default function DrawerMenu() {
 
 				<Divider />
 
-				<List>
-					<ListItem disablePadding>
-						<ListItemButton
-							component={Link}
-							to="/"
-							onClick={handleDrawerClose}
-							selected={location.pathname === "/"}
-						>
-							<ListItemIcon>
-								<HomeIcon />
-							</ListItemIcon>
-							<ListItemText primary="Home" />
-						</ListItemButton>
-					</ListItem>
+				{/* This Box contains all items that should be at the top */}
+				<Box sx={{ flexGrow: 1 }}>
+					<List>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/" onClick={handleDrawerClose} selected={location.pathname === "/"}>
+								<ListItemIcon>
+									<HomeOutlinedIcon />
+								</ListItemIcon>
+								<ListItemText primary="Home" />
+							</ListItemButton>
+						</ListItem>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/tasks" onClick={handleDrawerClose} selected={location.pathname === "/tasks"}>
+								<ListItemIcon>
+									<TaskAltOutlinedIcon />
+								</ListItemIcon>
+								<ListItemText primary="Tasks" />
+							</ListItemButton>
+						</ListItem>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/projects" onClick={handleDrawerClose} selected={location.pathname.startsWith("/projects")}>
+								<ListItemIcon>
+									<DescriptionOutlinedIcon />
+								</ListItemIcon>
+								<ListItemText primary="Projects" />
+							</ListItemButton>
+						</ListItem>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/settings" onClick={handleDrawerClose} selected={location.pathname.startsWith("/settings")}>
+								<ListItemIcon>
+									<SettingsOutlinedIcon />
+								</ListItemIcon>
+								<ListItemText primary="Settings" />
+							</ListItemButton>
+						</ListItem>
+					</List>
+				</Box>
 
-					<ListItem disablePadding>
-						<ListItemButton
-							component={Link}
-							to="/add-task"
-							onClick={handleDrawerClose}
-							selected={location.pathname === "/add-task"}
-						>
-							<ListItemIcon>
-								<AddTaskIcon />
-							</ListItemIcon>
-							<ListItemText primary="Add Task" />
-						</ListItemButton>
-					</ListItem>
-
-					<ListItem disablePadding>
-						<ListItemButton
-							component={Link}
-							to="/projects"
-							onClick={handleDrawerClose}
-							selected={location.pathname.startsWith("/projects")}
-						>
-							<ListItemIcon>
-								<FolderIcon />
-							</ListItemIcon>
-							<ListItemText primary="Projects" />
-						</ListItemButton>
-					</ListItem>
-				</List>
+				{/* This Box contains the item you want at the bottom */}
+				<Box>
+					<Divider />
+					<List>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/logout" onClick={handleDrawerClose}>
+								<ListItemIcon>
+									<LogoutOutlinedIcon />
+								</ListItemIcon>
+								<ListItemText primary="Logout" />
+							</ListItemButton>
+						</ListItem>
+					</List>
+				</Box>
 			</Drawer>
 
-			{/* Page content */}
 			<Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-				<Toolbar /> {/* pushes content below AppBar */}
+				<Toolbar />
 				<Outlet />
 			</Box>
 		</Box>

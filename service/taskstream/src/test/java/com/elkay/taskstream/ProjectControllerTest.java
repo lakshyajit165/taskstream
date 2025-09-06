@@ -67,7 +67,7 @@ public class ProjectControllerTest {
         request.setDueDate(LocalDateTime.now().plusDays(7));
         request.setTags(Set.of("tag1", "tag2"));
 
-        mockMvc.perform(post("/api/v1/project")
+        mockMvc.perform(post("/api/v1/projects/create")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -85,7 +85,7 @@ public class ProjectControllerTest {
         request.setDueDate(LocalDateTime.now().plusDays(5));
         request.setTags(Set.of("tag"));
 
-        mockMvc.perform(post("/api/v1/project")
+        mockMvc.perform(post("/api/v1/projects/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -102,13 +102,15 @@ public class ProjectControllerTest {
         request.setDueDate(LocalDateTime.now().plusDays(5));
         request.setTags(Set.of("tag1"));
 
-        mockMvc.perform(post("/api/v1/project")
+        // create project
+        mockMvc.perform(post("/api/v1/projects/create")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/project?page=1&size=5")
+        // get projects
+        mockMvc.perform(get("/api/v1/projects?page=1&size=5")
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.projects").isArray())
@@ -118,7 +120,7 @@ public class ProjectControllerTest {
 
     @Test
     void getMyProjects_ShouldFail_WhenInvalidPageSize() throws Exception {
-        mockMvc.perform(get("/api/v1/project?page=1&size=20")
+        mockMvc.perform(get("/api/v1/projects?page=1&size=20")
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
@@ -135,7 +137,8 @@ public class ProjectControllerTest {
         createRequest.setDueDate(LocalDateTime.now().plusDays(3));
         createRequest.setTags(Set.of("tag1"));
 
-        String createResponse = mockMvc.perform(post("/api/v1/project")
+        // create projects
+        String createResponse = mockMvc.perform(post("/api/v1/projects/create")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
@@ -150,7 +153,8 @@ public class ProjectControllerTest {
         updateRequest.setDueDate(LocalDateTime.now().plusDays(10));
         updateRequest.setTags(Set.of("tag2", "tag3"));
 
-        mockMvc.perform(put("/api/v1/project/" + projectId)
+        // update project
+        mockMvc.perform(put("/api/v1/projects/" + projectId)
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -167,7 +171,7 @@ public class ProjectControllerTest {
         updateRequest.setDueDate(LocalDateTime.now().plusDays(2));
         updateRequest.setTags(Set.of("tag"));
 
-        mockMvc.perform(put("/api/v1/project/9999")
+        mockMvc.perform(put("/api/v1/projects/9999")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -186,15 +190,17 @@ public class ProjectControllerTest {
         request.setDueDate(LocalDateTime.now().plusDays(5));
         request.setTags(Set.of("tag1"));
 
-        String response = mockMvc.perform(post("/api/v1/project")
+        // create project
+        String response = mockMvc.perform(post("/api/v1/projects/create")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andReturn().getResponse().getContentAsString();
 
+        // delete project
         Long projectId = objectMapper.readTree(response).path("data").path("id").asLong();
 
-        mockMvc.perform(delete("/api/v1/project/" + projectId)
+        mockMvc.perform(delete("/api/v1/projects/" + projectId)
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Project deleted successfully"))
@@ -203,7 +209,7 @@ public class ProjectControllerTest {
 
     @Test
     void deleteProject_ShouldFail_WhenNotFound() throws Exception {
-        mockMvc.perform(delete("/api/v1/project/9999")
+        mockMvc.perform(delete("/api/v1/projects/9999")
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Project not found"))

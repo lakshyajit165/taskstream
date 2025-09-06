@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/project")
+@RequestMapping("/api/v1/projects")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -25,7 +25,7 @@ public class ProjectController {
     /**
      * Create new project
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<GenericResponse<ProjectResponse>> createProject(@Valid @RequestBody ProjectRequest projectRequest) {
         ProjectResponse project = projectService.createProject(projectRequest);
         return ResponseEntity.ok(new GenericResponse<>("Project created successfully", false, project));

@@ -58,7 +58,7 @@ const Login = () => {
 			try {
 				const data = await login(loginPayload);
 				localStorage.setItem("token", data.data.token);
-				showToast(data.message, "success");
+				showToast(data.message, "info");
 				navigate("/");
 			} catch (error) {
 				showToast(error.message || "Error logging in user", "error");
@@ -106,7 +106,7 @@ const Login = () => {
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
 					<Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-						Login
+						Submit
 					</Button>
 				</form>
 

@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/task")
+@RequestMapping("/api/v1/tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -19,7 +19,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<GenericResponse<Task>> createTask(@RequestBody TaskRequest taskRequest) {
         Task task = taskService.createTask(taskRequest);
         return ResponseEntity.ok(new GenericResponse<>("Task created successfully", false, task));

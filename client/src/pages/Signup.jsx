@@ -69,7 +69,7 @@ const Signup = () => {
 				const data = await signup(signupPayload);
 				// route to login page here
 				// show toast here
-				showToast(data.message || "Signup successful", "success");
+				showToast(data.message || "Signup successful", "info");
 				navigate("/login");
 			} catch (error) {
 				showToast(error.message || "Error signing up user", "error");
@@ -121,7 +121,7 @@ const Signup = () => {
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
 					<Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-						Sign Up
+						Submit
 					</Button>
 				</form>
 
