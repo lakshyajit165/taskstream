@@ -1,7 +1,7 @@
 // src/pages/CreateAndUpdateProject.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, Box, Typography, TextField, Button, Chip, Stack } from "@mui/material";
+import { Container, Box, Typography, TextField, Button, Chip, Stack, Autocomplete } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../context/ToastContext";
 import { getProjectById, createProject, updateProject } from "../api/project/projects";
@@ -28,7 +28,7 @@ const CreateAndUpdateProject = () => {
 					const project = response.data;
 					setTitle(project.title);
 					setDescription(project.description);
-					setDueDate(project.dueDate.split("T")[0]); // format YYYY-MM-DD
+					setDueDate(project.dueDate); // format YYYY-MM-DD
 					setTags(project.tags || []);
 				} catch (error) {
 					showToast(error.message || "Failed to fetch project details", "error");
@@ -60,11 +60,13 @@ const CreateAndUpdateProject = () => {
 
 		try {
 			if (isEdit) {
+				console.log(payload);
 				await updateProject(id, payload);
-				showToast("Project updated successfully!", "success");
+				showToast("Project updated successfully!", "info");
 			} else {
+				console.log(payload);
 				await createProject(payload);
-				showToast("Project created successfully!", "success");
+				showToast("Project created successfully!", "info");
 			}
 			navigate("/projects");
 		} catch (err) {
@@ -102,8 +104,10 @@ const CreateAndUpdateProject = () => {
 
 					<DatePicker
 						label="Due Date"
+						format="dd/MM/yyyy"
+						minDate={new Date()}
 						value={dueDate ? new Date(dueDate) : null}
-						onChange={(newValue) => setDueDate(newValue ? newValue.toISOString().split("T")[0] : "")}
+						onChange={(newValue) => setDueDate(newValue ? newValue.toISOString() : "")}
 						renderInput={(params) => (
 							<TextField
 								{...params}

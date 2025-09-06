@@ -51,7 +51,7 @@ export const getProjectById = async (id) => {
 	return data;
 };
 
-export const updateProject = async (projectData, id) => {
+export const updateProject = async (id, projectData) => {
 	const response = await fetch(`${BASE_URL}/${id}`, {
 		method: "PUT",
 		headers: getRequestHeaders(),

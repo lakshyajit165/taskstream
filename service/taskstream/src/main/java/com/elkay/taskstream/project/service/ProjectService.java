@@ -85,6 +85,17 @@ public class ProjectService {
         return projectRepository.findByAuthorId(authorId, pageable).map(this::mapToResponse);
     }
 
+    @Transactional(readOnly = true)
+    public ProjectResponse getProjectById(long projectId) {
+        Long authorId = getCurrentUserId();
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        if (!project.getAuthor().equals(authorId)) {
+            throw new ForbiddenException("User not allowed to update this project");
+        }
+        return mapToResponse(project);
+    }
+
     @Transactional
     public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest) {
         Long authorId = getCurrentUserId();

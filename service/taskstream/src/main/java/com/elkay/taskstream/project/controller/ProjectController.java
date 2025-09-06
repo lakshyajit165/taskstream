@@ -56,6 +56,17 @@ public class ProjectController {
     }
 
     /**
+     * Get project by ID
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<GenericResponse<ProjectResponse>> getProjectById(
+            @PathVariable Long id
+    ) {
+        ProjectResponse project = projectService.getProjectById(id);
+        return ResponseEntity.ok(new GenericResponse<>("Project fetched successfully", false, project));
+    }
+
+    /**
      * Update a project by ID
      */
     @PutMapping("/{id}")
