@@ -128,6 +128,44 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
     }
 
+    // work in progress
+    @Test
+    void getAllProjects_Success_WithPagination() throws Exception {
+        // create a project by current user
+        ProjectRequest request = new ProjectRequest();
+        request.setTitle("Global Project");
+        request.setDescription("Some description");
+        request.setDueDate(LocalDateTime.now().plusDays(4));
+        request.setTags(Set.of("tag1"));
+
+        mockMvc.perform(post("/api/v1/projects/create")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/projects/all?page=1&size=5")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Projects fetched successfully"))
+                .andExpect(jsonPath("$.error").value(Boolean.FALSE))
+                .andExpect(jsonPath("$.data.projects").isArray())
+                .andExpect(jsonPath("$.data.currentPage", is(1)))
+                .andExpect(jsonPath("$.data.totalPages").isNumber())
+                .andExpect(jsonPath("$.data.totalElements").isNumber())
+                // assert isEditable flag for the first project
+                .andExpect(jsonPath("$.data.projects[0].additionalParams.isEditable").value(true));
+    }
+
+    @Test
+    void getAllProjects_ShouldFail_WhenInvalidPageSize() throws Exception {
+        mockMvc.perform(get("/api/v1/projects/all?page=1&size=50")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
+                .andExpect(jsonPath("$.error").value(Boolean.TRUE));
+    }
+
     @Test
     void getProjectById_Success() throws Exception {
         ProjectRequest createRequest = new ProjectRequest();
