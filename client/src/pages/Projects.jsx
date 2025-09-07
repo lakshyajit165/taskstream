@@ -4,6 +4,7 @@ import { ToastContext } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, CardContent, IconButton, Alert, Button } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import ReactMarkdown from "react-markdown";
 
 const Projects = () => {
 	const { showToast } = useContext(ToastContext);
@@ -77,11 +78,21 @@ const Projects = () => {
 													{project.title}
 												</Typography>
 
-												<Typography variant="body2" color="text.secondary" noWrap>
-													{project.description}
-												</Typography>
+												<Box
+													sx={{
+														color: "text.secondary",
+														typography: "body2",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														display: "-webkit-box",
+														WebkitLineClamp: 5, // ✅ keep it 5 lines
+														WebkitBoxOrient: "vertical",
+													}}
+												>
+													<ReactMarkdown>{project.description}</ReactMarkdown>
+												</Box>
 
-												<Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+												<Typography variant="body2" color="text.secondary">
 													Due Date: {new Date(project.dueDate).toLocaleDateString()}
 												</Typography>
 											</CardContent>
