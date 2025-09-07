@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, CardContent, IconButton, Alert, Button } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ReactMarkdown from "react-markdown";
+import noDataImg from "../assets/no_data.png";
 
 const Projects = () => {
 	const { showToast } = useContext(ToastContext);
@@ -55,8 +56,11 @@ const Projects = () => {
 				) : (
 					<>
 						{projects.length === 0 ? (
-							<Box sx={{ my: 4 }}>
-								<Alert severity="info">No projects found. Please create one!</Alert>
+							<Box sx={{ my: 4, textAlign: "center" }}>
+								<img src={noDataImg} alt="No projects illustration" style={{ maxWidth: "300px", marginBottom: "16px" }} />
+								<Typography variant="body1" color="text.secondary">
+									No projects found. Please create one to get started.
+								</Typography>
 							</Box>
 						) : (
 							<Grid container spacing={4}>

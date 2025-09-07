@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../context/ToastContext";
 import { getProjectById, createProject, updateProject } from "../api/project/projects";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import addProjectImg from "../assets/add_project.png";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -77,9 +78,19 @@ const CreateAndUpdateProject = () => {
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 4 }}>
-				<Typography variant="h4" component="h2" gutterBottom>
-					{isEdit ? "Edit Project" : "Create Project"}
-				</Typography>
+				{/* Heading with image on right */}
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-between",
+					}}
+				>
+					<Typography variant="h4" component="h2" gutterBottom>
+						{isEdit ? "Edit Project" : "Create Project"}
+					</Typography>
+					<img src={addProjectImg} alt="Add" style={{ maxWidth: "100px", marginBottom: "16px" }} />
+				</Box>
 
 				<form onSubmit={handleSubmit}>
 					{/* Title */}
