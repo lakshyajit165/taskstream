@@ -77,7 +77,7 @@ const CreateAndUpdateProject = () => {
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 4 }}>
-				<Typography variant="h4" gutterBottom>
+				<Typography variant="h4" component="h2" gutterBottom>
 					{isEdit ? "Edit Project" : "Create Project"}
 				</Typography>
 
@@ -128,7 +128,7 @@ const CreateAndUpdateProject = () => {
 						onKeyDown={handleAddTag}
 						sx={{ mb: 2 }}
 					/>
-					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 3 }}>
+					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1.5, mb: 3 }}>
 						{tags.map((tag, index) => (
 							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="info" variant="outlined" />
 						))}
@@ -139,7 +139,7 @@ const CreateAndUpdateProject = () => {
 						<Button type="submit" variant="contained" color="primary">
 							{isEdit ? "Update" : "Create"}
 						</Button>
-						<Button variant="outlined" onClick={() => navigate("/projects")}>
+						<Button variant="outlined" onClick={() => navigate(-1)}>
 							Cancel
 						</Button>
 					</Box>

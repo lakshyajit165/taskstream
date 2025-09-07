@@ -8,11 +8,11 @@ import Signup from "./pages/Signup";
 import Projects from "./pages/Projects";
 import { ToastProvider } from "./components/ToastProvider";
 import "./App.css";
-import Tasks from "./pages/Tasks";
 import Settings from "./pages/Settings";
 import CreateAndUpdateProject from "./pages/CreateAndUpdateProject";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import ProjectDetails from "./pages/ProjectDetails";
 
 const theme = createTheme({
 	components: {
@@ -44,10 +44,10 @@ function App() {
 						<Route path="/*" element={<DrawerMenu />}>
 							<Route index element={<Navigate to="home" replace />} />
 							<Route path="home" element={<Home />} />
-							<Route path="tasks" element={<Tasks />} />
 							<Route path="projects" element={<Projects />} />
 							<Route path="settings" element={<Settings />} />
 							<Route path="projects/new" element={<CreateAndUpdateProject />} />
+							<Route path="projects/:id" element={<ProjectDetails />} />
 							<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
 						</Route>
 					</Routes>

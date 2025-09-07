@@ -89,14 +89,6 @@ export default function DrawerMenu() {
 							</ListItemButton>
 						</ListItem>
 						<ListItem disablePadding>
-							<ListItemButton component={Link} to="/tasks" onClick={handleDrawerClose} selected={location.pathname === "/tasks"}>
-								<ListItemIcon>
-									<TaskAltOutlinedIcon />
-								</ListItemIcon>
-								<ListItemText primary="Tasks" />
-							</ListItemButton>
-						</ListItem>
-						<ListItem disablePadding>
 							<ListItemButton component={Link} to="/projects" onClick={handleDrawerClose} selected={location.pathname.startsWith("/projects")}>
 								<ListItemIcon>
 									<DescriptionOutlinedIcon />
