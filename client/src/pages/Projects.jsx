@@ -82,7 +82,7 @@ const Projects = () => {
 
 												<Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}>
 													{project.tags.map((tag, index) => (
-														<Chip color="info" key={index} label={tag} size="small" variant="outlined" />
+														<Chip color="info" key={index} label={tag} variant="outlined" />
 													))}
 												</Stack>
 											</CardContent>

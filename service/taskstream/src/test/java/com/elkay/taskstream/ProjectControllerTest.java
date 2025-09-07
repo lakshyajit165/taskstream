@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
@@ -126,6 +127,51 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
     }
+
+    @Test
+    void getProjectById_Success() throws Exception {
+        ProjectRequest createRequest = new ProjectRequest();
+        createRequest.setTitle("Get Project by id");
+        createRequest.setDescription("Project description");
+        createRequest.setDueDate(LocalDateTime.now().plusDays(3).withHour(0).withMinute(0).withSecond(0).withNano(0));
+        createRequest.setTags(Set.of("tag1", "tag2"));
+
+        // create project
+        String createResponse = mockMvc.perform(post("/api/v1/projects/create")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        long projectId = objectMapper.readTree(createResponse).path("data").path("id").asLong();
+
+        // format with seconds
+        String expectedDueDate = createRequest.getDueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+
+        mockMvc.perform(get("/api/v1/projects/" + projectId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Project fetched successfully"))
+                .andExpect(jsonPath("$.data.id").value(projectId))
+                .andExpect(jsonPath("$.data.title").value("Get Project by id"))
+                .andExpect(jsonPath("$.data.description").value("Project description"))
+                .andExpect(jsonPath("$.data.dueDate").value(expectedDueDate))
+                .andExpect(jsonPath("$.data.tags").isArray())
+                .andExpect(jsonPath("$.data.tags[0]").value("tag1"))
+                .andExpect(jsonPath("$.data.tags[1]").value("tag2"));
+    }
+
+    @Test
+    void getProjectById_ShouldFail_WhenIdIsInvalid() throws Exception {
+        long projectId = 234234;
+        mockMvc.perform(get("/api/v1/projects/" + projectId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("true"))
+                .andExpect(jsonPath("$.message").value("Project not found"));
+    }
+
 
     // ===================== UPDATE PROJECT =====================
 

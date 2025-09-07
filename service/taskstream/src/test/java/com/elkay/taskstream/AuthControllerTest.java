@@ -108,7 +108,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("User with email already exists"))
+                .andExpect(jsonPath("$.message").value("User email already exists"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
     }
 
@@ -190,7 +190,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("User with email not found"))
+                .andExpect(jsonPath("$.message").value("User email not found"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
     }
 }

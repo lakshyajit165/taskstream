@@ -56,6 +56,27 @@ public class ProjectController {
     }
 
     /**
+     * Get all projects
+     * */
+    @GetMapping("/all")
+    public ResponseEntity<GenericResponse<PaginatedProjectResponse>> getAllProjects(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Page<ProjectResponse> projectPage = projectService.getAllProjects(page, size);
+        // Build response payload
+        PaginatedProjectResponse listProjectResponse = new PaginatedProjectResponse();
+        listProjectResponse.setProjects(projectPage.getContent());
+        listProjectResponse.setCurrentPage(projectPage.getNumber() + 1);
+        listProjectResponse.setTotalPages(projectPage.getTotalPages());
+        listProjectResponse.setTotalElements(projectPage.getTotalElements());
+        return ResponseEntity.ok(
+                new GenericResponse<>("Projects fetched successfully", false, listProjectResponse)
+        );
+    }
+
+    /**
      * Get project by ID
      */
     @GetMapping("/{id}")
