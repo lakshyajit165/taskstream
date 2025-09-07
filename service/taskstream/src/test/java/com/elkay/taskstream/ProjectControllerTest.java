@@ -4,9 +4,12 @@ import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.UserRepository;
 import com.elkay.taskstream.project.payload.ProjectRequest;
+import com.elkay.taskstream.project.repository.ProjectRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,17 +32,23 @@ public class ProjectControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    private static String jwtToken;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ProjectRepository projectRepository;
 
-    private String jwtToken;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        userRepository.deleteAll();
-
+    /**
+     * mockMvc and objectMapper are no longer static. They’re autowired into the test class normally.
+     * @BeforeAll is still static, but Spring allows us to inject beans into it by declaring parameters
+     * */
+    @BeforeAll
+    static void setUp(@Autowired MockMvc mockMvc,
+                      @Autowired ObjectMapper objectMapper) throws Exception {
         // Signup user
         SignupRequest signupRequest = new SignupRequest("John Doe", "john@example.com", "password123");
         mockMvc.perform(post("/api/v1/auth/signup")
@@ -56,6 +65,11 @@ public class ProjectControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         jwtToken = objectMapper.readTree(response).path("data").path("token").asText();
+    }
+
+    @BeforeEach
+    void clearData() {
+        projectRepository.deleteAll();
     }
 
     // ===================== CREATE PROJECT =====================
@@ -172,7 +186,7 @@ public class ProjectControllerTest {
         createRequest.setTitle("Get Project by id");
         createRequest.setDescription("Project description");
         createRequest.setDueDate(LocalDateTime.now().plusDays(3).withHour(0).withMinute(0).withSecond(0).withNano(0));
-        createRequest.setTags(Set.of("tag1", "tag2"));
+        createRequest.setTags(Set.of("tag1"));
 
         // create project
         String createResponse = mockMvc.perform(post("/api/v1/projects/create")
@@ -196,8 +210,7 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.data.description").value("Project description"))
                 .andExpect(jsonPath("$.data.dueDate").value(expectedDueDate))
                 .andExpect(jsonPath("$.data.tags").isArray())
-                .andExpect(jsonPath("$.data.tags[0]").value("tag1"))
-                .andExpect(jsonPath("$.data.tags[1]").value("tag2"));
+                .andExpect(jsonPath("$.data.tags[0]").value("tag1"));
     }
 
     @Test
