@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { getProjects } from "../api/project/projects";
 import { ToastContext } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
-import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, CardContent, IconButton, Alert, Button } from "@mui/material";
+import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, CardContent, IconButton, Button, Stack, Chip } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ReactMarkdown from "react-markdown";
 import noDataImg from "../assets/no_data.png";
@@ -39,7 +39,7 @@ const Projects = () => {
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 4 }}>
-				{/* Heading + Add Project Button (restored to original Button) */}
+				{/* Heading + Add Project Button */}
 				<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
 					<Typography variant="h4" component="h2">
 						Projects
@@ -89,16 +89,35 @@ const Projects = () => {
 														overflow: "hidden",
 														textOverflow: "ellipsis",
 														display: "-webkit-box",
-														WebkitLineClamp: 5, // ✅ keep it 5 lines
+														WebkitLineClamp: 4,
 														WebkitBoxOrient: "vertical",
+														mb: 1.5,
 													}}
 												>
 													<ReactMarkdown>{project.description}</ReactMarkdown>
 												</Box>
 
-												<Typography variant="body2" color="text.secondary">
+												<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
 													Due Date: {new Date(project.dueDate).toLocaleDateString()}
 												</Typography>
+
+												{/* ✅ Stacked Chips */}
+												{project.tags && project.tags.length > 0 && (
+													<Stack
+														direction="row"
+														spacing={1}
+														sx={{
+															flexWrap: "wrap",
+															rowGap: 1,
+															columnGap: 1,
+															mt: 1,
+														}}
+													>
+														{project.tags.map((tag, index) => (
+															<Chip key={index} label={tag} size="small" color="info" variant="outlined" />
+														))}
+													</Stack>
+												)}
 											</CardContent>
 										</Card>
 									</Grid>
