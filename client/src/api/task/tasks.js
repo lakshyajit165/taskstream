@@ -35,8 +35,8 @@ export const getTaskById = async (taskId) => {
 	return data;
 };
 
-export const getTasksByProject = async (projectId) => {
-	const response = await fetch(`${BASE_URL}/project/${projectId}`, {
+export const getTasksByProject = async (projectId, page, size) => {
+	const response = await fetch(`${BASE_URL}/project/${projectId}?page=${page}&size=${size}`, {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});

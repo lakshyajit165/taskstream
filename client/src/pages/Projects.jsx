@@ -6,6 +6,9 @@ import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, C
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ReactMarkdown from "react-markdown";
 import noDataImg from "../assets/no_data.png";
+import AddIcon from "@mui/icons-material/Add";
+import { Link as RouterLink } from "react-router-dom";
+import Link from "@mui/material/Link";
 
 const Projects = () => {
 	const { showToast } = useContext(ToastContext);
@@ -44,9 +47,9 @@ const Projects = () => {
 					<Typography variant="h4" component="h2">
 						Projects
 					</Typography>
-					<Button variant="outlined" onClick={() => navigate("/projects/new")}>
-						Add
-					</Button>
+					<Link component={RouterLink} to="/projects/new" underline="none" color="primary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+						Add <AddIcon fontSize="small" />
+					</Link>
 				</Box>
 
 				{loading ? (
@@ -78,7 +81,7 @@ const Projects = () => {
 											</IconButton>
 
 											<CardContent>
-												<Typography variant="h6" component="h2" gutterBottom>
+												<Typography variant="h6" component="h2" sx={{ mb: 1 }}>
 													{project.title}
 												</Typography>
 
@@ -91,7 +94,9 @@ const Projects = () => {
 														display: "-webkit-box",
 														WebkitLineClamp: 4,
 														WebkitBoxOrient: "vertical",
-														mb: 1.5,
+														mb: 1,
+														"& p": { m: 0 }, // remove default paragraph margins
+														"& h1, & h2, & h3, & h4, & h5, & h6": { m: 0, fontSize: "inherit" }, // flatten markdown headings
 													}}
 												>
 													<ReactMarkdown>{project.description}</ReactMarkdown>
