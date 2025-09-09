@@ -3,8 +3,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Box, Typography, TextField, Button, Chip, Stack, Autocomplete } from "@mui/material";
 import ReactMarkdown from "react-markdown";
-import { ToastContext } from "../context/ToastContext";
-import { getProjectById, createProject, updateProject } from "../api/project/projects";
+import { ToastContext } from "../../context/ToastContext";
+import { getProjectById, createProject, updateProject } from "../../api/project/projects";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const CreateAndUpdateProject = () => {

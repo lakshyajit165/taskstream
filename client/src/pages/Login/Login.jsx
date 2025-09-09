@@ -1,34 +1,24 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useContext } from "react";
 import { Box, Button, TextField, Typography, Paper, Link, Divider, FormHelperText, Collapse } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { ToastContext } from "../context/ToastContext";
-import { signup } from "../api/auth/auth";
+import { login } from "../../api/auth/auth";
+import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
-const Signup = () => {
+const Login = () => {
 	const { showToast } = useContext(ToastContext);
 	const navigate = useNavigate();
-	const [signupPayload, setSignupPayload] = useState({
-		name: "",
+
+	const [loginPayload, setLoginPayload] = useState({
 		email: "",
 		password: "",
 	});
-
 	const [errors, setErrors] = useState({});
 	const [loading, setLoading] = useState(false);
 
-	const validate = (fieldValues = signupPayload) => {
+	const validate = (fieldValues = loginPayload) => {
 		let validationErrors = { ...errors };
-
-		if ("name" in fieldValues) {
-			if (!fieldValues.name) {
-				validationErrors.name = "Name is required";
-			} else if (fieldValues.name.length < 2) {
-				validationErrors.name = "Name must be at least 2 characters";
-			} else {
-				delete validationErrors.name;
-			}
-		}
 
 		if ("email" in fieldValues) {
 			if (!fieldValues.email) {
@@ -56,27 +46,26 @@ const Signup = () => {
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
-		const newValues = { ...signupPayload, [name]: value };
-		setSignupPayload(newValues);
+		const newValues = { ...loginPayload, [name]: value };
+		setLoginPayload(newValues);
 		validate({ [name]: value }); // validate live per field
 	};
 
-	const userSignup = async (e) => {
+	const userLogin = async (e) => {
 		e.preventDefault();
-		const validationErrors = validate(signupPayload);
+		const validationErrors = validate(loginPayload);
 
 		if (Object.keys(validationErrors).length === 0) {
 			setLoading(true);
 			try {
-				const data = await signup(signupPayload);
-				// route to login page here
-				// show toast here
-				showToast(data.message || "Signup successful", "info");
+				const data = await login(loginPayload);
+				localStorage.setItem("token", data.data.token);
+				showToast(data.message, "info");
 				setLoading(false);
-				navigate("/login");
+				navigate("/");
 			} catch (error) {
+				showToast(error.message || "Error logging in user", "error");
 				setLoading(false);
-				showToast(error.message || "Error signing up user", "error");
 			}
 		}
 	};
@@ -102,37 +91,32 @@ const Signup = () => {
 					maxWidth: { xs: "100%", sm: 500 },
 				}}
 			>
-				<Typography variant="h4" sx={{ pt: 2 }}>
+				<Typography variant="h4" sx={{ pt: 2, my: 2 }}>
 					TaskStream
 				</Typography>
 				<Divider sx={{ my: 2 }} />
 
-				<Typography variant="h6" gutterBottom>
-					Sign Up
-				</Typography>
+				{/* <Typography variant="h6" gutterBottom>
+					Login
+				</Typography> */}
 
-				<form onSubmit={userSignup} noValidate>
-					<TextField fullWidth label="Name" name="name" margin="normal" value={signupPayload.name} onChange={handleInputChange} error={!!errors.name} />
-					<Collapse in={!!errors.name} timeout={300}>
-						<FormHelperText error>{errors.name}</FormHelperText>
-					</Collapse>
-					<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={signupPayload.email} onChange={handleInputChange} error={!!errors.email} />
+				<form onSubmit={userLogin} noValidate>
+					<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
 					<Collapse in={!!errors.email} timeout={300}>
 						<FormHelperText error>{errors.email}</FormHelperText>
 					</Collapse>
-					<TextField fullWidth label="Password" name="password" margin="normal" type="password" value={signupPayload.password} onChange={handleInputChange} error={!!errors.password} />
+					<TextField fullWidth label="Password" name="password" margin="normal" type="password" value={loginPayload.password} onChange={handleInputChange} error={!!errors.password} />
 					<Collapse in={!!errors.password} timeout={300}>
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
-					<Button loading={loading} loadingIndicator="Signing up..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-						Submit
+					<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+						Login
 					</Button>
 				</form>
-
 				<Typography variant="body2" sx={{ mt: 2 }}>
-					Already have an account?{" "}
-					<Link component={RouterLink} to="/login">
-						Login
+					Don't have an account?{" "}
+					<Link component={RouterLink} to="/signup">
+						Sign Up
 					</Link>
 				</Typography>
 			</Paper>
@@ -140,4 +124,4 @@ const Signup = () => {
 	);
 };
 
-export default Signup;
+export default Login;

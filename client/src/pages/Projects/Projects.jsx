@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { getProjects } from "../api/project/projects";
-import { ToastContext } from "../context/ToastContext";
+import { getProjects } from "../../api/project/projects";
+import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { Container, Box, Typography, CircularProgress, Pagination, Grid, Card, CardContent, IconButton, Button, Stack, Chip } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ReactMarkdown from "react-markdown";
-import noDataImg from "../assets/no_data.png";
+import noDataImg from "../../assets/no_data.png";
 import AddIcon from "@mui/icons-material/Add";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/material/Link";

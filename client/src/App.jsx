@@ -2,17 +2,17 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Routes, Route, Navigate } from "react-router-dom";
 import DrawerMenu from "./components/DrawerMenu";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Projects from "./pages/Projects";
+import Home from "./pages/Home/Home";
+import Login from "./pages/Login/Login";
+import Signup from "./pages/Signup/Signup";
+import Projects from "./pages/Projects/Projects";
 import { ToastProvider } from "./components/ToastProvider";
 import "./App.css";
-import Settings from "./pages/Settings";
-import CreateAndUpdateProject from "./pages/CreateAndUpdateProject";
+import Settings from "./pages/Settings/Settings";
+import CreateAndUpdateProject from "./pages/CreateAndUpdateProject/CreateAndUpdateProject";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import ProjectDetails from "./pages/ProjectDetails";
+import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
 
 const theme = createTheme({
 	components: {

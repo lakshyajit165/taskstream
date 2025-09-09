@@ -3,8 +3,8 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Box, Typography, CircularProgress, Button, Chip, Stack, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import ReactMarkdown from "react-markdown";
-import { ToastContext } from "../context/ToastContext";
-import { deleteProject, getProjectById } from "../api/project/projects";
+import { ToastContext } from "../../context/ToastContext";
+import { deleteProject, getProjectById } from "../../api/project/projects";
 
 const ProjectDetails = () => {
 	const { id } = useParams();
