@@ -7,6 +7,7 @@ import { getTasksByProject } from "../../api/task/tasks";
 import "./Home.css";
 import AddIcon from "@mui/icons-material/Add";
 import scrumBoardImg from "../../assets/scrum_board.png";
+import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
 
 export default function Home() {
 	const { showToast } = useContext(ToastContext);
@@ -14,6 +15,8 @@ export default function Home() {
 	const [selectedProject, setSelectedProject] = useState(null);
 	const [tasks, setTasks] = useState([]);
 	const [tasksLoading, setTasksLoading] = useState(false);
+	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
+	const [taskState, setTaskState] = useState(null);
 
 	// Fetch projects
 	useEffect(() => {
@@ -48,22 +51,27 @@ export default function Home() {
 
 	// Group tasks by status
 	const groupedTasks = {
-		new: [],
-		in_progress: [],
-		complete: [],
-		backlog: [],
+		NEW: [],
+		IN_PROGRESS: [],
+		COMPLETE: [],
+		BACKLOG: [],
 	};
 
 	tasks.forEach((task) => {
-		if (task.status) {
-			groupedTasks[task.status.toLowerCase()]?.push(task);
+		if (task.state) {
+			groupedTasks[task.state]?.push(task);
 		}
 	});
+
+	const createTask = (status) => {
+		setTaskState(status);
+		setOpenCreateAndUpdateTaskDialog(true);
+	};
 
 	return (
 		<Container maxWidth="xl">
 			{/* Project Selector */}
-			<Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+			<Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
 				<Autocomplete
 					options={projects}
 					getOptionLabel={(option) => option.title}
@@ -108,9 +116,17 @@ export default function Home() {
 				<Box className="task-container">
 					{Object.entries(groupedTasks).map(([status, taskList]) => (
 						<Box key={status} className="task-item">
-							<Typography variant="h6" sx={{ textTransform: "capitalize", mb: 2 }}>
-								{status.replace("_", " ")}
-							</Typography>
+							{/* Header row with Status and + button */}
+							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+								<Typography variant="h6" sx={{ textTransform: "capitalize" }}>
+									{status.replace("_", " ")}
+								</Typography>
+								<Button variant="outlined" size="small" onClick={() => createTask(status)} startIcon={<AddIcon />}>
+									Add
+								</Button>
+							</Box>
+
+							{/* Task list */}
 							{taskList.length > 0 ? (
 								<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
 									{taskList.map((task) => (
@@ -129,12 +145,12 @@ export default function Home() {
 									No tasks found.
 								</Typography>
 							)}
-							<Button variant="outlined" fullWidth>
-								<AddIcon />
-							</Button>
 						</Box>
 					))}
 				</Box>
+			)}
+			{openCreateAndUpdateTaskDialog && (
+				<CreateAndUpdateTask open={openCreateAndUpdateTaskDialog} onClose={() => setOpenCreateAndUpdateTaskDialog(false)} project={selectedProject} taskState={taskState} />
 			)}
 		</Container>
 	);

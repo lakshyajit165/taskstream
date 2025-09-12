@@ -24,6 +24,13 @@ const theme = createTheme({
 				},
 			},
 		},
+		MuiTab: {
+			styleOverrides: {
+				root: {
+					textTransform: "none",
+				},
+			},
+		},
 	},
 	typography: {
 		fontFamily: '"Lato", sans-serif',
