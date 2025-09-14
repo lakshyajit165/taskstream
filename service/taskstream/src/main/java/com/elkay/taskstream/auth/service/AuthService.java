@@ -14,6 +14,7 @@ import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -36,6 +37,7 @@ public class AuthService {
      * if not, saves the user with appropriate role
      * and returns a success message
      * */
+    @Transactional
     public String signup(SignupRequest signupRequest) {
         // Check if user already exists
         userRepository.findByEmail(signupRequest.getEmail()).ifPresent(u -> {
@@ -71,6 +73,7 @@ public class AuthService {
      * Checks if the password is valid
      * if yes, logs the user in and returns a jwt token
      * */
+    @Transactional
     public String login(LoginRequest loginRequest) {
         // Fetch user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())
