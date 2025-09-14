@@ -16,6 +16,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { ToastContext } from "../context/ToastContext";
+import { userLogout } from "../api/utils/apiUtils";
 
 const drawerWidth = 240;
 
@@ -36,7 +37,7 @@ const DrawerMenu = () => {
 	const handleLogoutDialogClose = () => setLogoutDialogOpen(false);
 
 	const handleLogout = () => {
-		localStorage.removeItem("token");
+		userLogout();
 		navigate("/login");
 		showToast("Logout successful", "info");
 	};

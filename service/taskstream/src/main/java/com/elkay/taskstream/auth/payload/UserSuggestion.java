@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * Doesn't include the additionalParams field
+ * in the response if it's null
+ * */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserSuggestion implements Serializable {
     private Long id;

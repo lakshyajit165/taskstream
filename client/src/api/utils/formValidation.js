@@ -1,0 +1,105 @@
+// --- Signup Validation ---
+export const validateSignup = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+
+	if ("name" in values) {
+		if (!values.name) {
+			validationErrors.name = "Name is required";
+		} else if (values.name.length < 2) {
+			validationErrors.name = "Name must be at least 2 characters";
+		} else {
+			delete validationErrors.name;
+		}
+	}
+
+	if ("email" in values) {
+		if (!values.email) {
+			validationErrors.email = "Email is required";
+		} else if (!/\S+@\S+\.\S+/.test(values.email)) {
+			validationErrors.email = "Email is not valid";
+		} else {
+			delete validationErrors.email;
+		}
+	}
+
+	if ("password" in values) {
+		if (!values.password) {
+			validationErrors.password = "Password is required";
+		} else if (values.password.length < 6) {
+			validationErrors.password = "Password must be at least 6 characters";
+		} else {
+			delete validationErrors.password;
+		}
+	}
+
+	return validationErrors;
+};
+
+// --- Login Validation ---
+export const validateLogin = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+
+	if ("email" in values) {
+		if (!values.email) {
+			validationErrors.email = "Email is required";
+		} else if (!/\S+@\S+\.\S+/.test(values.email)) {
+			validationErrors.email = "Email is not valid";
+		} else {
+			delete validationErrors.email;
+		}
+	}
+
+	if ("password" in values) {
+		if (!values.password) {
+			validationErrors.password = "Password is required";
+		} else if (values.password.length < 6) {
+			validationErrors.password = "Password must be at least 6 characters";
+		} else {
+			delete validationErrors.password;
+		}
+	}
+
+	return validationErrors;
+};
+
+export const validateProject = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+
+	if ("title" in values) {
+		if (!values.title) {
+			validationErrors.title = "Title is required";
+		} else if (values.title.length < 3) {
+			validationErrors.title = "Title must be at least 3 characters";
+		} else {
+			delete validationErrors.title;
+		}
+	}
+
+	if ("description" in values) {
+		if (!values.description) {
+			validationErrors.description = "Description is required";
+		} else if (values.description.length < 10) {
+			validationErrors.description = "Description must be at least 10 characters";
+		} else {
+			delete validationErrors.description;
+		}
+	}
+
+	if ("dueDate" in values) {
+		if (!values.dueDate) {
+			validationErrors.dueDate = "Due Date is required";
+		} else {
+			delete validationErrors.dueDate;
+		}
+	}
+
+	if ("tags" in values) {
+		if (!values.tags || values.tags.length === 0) {
+			validationErrors.tags = "At least one tag is required";
+		} else {
+			delete validationErrors.tags;
+		}
+	}
+
+	return validationErrors;
+};

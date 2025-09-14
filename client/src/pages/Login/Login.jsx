@@ -4,7 +4,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { login } from "../../api/auth/auth";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
-import CircularProgress from "@mui/material/CircularProgress";
+import { validateLogin } from "../../api/utils/formValidation";
+import { setAuthToken } from "../../api/utils/apiUtils";
 
 const Login = () => {
 	const { showToast } = useContext(ToastContext);
@@ -18,28 +19,7 @@ const Login = () => {
 	const [loading, setLoading] = useState(false);
 
 	const validate = (fieldValues = loginPayload) => {
-		let validationErrors = { ...errors };
-
-		if ("email" in fieldValues) {
-			if (!fieldValues.email) {
-				validationErrors.email = "Email is required";
-			} else if (!/\S+@\S+\.\S+/.test(fieldValues.email)) {
-				validationErrors.email = "Email is not valid";
-			} else {
-				delete validationErrors.email;
-			}
-		}
-
-		if ("password" in fieldValues) {
-			if (!fieldValues.password) {
-				validationErrors.password = "Password is required";
-			} else if (fieldValues.password.length < 6) {
-				validationErrors.password = "Password must be at least 6 characters";
-			} else {
-				delete validationErrors.password;
-			}
-		}
-
+		let validationErrors = validateLogin(fieldValues);
 		setErrors(validationErrors);
 		return validationErrors;
 	};
@@ -58,9 +38,9 @@ const Login = () => {
 		if (Object.keys(validationErrors).length === 0) {
 			setLoading(true);
 			try {
-				const data = await login(loginPayload);
-				localStorage.setItem("token", data.data.token);
-				showToast(data.message, "info");
+				const loginResponse = await login(loginPayload);
+				setAuthToken(loginResponse.data.token);
+				showToast(loginResponse.message, "info");
 				setLoading(false);
 				navigate("/");
 			} catch (error) {
