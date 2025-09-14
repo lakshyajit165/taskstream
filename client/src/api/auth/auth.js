@@ -1,3 +1,5 @@
+import { getResponse } from "../utils/apiUtils";
+
 const BASE_URL = "http://localhost:8000/api/v1/auth";
 
 export const login = async (loginData) => {
@@ -9,13 +11,7 @@ export const login = async (loginData) => {
 		body: JSON.stringify(loginData),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Login failed");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -28,11 +24,6 @@ export const signup = async (signupData) => {
 		body: JSON.stringify(signupData),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.message || "Signup failed");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };

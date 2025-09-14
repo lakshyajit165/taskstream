@@ -9,7 +9,7 @@ import AddIcon from "@mui/icons-material/Add";
 import scrumBoardImg from "../../assets/scrum_board.png";
 import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
 
-export default function Home() {
+const Home = () => {
 	const { showToast } = useContext(ToastContext);
 	const [projects, setProjects] = useState([]);
 	const [selectedProject, setSelectedProject] = useState(null);
@@ -154,4 +154,6 @@ export default function Home() {
 			)}
 		</Container>
 	);
-}
+};
+
+export default Home;

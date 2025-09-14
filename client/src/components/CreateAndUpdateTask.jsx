@@ -203,9 +203,16 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 							minDate={new Date()}
 							maxDate={new Date(project.dueDate)}
 							value={taskPayload.dueDate ? new Date(taskPayload.dueDate) : null}
-							onChange={handleChange}
+							onChange={(newValue) => {
+								setTaskPayload((prev) => ({
+									...prev,
+									dueDate: newValue ? newValue.toISOString() : "",
+								}));
+								validateTaskPayload({ dueDate: newValue ? newValue.toISOString() : "" });
+							}}
 							renderInput={(params) => (
 								<TextField
+									name="dueDate"
 									{...params}
 									fullWidth // ✅ Full width applied here
 									sx={{ mb: 3 }}

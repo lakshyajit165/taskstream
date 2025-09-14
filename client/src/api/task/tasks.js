@@ -1,4 +1,4 @@
-import { getRequestHeaders } from "../utils/apiUtils";
+import { getRequestHeaders, getResponse } from "../utils/apiUtils";
 
 const BASE_URL = "http://localhost:8000/api/v1/tasks";
 
@@ -9,13 +9,7 @@ export const createTask = async (taskPayload) => {
 		body: JSON.stringify(taskPayload),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error adding task");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -25,13 +19,7 @@ export const getTaskById = async (taskId) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error fetching task");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -41,13 +29,7 @@ export const getTasksByProject = async (projectId, page, size) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error fetching tasks");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -58,13 +40,7 @@ export const updateTask = async (taskId, taskPayload) => {
 		body: JSON.stringify(taskPayload),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error updating task");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -74,12 +50,6 @@ export const deleteTask = async (taskId) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error deleting task");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };

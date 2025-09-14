@@ -1,4 +1,4 @@
-import { getRequestHeaders } from "../utils/apiUtils";
+import { getRequestHeaders, getResponse } from "../utils/apiUtils";
 
 const BASE_URL = "http://localhost:8000/api/v1/projects";
 
@@ -25,13 +25,7 @@ export const getProjects = async (page, size) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error fetching projects");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -41,13 +35,7 @@ export const getProjectById = async (id) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error fetching project");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -58,13 +46,7 @@ export const updateProject = async (id, projectData) => {
 		body: JSON.stringify(projectData),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error updating project");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };
 
@@ -74,12 +56,6 @@ export const deleteProject = async (id) => {
 		headers: getRequestHeaders(),
 	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error deleting project");
-	}
-
+	const data = await getResponse(response);
 	return data;
 };

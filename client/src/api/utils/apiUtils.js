@@ -9,3 +9,12 @@ export const getRequestHeaders = () => {
 	};
 	return headers;
 };
+
+export const getResponse = async (response) => {
+	const data = await response.json();
+	if (!response.ok) {
+		// The server sends { message, error: true } for 4xx/5xx
+		throw new Error(data.message || "Error adding task");
+	}
+	return data;
+};

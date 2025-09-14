@@ -19,7 +19,7 @@ import { ToastContext } from "../context/ToastContext";
 
 const drawerWidth = 240;
 
-export default function DrawerMenu() {
+const DrawerMenu = () => {
 	const { showToast } = useContext(ToastContext);
 	const navigate = useNavigate();
 	const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -159,4 +159,6 @@ export default function DrawerMenu() {
 			</Box>
 		</Box>
 	);
-}
+};
+
+export default DrawerMenu;
