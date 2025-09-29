@@ -1,4 +1,3 @@
-// src/components/CreateAndUpdateTask.jsx
 import React, { useState, useEffect } from "react";
 import {
 	Dialog,
@@ -21,26 +20,22 @@ import {
 	Autocomplete,
 	FormHelperText,
 	Collapse,
+	CircularProgress,
+	Tooltip,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CloseIcon from "@mui/icons-material/Close";
+import InfoIcon from "@mui/icons-material/Info";
 import ReactMarkdown from "react-markdown";
+import { validateTaskPayload } from "../api/utils/formValidation";
+validateTaskPayload;
 
 const mockUsers = [
 	{ id: 1, name: "Alice" },
 	{ id: 2, name: "Bob" },
 	{ id: 3, name: "Charlie" },
 ];
-
-const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
-	// Log project + taskState when component mounts
-	useEffect(() => {
-		console.log("CreateAndUpdateTask opened with:");
-		console.log("Project:", project);
-		console.log("Task State:", taskState);
-	}, [project, taskState]);
-
-	// Form state
+const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 	const [taskPayload, setTaskPayload] = useState({
 		title: "",
 		description: "",
@@ -53,21 +48,20 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 		targetVersion: "",
 		restrictedEdit: false,
 	});
-
-	// form errors
 	const [errors, setErrors] = useState({});
+	const [loading, setLoading] = useState(false);
 
 	// Markdown editor tab (write/preview)
 	const [tab, setTab] = useState("write");
 
-	// Handlers
-	const handleChange = (e) => {
+	const handleInputChange = (e) => {
 		const { name, value } = e.target;
-		validateTaskPayload({ [name]: value });
-		setTaskPayload((prev) => ({ ...prev, [name]: value }));
+		const newValues = { ...taskPayload, [name]: value };
+		setTaskPayload(newValues);
+		validateTaskPayload({ [name]: value }); // validate live per field
 	};
 
-	const handleCheckboxChange = (e) => {
+	const handleRestrictedEditChange = (e) => {
 		const { name, checked } = e.target;
 		setTaskPayload((prev) => ({ ...prev, [name]: checked }));
 	};
@@ -75,65 +69,12 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 	const createTask = (e) => {
 		e.preventDefault();
 		const validationErrors = validateTaskPayload(taskPayload);
+		if (validationErrors) {
+			setErrors(validationErrors);
+		}
 		console.log("Form Submitted:", taskPayload);
 		// onClose();
 	};
-
-	const validateTaskPayload = (fieldValues = taskPayload) => {
-		let validationErrors = { ...errors };
-		if ("title" in fieldValues) {
-			if (!fieldValues.title) {
-				validationErrors.title = "Title is required";
-			} else {
-				delete validationErrors.title;
-			}
-		}
-		if ("description" in fieldValues) {
-			if (!fieldValues.description) {
-				validationErrors.description = "Description is required";
-			} else {
-				delete validationErrors.description;
-			}
-		}
-		if ("dueDate" in fieldValues) {
-			if (!fieldValues.dueDate) {
-				validationErrors.dueDate = "Due date is required";
-			} else {
-				delete validationErrors.dueDate;
-			}
-		}
-		if ("priority" in fieldValues) {
-			if (!fieldValues.priority) {
-				validationErrors.priority = "Priority is required";
-			} else {
-				validationErrors.priority;
-			}
-		}
-		if ("type" in fieldValues) {
-			if (!fieldValues.type) {
-				validationErrors.type = "Type is required";
-			} else {
-				delete validationErrors.type;
-			}
-		}
-		if ("assignedTo" in fieldValues) {
-			if (!fieldValues.assignedTo) {
-				validationErrors.assignedTo = "Assigned to is required";
-			} else {
-				delete validationErrors.assignedTo;
-			}
-		}
-		if ("targetVersion" in fieldValues) {
-			if (!fieldValues.targetVersion) {
-				validationErrors.targetVersion = "Target version is required";
-			} else {
-				delete validationErrors.targetVersion;
-			}
-		}
-		setErrors(validationErrors);
-		return validationErrors;
-	};
-
 	return (
 		<Dialog fullScreen open={open} onClose={onClose}>
 			<AppBar sx={{ position: "relative" }}>
@@ -144,134 +85,163 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 					<Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
 						Create Task
 					</Typography>
-					<Button autoFocus color="inherit" onClick={createTask}>
-						Save
+					<Button
+						autoFocus
+						color="inherit"
+						onClick={createTask}
+						disabled={loading} // <--- DISABLE WHILE LOADING
+					>
+						{loading ? ( // <--- CONDITIONAL CONTENT
+							<Box sx={{ display: "flex", alignItems: "center" }}>
+								<CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+								Saving...
+							</Box>
+						) : (
+							"Save"
+						)}
 					</Button>
 				</Toolbar>
 			</AppBar>
-
 			<Container sx={{ maxWidth: { xs: 400, sm: 600 }, py: 4 }}>
 				<form onSubmit={createTask}>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-						<TextField label="Title" name="title" margin="normal" value={taskPayload.title} onChange={handleChange} error={!!errors.title} />
-						<Collapse in={!!errors.title} timeout={300}>
-							<FormHelperText error>{errors.title}</FormHelperText>
-						</Collapse>
-						{/* Project (read-only) */}
-						<TextField label="Project" value={project?.title || ""} readOnly />
-						{/* Markdown-enabled Description */}
-						<Box>
-							<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 1 }}>
-								<Tab value="write" label="Write" />
-								<Tab value="preview" label="Preview" />
-							</Tabs>
-							{tab === "write" ? (
-								<>
-									<TextField
-										label="Description"
-										name="description"
-										multiline
-										rows={4}
-										fullWidth
-										value={taskPayload.description}
-										onChange={handleChange}
-										error={!!errors.description}
-									/>
-									<Collapse in={!!errors.description} timeout={300}>
-										<FormHelperText error>{errors.description}</FormHelperText>
-									</Collapse>
-								</>
-							) : (
-								<Box
-									sx={{
-										border: "1px solid #ccc",
-										borderRadius: 1,
-										p: 2,
-										minHeight: "100px",
-										backgroundColor: "#fafafa",
-									}}
-								>
-									<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
-								</Box>
-							)}
-						</Box>
+					{/* Title */}
+					<TextField fullWidth label="Title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
+					<Collapse in={!!errors.title}>
+						<FormHelperText error>{errors.title}</FormHelperText>
+					</Collapse>
 
-						{/* Date only */}
-						<DatePicker
-							label="Due Date"
-							format="dd/MM/yyyy"
-							minDate={new Date()}
-							maxDate={new Date(project.dueDate)}
-							value={taskPayload.dueDate ? new Date(taskPayload.dueDate) : null}
-							onChange={(newValue) => {
-								setTaskPayload((prev) => ({
-									...prev,
-									dueDate: newValue ? newValue.toISOString() : "",
-								}));
-								validateTaskPayload({ dueDate: newValue ? newValue.toISOString() : "" });
-							}}
-							renderInput={(params) => (
+					{/* Project (read-only) */}
+					<TextField fullWidth label="Project" value={project?.title || ""} readOnly margin="normal" />
+
+					{/* Markdown-enabled Description */}
+					<Box sx={{ marginBottom: "2px" }}>
+						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 1 }}>
+							<Tab value="write" label="Write" />
+							<Tab value="preview" label="Preview" />
+						</Tabs>
+						{tab === "write" ? (
+							<>
 								<TextField
-									name="dueDate"
-									{...params}
-									fullWidth // ✅ Full width applied here
-									sx={{ mb: 3 }}
+									label="Description"
+									name="description"
+									multiline
+									rows={4}
+									fullWidth
+									value={taskPayload.description}
+									onChange={handleInputChange}
+									error={!!errors.description}
 								/>
-							)}
-							sx={{ width: "100%" }} // optional: ensure container width
-							error={!!errors.dueDate}
-						/>
-						<Collapse in={!!errors.dueDate} timeout={300}>
-							<FormHelperText error>{errors.dueDate}</FormHelperText>
-						</Collapse>
-						{/* State (read-only) */}
-						<TextField label="State" value={taskState || ""} readOnly />
+								<Collapse in={!!errors.description}>
+									<FormHelperText error>{errors.description}</FormHelperText>
+								</Collapse>
+							</>
+						) : (
+							<Box
+								sx={{
+									border: "1px solid #ccc",
+									borderRadius: 1,
+									p: 2,
+									minHeight: "100px",
+									backgroundColor: "#fafafa",
+								}}
+							>
+								<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
+							</Box>
+						)}
+					</Box>
+					{/* Due Date */}
+					<DatePicker
+						label="Due Date"
+						format="dd/MM/yyyy"
+						minDate={new Date()}
+						maxDate={new Date(project.dueDate)}
+						value={taskPayload.dueDate ? new Date(taskPayload.dueDate) : null}
+						onChange={(newValue) => {
+							setTaskPayload((prev) => ({
+								...prev,
+								dueDate: newValue ? newValue.toISOString() : "",
+							}));
+							validateTaskPayload({ dueDate: newValue ? newValue.toISOString() : "" });
+						}}
+						slotProps={{
+							textField: {
+								fullWidth: true,
+								margin: "normal",
+								error: !!errors.dueDate,
+							},
+						}}
+					/>
+					<Collapse in={!!errors.dueDate}>
+						<FormHelperText error>{errors.dueDate}</FormHelperText>
+					</Collapse>
 
-						{/* Priority */}
-						<FormControl fullWidth error={!!errors.priority}>
-							<InputLabel>Priority</InputLabel>
-							<Select name="priority" value={taskPayload.priority} onChange={handleChange} label="Priority">
-								<MenuItem value="LOW">Low</MenuItem>
-								<MenuItem value="MEDIUM">Medium</MenuItem>
-								<MenuItem value="HIGH">High</MenuItem>
-							</Select>
-						</FormControl>
-						<Collapse in={!!errors.priority} timeout={300}>
-							<FormHelperText error>{errors.priority}</FormHelperText>
-						</Collapse>
+					{/* State (read-only) */}
+					<TextField fullWidth label="State" value={taskState || ""} readOnly margin="normal" />
 
-						{/* Type */}
-						<FormControl fullWidth error={!!errors.type}>
-							<InputLabel>Type</InputLabel>
-							<Select name="type" value={taskPayload.type} onChange={handleChange} label="Type">
-								<MenuItem value="FEATURE">Feature</MenuItem>
-								<MenuItem value="DEFECT">Defect</MenuItem>
-								<MenuItem value="CUSTOMIZATION">Customization</MenuItem>
-								<MenuItem value="BACKPORT">BackPort</MenuItem>
-								<MenuItem value="FORWARDPORT">ForwardPort</MenuItem>
-							</Select>
-						</FormControl>
-						<Collapse in={!!errors.type} timeout={300}>
-							<FormHelperText error>{errors.type}</FormHelperText>
-						</Collapse>
+					{/* Priority */}
 
-						{/* Assigned To (Autocomplete) */}
-						<Autocomplete
-							options={mockUsers}
-							getOptionLabel={(option) => option?.name || ""} // safe access
-							value={taskPayload.assignedTo}
-							onChange={(e, newValue) => setTaskPayload((prev) => ({ ...prev, assignedTo: newValue }))}
-							renderInput={(params) => <TextField {...params} label="Assigned To" error={!!errors.assignedTo} />}
-						/>
-						<Collapse in={!!errors.assignedTo} timeout={300}>
-							<FormHelperText error>{errors.assignedTo}</FormHelperText>
-						</Collapse>
+					<FormControl fullWidth error={!!errors.priority} margin="normal">
+						<InputLabel>Priority</InputLabel>
+						<Select name="priority" value={taskPayload.priority} onChange={handleInputChange} label="Priority">
+							<MenuItem value="LOW">Low</MenuItem>
+							<MenuItem value="MEDIUM">Medium</MenuItem>
+							<MenuItem value="HIGH">High</MenuItem>
+						</Select>
+					</FormControl>
+					<Collapse in={!!errors.priority}>
+						<FormHelperText error>{errors.priority}</FormHelperText>
+					</Collapse>
 
-						<TextField label="Target Version" name="targetVersion" value={taskPayload.targetVersion} onChange={handleChange} error={!!errors.targetVersion} />
-						<Collapse in={!!errors.targetVersion} timeout={300}>
-							<FormHelperText error>{errors.targetVersion}</FormHelperText>
-						</Collapse>
-						<FormControlLabel control={<Checkbox checked={taskPayload.restrictedEdit} onChange={handleCheckboxChange} name="restrictedEdit" />} label="Restricted Edit" />
+					{/* Type */}
+
+					<FormControl fullWidth error={!!errors.type} margin="normal">
+						<InputLabel>Type</InputLabel>
+						<Select name="type" value={taskPayload.type} onChange={handleInputChange} label="Type">
+							<MenuItem value="FEATURE">Feature</MenuItem>
+							<MenuItem value="DEFECT">Defect</MenuItem>
+							<MenuItem value="CUSTOMIZATION">Customization</MenuItem>
+							<MenuItem value="BACKPORT">BackPort</MenuItem>
+							<MenuItem value="FORWARDPORT">ForwardPort</MenuItem>
+						</Select>
+					</FormControl>
+
+					<Collapse in={!!errors.type}>
+						<FormHelperText error>{errors.type}</FormHelperText>
+					</Collapse>
+
+					{/* Assigned To */}
+					<Autocomplete
+						fullWidth
+						options={mockUsers}
+						getOptionLabel={(option) => option?.name || ""}
+						value={taskPayload.assignedTo}
+						onChange={(e, newValue) => setTaskPayload((prev) => ({ ...prev, assignedTo: newValue }))}
+						sx={{ mt: 2, mb: 1 }} // <-- ADD CUSTOM MARGIN FOR SPACING CONSISTENCY
+						renderInput={(params) => <TextField {...params} label="Assigned To" error={!!errors.assignedTo} />}
+					/>
+					<Collapse in={!!errors.assignedTo}>
+						<FormHelperText error>{errors.assignedTo}</FormHelperText>
+					</Collapse>
+
+					{/* Target Version */}
+					<TextField
+						fullWidth
+						label="Target Version"
+						name="targetVersion"
+						value={taskPayload.targetVersion}
+						onChange={handleInputChange}
+						error={!!errors.targetVersion}
+						sx={{ mt: 2, mb: 1 }} // <-- ADD CUSTOM MARGIN FOR SPACING CONSISTENCY
+					/>
+					<Collapse in={!!errors.targetVersion}>
+						<FormHelperText error>{errors.targetVersion}</FormHelperText>
+					</Collapse>
+					{/* Restricted Edit */}
+					<Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+						<FormControlLabel control={<Checkbox checked={taskPayload.restrictedEdit} onChange={handleRestrictedEditChange} name="restrictedEdit" />} label="Restricted Edit" />
+						<Tooltip title={<Typography sx={{ fontSize: "14px" }}>If checked, only task owners can modify this task.</Typography>} arrow>
+							<InfoIcon color="action" sx={{ fontSize: 25 }} />
+						</Tooltip>
 					</Box>
 				</form>
 			</Container>
@@ -279,4 +249,4 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 	);
 };
 
-export default CreateAndUpdateTask;
+export default CreateAndUpdateTask2;

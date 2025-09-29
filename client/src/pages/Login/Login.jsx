@@ -76,10 +76,6 @@ const Login = () => {
 				</Typography>
 				<Divider sx={{ my: 2 }} />
 
-				{/* <Typography variant="h6" gutterBottom>
-					Login
-				</Typography> */}
-
 				<form onSubmit={userLogin} noValidate>
 					<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
 					<Collapse in={!!errors.email} timeout={300}>

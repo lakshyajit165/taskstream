@@ -62,6 +62,7 @@ export const validateLogin = (values, errors = {}) => {
 	return validationErrors;
 };
 
+// validate project payload
 export const validateProject = (values, errors = {}) => {
 	let validationErrors = { ...errors };
 
@@ -101,5 +102,38 @@ export const validateProject = (values, errors = {}) => {
 		}
 	}
 
+	return validationErrors;
+};
+
+export const validateTaskPayload = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+	if ("title" in values) {
+		if (!values.title) validationErrors.title = "Title is required";
+		else delete validationErrors.title;
+	}
+	if ("description" in values) {
+		if (!values.description) validationErrors.description = "Description is required";
+		else delete validationErrors.description;
+	}
+	if ("dueDate" in values) {
+		if (!values.dueDate) validationErrors.dueDate = "Due date is required";
+		else delete validationErrors.dueDate;
+	}
+	if ("priority" in values) {
+		if (!values.priority) validationErrors.priority = "Priority is required";
+		else delete validationErrors.priority;
+	}
+	if ("type" in values) {
+		if (!values.type) validationErrors.type = "Task type is required";
+		else delete validationErrors.type;
+	}
+	if ("assignedTo" in values) {
+		if (!values.assignedTo) validationErrors.assignedTo = "User assigned to is required";
+		else delete validationErrors.assignedTo;
+	}
+	if ("targetVersion" in values) {
+		if (!values.targetVersion) validationErrors.targetVersion = "Target version is required";
+		else delete validationErrors.targetVersion;
+	}
 	return validationErrors;
 };
