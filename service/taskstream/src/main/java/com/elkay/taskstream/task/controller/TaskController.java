@@ -20,31 +20,18 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    /**
-     * In Spring Security:
-     * Authorities are stored as strings like "ROLE_ADMIN", "ROLE_USER".
-     * hasRole("X") automatically prepends "ROLE_".
-     * hasAuthority("ROLE_X") checks the full string.
-     * So if your UserDetails has authorities like "ROLE_ADMIN", then:
-     * @PreAuthorize("hasRole('ADMIN')")
-     * works (because hasRole adds ROLE_ internally).
-     */
-
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<GenericResponse<Task>> createTask(@RequestBody TaskRequest taskRequest) {
         Task task = taskService.createTask(taskRequest);
         return ResponseEntity.ok(new GenericResponse<>("Task created successfully", false, task));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     public ResponseEntity<GenericResponse<Task>> getTask(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
         return ResponseEntity.ok(new GenericResponse<>("Task fetched successfully", false, task));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/project/{projectId}")
     public ResponseEntity<GenericResponse<PaginatedTaskResponse>> getTasksByProject(
             @PathVariable Long projectId,
@@ -62,7 +49,6 @@ public class TaskController {
         return ResponseEntity.ok(new GenericResponse<>("Tasks fetched successfully", false, paginatedTaskResponse));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<GenericResponse<Task>> updateTask(
             @PathVariable Long id,
@@ -72,7 +58,6 @@ public class TaskController {
         return ResponseEntity.ok(new GenericResponse<>("Task updated successfully", false, task));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<GenericResponse<Void>> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);

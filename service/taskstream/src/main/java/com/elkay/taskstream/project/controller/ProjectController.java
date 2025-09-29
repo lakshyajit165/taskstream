@@ -10,6 +10,7 @@ import com.elkay.taskstream.project.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +24,16 @@ public class ProjectController {
     }
 
     /**
-     * Create new project
+     * In Spring Security:
+     * Authorities are stored as strings like "ROLE_ADMIN", "ROLE_USER".
+     * hasRole("X") automatically prepends "ROLE_".
+     * hasAuthority("ROLE_X") checks the full string.
+     * So if your UserDetails has authorities like "ROLE_ADMIN", then:
+     * @PreAuthorize("hasRole('ADMIN')")
+     * works (because hasRole adds ROLE_ internally).
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<GenericResponse<ProjectResponse>> createProject(@Valid @RequestBody ProjectRequest projectRequest) {
         ProjectResponse project = projectService.createProject(projectRequest);
@@ -90,6 +99,7 @@ public class ProjectController {
     /**
      * Update a project by ID
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<GenericResponse<ProjectResponse>> updateProject(
             @PathVariable Long id,
@@ -102,6 +112,7 @@ public class ProjectController {
     /**
      * Delete a project by ID
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<GenericResponse<Void>> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);

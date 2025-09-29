@@ -5,6 +5,7 @@ import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.UserRepository;
 import com.elkay.taskstream.project.payload.ProjectRequest;
 import com.elkay.taskstream.project.repository.ProjectRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Tells JUnit to create only one instance of the test class
 public class ProjectControllerTest {
 
     @Autowired
@@ -34,7 +36,8 @@ public class ProjectControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static String jwtToken;
+    private static String jwtTokenAdmin;
+    private static String jwtTokenUser;
 
     @Autowired
     private UserRepository userRepository;
@@ -42,29 +45,22 @@ public class ProjectControllerTest {
     @Autowired
     private ProjectRepository projectRepository;
 
+    private static final String ADMIN_EMAIL = "john.doe@gmail.com";
+    private static final String USER_EMAIL = "jane.doe@gmail.com";
+
     /**
      * mockMvc and objectMapper are no longer static. They’re autowired into the test class normally.
      * @BeforeAll is still static, but Spring allows us to inject beans into it by declaring parameters
      * */
     @BeforeAll
-    static void setUp(@Autowired MockMvc mockMvc,
-                      @Autowired ObjectMapper objectMapper) throws Exception {
-        // Signup user
-        SignupRequest signupRequest = new SignupRequest("John Doe", "john@example.com", "password123");
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signupRequest)))
-                .andExpect(status().isOk());
-
-        // Login to get JWT token
-        LoginRequest loginRequest = new LoginRequest("john@example.com", "password123");
-        String response = mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        jwtToken = objectMapper.readTree(response).path("data").path("token").asText();
+    void setUp(@Autowired MockMvc mockMvc,
+                      @Autowired ObjectMapper objectMapper) {
+        try {
+            jwtTokenAdmin = getJwtToken(ADMIN_EMAIL);
+            jwtTokenUser = getJwtToken(USER_EMAIL);
+        } catch (Exception e) {
+            System.out.println("Error setting up users");
+        }
     }
 
     @BeforeEach
@@ -83,7 +79,7 @@ public class ProjectControllerTest {
         request.setTags(Set.of("tag1", "tag2"));
 
         mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -106,6 +102,23 @@ public class ProjectControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void createProject_ShouldFail_WhenCreatedByNonAdmin() throws Exception {
+        ProjectRequest request = new ProjectRequest();
+        request.setTitle("Project created by non admin");
+        request.setDescription("Desc");
+        request.setDueDate(LocalDateTime.now().plusDays(5));
+        request.setTags(Set.of("tag"));
+
+        mockMvc.perform(post("/api/v1/projects/create")
+                        .header("Authorization", "Bearer " + jwtTokenUser)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("true"))
+                .andExpect(jsonPath("$.message").value("User not authorized to perform this action"));
+    }
+
     // ===================== GET PROJECTS =====================
 
     @Test
@@ -117,16 +130,16 @@ public class ProjectControllerTest {
         request.setDueDate(LocalDateTime.now().plusDays(5));
         request.setTags(Set.of("tag1"));
 
-        // create project
+        // create project(by admin)
         mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        // get projects
+        // get projects (for a normal user)
         mockMvc.perform(get("/api/v1/projects?page=1&size=5")
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenUser))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.projects").isArray())
                 .andExpect(jsonPath("$.data.currentPage", is(1)))
@@ -136,7 +149,7 @@ public class ProjectControllerTest {
     @Test
     void getMyProjects_ShouldFail_WhenInvalidPageSize() throws Exception {
         mockMvc.perform(get("/api/v1/projects?page=1&size=20")
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenUser))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
@@ -153,13 +166,13 @@ public class ProjectControllerTest {
         request.setTags(Set.of("tag1"));
 
         mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/projects/all?page=1&size=5")
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)) // can be jwtTokenUser too
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Projects fetched successfully"))
                 .andExpect(jsonPath("$.error").value(Boolean.FALSE))
@@ -174,7 +187,7 @@ public class ProjectControllerTest {
     @Test
     void getAllProjects_ShouldFail_WhenInvalidPageSize() throws Exception {
         mockMvc.perform(get("/api/v1/projects/all?page=1&size=50")
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenUser))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
@@ -190,7 +203,7 @@ public class ProjectControllerTest {
 
         // create project
         String createResponse = mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isOk())
@@ -202,7 +215,7 @@ public class ProjectControllerTest {
         String expectedDueDate = createRequest.getDueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
         mockMvc.perform(get("/api/v1/projects/" + projectId)
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenUser))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Project fetched successfully"))
                 .andExpect(jsonPath("$.data.id").value(projectId))
@@ -217,7 +230,7 @@ public class ProjectControllerTest {
     void getProjectById_ShouldFail_WhenIdIsInvalid() throws Exception {
         long projectId = 234234;
         mockMvc.perform(get("/api/v1/projects/" + projectId)
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenUser))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("true"))
                 .andExpect(jsonPath("$.message").value("Project not found"));
@@ -236,7 +249,7 @@ public class ProjectControllerTest {
 
         // create projects
         String createResponse = mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isOk())
@@ -252,7 +265,7 @@ public class ProjectControllerTest {
 
         // update project
         mockMvc.perform(put("/api/v1/projects/" + projectId)
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
@@ -269,7 +282,7 @@ public class ProjectControllerTest {
         updateRequest.setTags(Set.of("tag"));
 
         mockMvc.perform(put("/api/v1/projects/9999")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isNotFound())
@@ -289,7 +302,7 @@ public class ProjectControllerTest {
 
         // create project
         String response = mockMvc.perform(post("/api/v1/projects/create")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andReturn().getResponse().getContentAsString();
@@ -298,7 +311,7 @@ public class ProjectControllerTest {
         Long projectId = objectMapper.readTree(response).path("data").path("id").asLong();
 
         mockMvc.perform(delete("/api/v1/projects/" + projectId)
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenAdmin))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Project deleted successfully"))
                 .andExpect(jsonPath("$.error").value(Boolean.FALSE));
@@ -307,9 +320,29 @@ public class ProjectControllerTest {
     @Test
     void deleteProject_ShouldFail_WhenNotFound() throws Exception {
         mockMvc.perform(delete("/api/v1/projects/9999")
-                        .header("Authorization", "Bearer " + jwtToken))
+                        .header("Authorization", "Bearer " + jwtTokenAdmin))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Project not found"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
+    }
+
+    private String getJwtToken(String email) throws Exception {
+        // Signup admin user
+        SignupRequest signupRequest = new SignupRequest("John Doe", email, "password123");
+        mockMvc.perform(post("/api/v1/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isOk());
+
+        // Login to get JWT token for admin user
+        LoginRequest loginRequest = new LoginRequest(email, "password123");
+        String response = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String jwtToken = objectMapper.readTree(response).path("data").path("token").asText();
+        return jwtToken;
     }
 }
