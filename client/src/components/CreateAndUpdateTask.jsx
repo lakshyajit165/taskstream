@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
 	Dialog,
 	AppBar,
@@ -28,14 +28,16 @@ import CloseIcon from "@mui/icons-material/Close";
 import InfoIcon from "@mui/icons-material/Info";
 import ReactMarkdown from "react-markdown";
 import { validateTaskPayload } from "../api/utils/formValidation";
-validateTaskPayload;
+import { createTask } from "../api/task/tasks";
+import { ToastContext } from "../context/ToastContext";
 
 const mockUsers = [
 	{ id: 1, name: "Alice" },
 	{ id: 2, name: "Bob" },
 	{ id: 3, name: "Charlie" },
 ];
-const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
+const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
+	const { showToast } = useContext(ToastContext);
 	const [taskPayload, setTaskPayload] = useState({
 		title: "",
 		description: "",
@@ -43,7 +45,7 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 		state: taskState || "",
 		priority: "",
 		type: "",
-		project: project?.id || null,
+		projectId: project?.id || null,
 		assignedTo: null,
 		targetVersion: "",
 		restrictedEdit: false,
@@ -56,9 +58,29 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
-		const newValues = { ...taskPayload, [name]: value };
-		setTaskPayload(newValues);
-		validateTaskPayload({ [name]: value }); // validate live per field
+
+		// 1. Update the main payload state
+		setTaskPayload((prevPayload) => ({ ...prevPayload, [name]: value }));
+
+		// 2. Validate just the changed field
+		let fieldErrors = validateTaskPayload({ [name]: value });
+
+		// 3. Update the errors state:
+		//    - If there's an error for the current field, use it.
+		//    - If there's NO error, remove it from the errors state.
+		setErrors((prevErrors) => {
+			const newErrors = { ...prevErrors };
+
+			if (fieldErrors[name]) {
+				newErrors[name] = fieldErrors[name];
+			} else {
+				delete newErrors[name]; // Remove error if field is now valid
+			}
+
+			// Add this line to prevent returning the fieldErrors object.
+			// The return value of setErrors determines the new state.
+			return newErrors;
+		});
 	};
 
 	const handleRestrictedEditChange = (e) => {
@@ -66,13 +88,25 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 		setTaskPayload((prev) => ({ ...prev, [name]: checked }));
 	};
 
-	const createTask = (e) => {
-		e.preventDefault();
-		const validationErrors = validateTaskPayload(taskPayload);
-		if (validationErrors) {
-			setErrors(validationErrors);
+	const submitTask = async (e) => {
+		try {
+			setLoading(true);
+			console.log(taskPayload);
+			e.preventDefault();
+			const validationErrors = validateTaskPayload(taskPayload);
+			if (Object.keys(validationErrors).length === 0) {
+				console.log(taskPayload);
+				const createTaskResponse = await createTask(taskPayload);
+				console.log(createTaskResponse);
+			} else {
+				setErrors(validationErrors);
+			}
+		} catch (error) {
+			showToast(error.message || "Error logging in user", "error");
+		} finally {
+			setLoading(false);
 		}
-		console.log("Form Submitted:", taskPayload);
+
 		// onClose();
 	};
 	return (
@@ -88,7 +122,7 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 					<Button
 						autoFocus
 						color="inherit"
-						onClick={createTask}
+						onClick={submitTask}
 						disabled={loading} // <--- DISABLE WHILE LOADING
 					>
 						{loading ? ( // <--- CONDITIONAL CONTENT
@@ -103,16 +137,14 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 				</Toolbar>
 			</AppBar>
 			<Container sx={{ maxWidth: { xs: 400, sm: 600 }, py: 4 }}>
-				<form onSubmit={createTask}>
+				<form onSubmit={submitTask}>
+					{/* Project (read-only) */}
+					<TextField fullWidth label="Project" value={project?.title || ""} readOnly margin="normal" />
 					{/* Title */}
-					<TextField fullWidth label="Title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
+					<TextField fullWidth label="Task title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
 					<Collapse in={!!errors.title}>
 						<FormHelperText error>{errors.title}</FormHelperText>
 					</Collapse>
-
-					{/* Project (read-only) */}
-					<TextField fullWidth label="Project" value={project?.title || ""} readOnly margin="normal" />
-
 					{/* Markdown-enabled Description */}
 					<Box sx={{ marginBottom: "2px" }}>
 						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 1 }}>
@@ -122,7 +154,7 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 						{tab === "write" ? (
 							<>
 								<TextField
-									label="Description"
+									label="Task description"
 									name="description"
 									multiline
 									rows={4}
@@ -149,7 +181,7 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 							</Box>
 						)}
 					</Box>
-					{/* Due Date */}
+					{/* Due date */}
 					<DatePicker
 						label="Due Date"
 						format="dd/MM/yyyy"
@@ -157,11 +189,27 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 						maxDate={new Date(project.dueDate)}
 						value={taskPayload.dueDate ? new Date(taskPayload.dueDate) : null}
 						onChange={(newValue) => {
+							const newDueDate = newValue ? newValue.toISOString() : "";
+
+							// 1. Update payload
 							setTaskPayload((prev) => ({
 								...prev,
-								dueDate: newValue ? newValue.toISOString() : "",
+								dueDate: newDueDate,
 							}));
-							validateTaskPayload({ dueDate: newValue ? newValue.toISOString() : "" });
+
+							// 2. Validate just the dueDate field
+							const fieldErrors = validateTaskPayload({ dueDate: newDueDate });
+
+							// 3. Merge/clear errors
+							setErrors((prevErrors) => {
+								const newErrors = { ...prevErrors };
+								if (fieldErrors.dueDate) {
+									newErrors.dueDate = fieldErrors.dueDate;
+								} else {
+									delete newErrors.dueDate; // Remove error if valid
+								}
+								return newErrors;
+							});
 						}}
 						slotProps={{
 							textField: {
@@ -174,12 +222,9 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 					<Collapse in={!!errors.dueDate}>
 						<FormHelperText error>{errors.dueDate}</FormHelperText>
 					</Collapse>
-
 					{/* State (read-only) */}
 					<TextField fullWidth label="State" value={taskState || ""} readOnly margin="normal" />
-
 					{/* Priority */}
-
 					<FormControl fullWidth error={!!errors.priority} margin="normal">
 						<InputLabel>Priority</InputLabel>
 						<Select name="priority" value={taskPayload.priority} onChange={handleInputChange} label="Priority">
@@ -191,9 +236,7 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 					<Collapse in={!!errors.priority}>
 						<FormHelperText error>{errors.priority}</FormHelperText>
 					</Collapse>
-
 					{/* Type */}
-
 					<FormControl fullWidth error={!!errors.type} margin="normal">
 						<InputLabel>Type</InputLabel>
 						<Select name="type" value={taskPayload.type} onChange={handleInputChange} label="Type">
@@ -204,25 +247,39 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 							<MenuItem value="FORWARDPORT">ForwardPort</MenuItem>
 						</Select>
 					</FormControl>
-
 					<Collapse in={!!errors.type}>
 						<FormHelperText error>{errors.type}</FormHelperText>
 					</Collapse>
-
-					{/* Assigned To */}
+					{/* Assigned to */}
 					<Autocomplete
 						fullWidth
 						options={mockUsers}
 						getOptionLabel={(option) => option?.name || ""}
 						value={taskPayload.assignedTo}
-						onChange={(e, newValue) => setTaskPayload((prev) => ({ ...prev, assignedTo: newValue }))}
-						sx={{ mt: 2, mb: 1 }} // <-- ADD CUSTOM MARGIN FOR SPACING CONSISTENCY
+						onChange={(e, newValue) => {
+							// 1. Update payload
+							setTaskPayload((prev) => ({ ...prev, assignedTo: newValue }));
+
+							// 2. Validate just the assignedTo field
+							const fieldErrors = validateTaskPayload({ assignedTo: newValue });
+
+							// 3. Merge/clear errors
+							setErrors((prevErrors) => {
+								const newErrors = { ...prevErrors };
+								if (fieldErrors.assignedTo) {
+									newErrors.assignedTo = fieldErrors.assignedTo;
+								} else {
+									delete newErrors.assignedTo; // Remove error if valid
+								}
+								return newErrors;
+							});
+						}}
+						sx={{ mt: 2, mb: 1 }}
 						renderInput={(params) => <TextField {...params} label="Assigned To" error={!!errors.assignedTo} />}
 					/>
 					<Collapse in={!!errors.assignedTo}>
 						<FormHelperText error>{errors.assignedTo}</FormHelperText>
 					</Collapse>
-
 					{/* Target Version */}
 					<TextField
 						fullWidth
@@ -249,4 +306,4 @@ const CreateAndUpdateTask2 = ({ open, onClose, project, taskState }) => {
 	);
 };
 
-export default CreateAndUpdateTask2;
+export default CreateAndUpdateTask;
