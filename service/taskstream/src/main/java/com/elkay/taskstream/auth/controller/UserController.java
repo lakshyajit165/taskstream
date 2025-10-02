@@ -19,7 +19,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    
+
     @GetMapping("/search")
     public ResponseEntity<GenericResponse<SearchUserResponse>> searchUsers(
             @RequestParam("name") String name

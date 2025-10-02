@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useRef, useMemo, useContext } from "react";
 import {
 	Dialog,
 	AppBar,
@@ -30,12 +30,8 @@ import ReactMarkdown from "react-markdown";
 import { validateTaskPayload } from "../api/utils/formValidation";
 import { createTask } from "../api/task/tasks";
 import { ToastContext } from "../context/ToastContext";
+import { searchUsers } from "../api/user/users";
 
-const mockUsers = [
-	{ id: 1, name: "Alice" },
-	{ id: 2, name: "Bob" },
-	{ id: 3, name: "Charlie" },
-];
 const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 	const { showToast } = useContext(ToastContext);
 	const [taskPayload, setTaskPayload] = useState({
@@ -55,6 +51,51 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 
 	// Markdown editor tab (write/preview)
 	const [tab, setTab] = useState("write");
+
+	const [userOptions, setUserOptions] = useState([]); // Start with mocks
+	const [usersLoading, setUsersLoading] = useState(false);
+
+	const searchTimeoutRef = useRef(null);
+
+	// Cleanup the timeout on component unmount
+	useEffect(() => {
+		return () => {
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	// --- Debounced User Search Function ---
+	const searchUsersByName = useMemo(
+		() => (query) => {
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current);
+			}
+
+			if (!query) {
+				setUserOptions([]); // Clear options if query is empty
+				setUsersLoading(false);
+				return;
+			}
+
+			setUsersLoading(true);
+			searchTimeoutRef.current = setTimeout(async () => {
+				try {
+					// Call the API
+					const users = await searchUsers(query);
+					setUserOptions(users?.data?.userSuggestions || []);
+				} catch (error) {
+					console.error("Failed to fetch users:", error);
+					showToast("Failed to load user options.", "error");
+					setUserOptions([]);
+				} finally {
+					setUsersLoading(false);
+				}
+			}, 500); // 500ms debounce
+		},
+		[showToast]
+	);
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -253,10 +294,12 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 					{/* Assigned to */}
 					<Autocomplete
 						fullWidth
-						options={mockUsers}
+						// 1. Use dynamic options
+						options={userOptions}
 						getOptionLabel={(option) => option?.name || ""}
 						value={taskPayload.assignedTo}
 						onChange={(e, newValue) => {
+							// ... (keep your existing state update and validation logic)
 							// 1. Update payload
 							setTaskPayload((prev) => ({ ...prev, assignedTo: newValue }));
 
@@ -274,8 +317,34 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 								return newErrors;
 							});
 						}}
+						// 2. Trigger search on input change
+						// The second argument is the reason, we only want to search when "input" is changing
+						onInputChange={(e, newInputValue, reason) => {
+							if (reason === "input") {
+								searchUsersByName(newInputValue);
+							}
+						}}
 						sx={{ mt: 2, mb: 1 }}
-						renderInput={(params) => <TextField {...params} label="Assigned To" error={!!errors.assignedTo} />}
+						renderInput={(params) => (
+							<TextField
+								{...params}
+								label="Assigned To"
+								error={!!errors.assignedTo}
+								// Replace InputProps with slotProps targeting the 'input' component
+								slotProps={{
+									input: {
+										// **CRITICAL**: Spread params.InputProps to keep Autocomplete's icons
+										...params.InputProps,
+										endAdornment: (
+											<>
+												{usersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+												{params.InputProps.endAdornment}
+											</>
+										),
+									},
+								}}
+							/>
+						)}
 					/>
 					<Collapse in={!!errors.assignedTo}>
 						<FormHelperText error>{errors.assignedTo}</FormHelperText>
