@@ -134,10 +134,19 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState }) => {
 			setLoading(true);
 			console.log(taskPayload);
 			e.preventDefault();
-			const validationErrors = validateTaskPayload(taskPayload);
+
+			// Create the API payload from the current state
+			const apiPayload = { ...taskPayload };
+
+			// If assignedTo is an object (which it is from Autocomplete),
+			// extract only the 'id' for the API call.
+			if (apiPayload.assignedTo && typeof apiPayload.assignedTo === "object") {
+				apiPayload.assignedTo = apiPayload.assignedTo.id;
+			}
+			const validationErrors = validateTaskPayload(apiPayload);
 			if (Object.keys(validationErrors).length === 0) {
-				console.log(taskPayload);
-				const createTaskResponse = await createTask(taskPayload);
+				console.log(apiPayload);
+				const createTaskResponse = await createTask(apiPayload);
 				console.log(createTaskResponse);
 			} else {
 				setErrors(validationErrors);
