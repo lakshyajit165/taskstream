@@ -14,6 +14,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
 import NotFound from "./pages/NotFound/NotFound";
+import TaskDetails from "./pages/TaskDetails/TaskDetails";
 
 const theme = createTheme({
 	components: {
@@ -57,6 +58,7 @@ function App() {
 							<Route path="projects/new" element={<CreateAndUpdateProject />} />
 							<Route path="projects/:id" element={<ProjectDetails />} />
 							<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
+							<Route path="tasks/:id" element={<TaskDetails />} />
 							<Route path="*" element={<NotFound />} />
 						</Route>
 					</Routes>

@@ -12,6 +12,7 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
 import { getTaskBackgroundColor } from "../../api/utils/cssUtils";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
 	const { showToast } = useContext(ToastContext);
@@ -21,6 +22,7 @@ const Home = () => {
 	const [tasksLoading, setTasksLoading] = useState(false);
 	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
 	const [taskState, setTaskState] = useState(null);
+	const navigate = useNavigate();
 
 	// Fetch projects
 	useEffect(() => {
@@ -70,6 +72,10 @@ const Home = () => {
 	const createTask = (status) => {
 		setTaskState(status);
 		setOpenCreateAndUpdateTaskDialog(true);
+	};
+
+	const viewTask = (taskId) => {
+		navigate(`/tasks/${taskId}`);
 	};
 
 	return (
@@ -159,7 +165,7 @@ const Home = () => {
 												<IconButton size="small" aria-label="move right">
 													<KeyboardArrowRightIcon fontSize="small" />
 												</IconButton>
-												<IconButton size="small" aria-label="more options">
+												<IconButton size="small" aria-label="more options" onClick={() => viewTask(task.id)}>
 													<InfoOutlineIcon fontSize="small" />
 												</IconButton>
 											</Box>
