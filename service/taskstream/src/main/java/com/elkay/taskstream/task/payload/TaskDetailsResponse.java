@@ -1,6 +1,7 @@
 package com.elkay.taskstream.task.payload;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,7 @@ public class TaskDetailsResponse implements Serializable {
     // --- Project Fields (p.*) ---
     private Long projectId;      // Mapped from p.id AS project_id
     private String projectName;  // Mapped from p.title AS project_name
+    private Timestamp projectDueDate; // Mapped from p.due_date as project_due_date
 
     // --- Assigned To User (ua.*) ---
     private Long assignedToId;   // Mapped from ua.id AS assigned_to_id
@@ -37,7 +39,7 @@ public class TaskDetailsResponse implements Serializable {
     public TaskDetailsResponse() {
     }
 
-    public TaskDetailsResponse(Long id, String title, String description, Timestamp dueDate, String state, String priority, String type, Timestamp createdAt, Timestamp updatedAt, String targetVersion, Boolean restrictedEdit, Long projectId, String projectName, Long assignedToId, String assignedToName, Long createdById, String createdByName, Long updatedById, String updatedByName) {
+    public TaskDetailsResponse(Long id, String title, String description, Timestamp dueDate, String state, String priority, String type, Timestamp createdAt, Timestamp updatedAt, String targetVersion, Boolean restrictedEdit, Long projectId, String projectName, Timestamp projectDueDate, Long assignedToId, String assignedToName, Long createdById, String createdByName, Long updatedById, String updatedByName) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -51,6 +53,7 @@ public class TaskDetailsResponse implements Serializable {
         this.restrictedEdit = restrictedEdit;
         this.projectId = projectId;
         this.projectName = projectName;
+        this.projectDueDate = projectDueDate;
         this.assignedToId = assignedToId;
         this.assignedToName = assignedToName;
         this.createdById = createdById;
@@ -161,6 +164,14 @@ public class TaskDetailsResponse implements Serializable {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public Timestamp getProjectDueDate() {
+        return projectDueDate;
+    }
+
+    public void setProjectDueDate(Timestamp projectDueDate) {
+        this.projectDueDate = projectDueDate;
     }
 
     public Long getAssignedToId() {
