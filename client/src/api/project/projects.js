@@ -20,7 +20,7 @@ export const createProject = async (projectData) => {
 };
 
 export const getProjects = async (page, size) => {
-	const response = await fetch(`${BASE_URL}?page=${page}&size=${size}`, {
+	const response = await fetch(`${BASE_URL}/all?page=${page}&size=${size}`, {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});
