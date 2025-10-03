@@ -10,6 +10,7 @@ import com.elkay.taskstream.exception.UnauthorizedException;
 import com.elkay.taskstream.project.model.Project;
 import com.elkay.taskstream.project.repository.ProjectRepository;
 import com.elkay.taskstream.task.model.Task;
+import com.elkay.taskstream.task.payload.TaskDetailsResponse;
 import com.elkay.taskstream.task.payload.TaskRequest;
 import com.elkay.taskstream.task.repository.TaskRepository;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -90,14 +92,15 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
+    public TaskDetailsResponse getTaskById(Long id) {
+        return taskRepository.findTaskDetailsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
     }
 
     @Transactional
     public Task updateTask(Long taskId, TaskRequest request) {
-        Task task = getTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         Long currentUserId = getCurrentUserId();
 
         if (Boolean.TRUE.equals(task.getRestrictedEdit()) && !currentUserId.equals(task.getAssignedTo())) {
@@ -128,7 +131,8 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Long taskId) {
-        Task task = getTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         Long currentUserId = getCurrentUserId();
 
         if (Boolean.TRUE.equals(task.getRestrictedEdit()) && !currentUserId.equals(task.getAssignedTo())) {

@@ -3,11 +3,11 @@ package com.elkay.taskstream.task.controller;
 import com.elkay.taskstream.payload.GenericResponse;
 import com.elkay.taskstream.task.model.Task;
 import com.elkay.taskstream.task.payload.PaginatedTaskResponse;
+import com.elkay.taskstream.task.payload.TaskDetailsResponse;
 import com.elkay.taskstream.task.payload.TaskRequest;
 import com.elkay.taskstream.task.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,9 +27,9 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GenericResponse<Task>> getTask(@PathVariable Long id) {
-        Task task = taskService.getTaskById(id);
-        return ResponseEntity.ok(new GenericResponse<>("Task fetched successfully", false, task));
+    public ResponseEntity<GenericResponse<TaskDetailsResponse>> getTask(@PathVariable Long id) {
+        TaskDetailsResponse taskDetailsResponse = taskService.getTaskById(id);
+        return ResponseEntity.ok(new GenericResponse<>("Task fetched successfully", false, taskDetailsResponse));
     }
 
     @GetMapping("/project/{projectId}")
