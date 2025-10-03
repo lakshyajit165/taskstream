@@ -1,10 +1,10 @@
-.task-container {
+.task-container-wrapper {
 	display: flex;
 	flex-wrap: wrap; /* Allows items to wrap to the next line */
 	gap: 16px; /* Adds consistent spacing between items */
 }
 
-.task-item {
+.task-container {
 	/* Stacks on mobile by taking up the full width */
 	flex: 1 1 100%;
 	padding: 20px;
@@ -12,23 +12,30 @@
 	border: 1px solid #e0e0e0;
 }
 
+.task-item {
+	padding: 10px;
+	margin-bottom: 1;
+	border-radius: 8px;
+	border: 1px solid #e0e0e0;
+}
+
 /* 2-column layout for small screens */
 @media (min-width: 576px) {
-	.task-item {
+	.task-container {
 		flex: 1 1 calc(50% - 12px); /* 2 columns with spacing */
 	}
 }
 
 /* 3-column layout for medium screens */
 @media (min-width: 768px) {
-	.task-item {
+	.task-container {
 		flex: 1 1 calc(33.33% - 12px); /* 3 columns with spacing */
 	}
 }
 
 /* 4-column layout for large screens */
 @media (min-width: 992px) {
-	.task-item {
+	.task-container {
 		flex: 1 1 calc(25% - 12px); /* 4 columns with spacing */
 	}
 }

@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Box, Typography, Autocomplete, TextField, Paper, CircularProgress, Button } from "@mui/material";
+import { Container, Box, Typography, Autocomplete, TextField, Paper, CircularProgress, Button, IconButton } from "@mui/material";
 import { ToastContext } from "../../context/ToastContext";
 import { getProjects } from "../../api/project/projects";
 import { getTasksByProject } from "../../api/task/tasks";
@@ -8,6 +8,10 @@ import "./Home.css";
 import AddIcon from "@mui/icons-material/Add";
 import scrumBoardImg from "../../assets/scrum_board.png";
 import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
+import { getTaskBackgroundColor } from "../../api/utils/cssUtils";
 
 const Home = () => {
 	const { showToast } = useContext(ToastContext);
@@ -87,7 +91,7 @@ const Home = () => {
 				<Box
 					sx={{
 						display: "flex",
-						flexDirection: "column", // 👈 stack vertically
+						flexDirection: "column", // stack vertically
 						justifyContent: "center",
 						alignItems: "center",
 						px: 2, // padding for small screens
@@ -113,13 +117,13 @@ const Home = () => {
 					<CircularProgress />
 				</Box>
 			) : (
-				<Box className="task-container">
+				<Box className="task-container-wrapper">
 					{Object.entries(groupedTasks).map(([status, taskList]) => (
-						<Box key={status} className="task-item">
+						<Box key={status} className="task-container">
 							{/* Header row with Status and + button */}
 							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
 								<Typography variant="h6" sx={{ textTransform: "capitalize" }}>
-									{status.replace("_", " ")}
+									{status.toLowerCase().replace("_", " ")}
 								</Typography>
 								<Button variant="outlined" size="small" onClick={() => createTask(status)} startIcon={<AddIcon />}>
 									Add
@@ -130,13 +134,35 @@ const Home = () => {
 							{taskList.length > 0 ? (
 								<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
 									{taskList.map((task) => (
-										<Paper key={task.id} sx={{ p: 1.5, mb: 1 }}>
-											<Typography variant="body1" sx={{ fontWeight: "bold" }}>
+										<Paper
+											key={task.id}
+											className="task-item"
+											elevation={0}
+											sx={{
+												display: "flex", // Enable flex
+												justifyContent: "space-between", // Push title to left and icons to right
+												alignItems: "center", // Vertically align title and icons
+												p: 1.5, // Added padding for better aesthetics
+												bgcolor: (theme) => getTaskBackgroundColor(task.state),
+											}}
+										>
+											<Typography
+												variant="body1"
+												sx={{ fontWeight: "bold", flexGrow: 1, minWidth: 0, mr: 1, maxWidth: "16ch", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+											>
 												{task.title}
 											</Typography>
-											<Typography variant="body2" color="text.secondary">
-												{task.description}
-											</Typography>
+											<Box sx={{ display: "flex", gap: 0.5 }}>
+												<IconButton size="small" aria-label="move left">
+													<KeyboardArrowLeftIcon fontSize="small" />
+												</IconButton>
+												<IconButton size="small" aria-label="move right">
+													<KeyboardArrowRightIcon fontSize="small" />
+												</IconButton>
+												<IconButton size="small" aria-label="more options">
+													<InfoOutlineIcon fontSize="small" />
+												</IconButton>
+											</Box>
 										</Paper>
 									))}
 								</Box>
