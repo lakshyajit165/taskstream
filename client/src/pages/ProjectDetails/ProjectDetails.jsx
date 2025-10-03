@@ -95,14 +95,18 @@ const ProjectDetails = () => {
 				)}
 
 				{/* Buttons */}
-				<Box sx={{ display: "flex", gap: 2 }}>
-					<Button variant="contained" color="primary" onClick={() => navigate(`/projects/edit/${project.id}`)}>
-						Update
-					</Button>
-					<Button variant="outlined" color="error" onClick={() => setDeleteProjectDialogOpen(true)}>
-						Delete
-					</Button>
-				</Box>
+				{project && project.additionalParams && project.additionalParams.isEditable ? (
+					<Box sx={{ display: "flex", gap: 2 }}>
+						<Button variant="contained" color="primary" onClick={() => navigate(`/projects/edit/${project.id}`)}>
+							Update
+						</Button>
+						<Button variant="outlined" color="error" onClick={() => setDeleteProjectDialogOpen(true)}>
+							Delete
+						</Button>{" "}
+					</Box>
+				) : (
+					<></>
+				)}
 
 				<Dialog
 					open={deleteProjectDialogOpen}

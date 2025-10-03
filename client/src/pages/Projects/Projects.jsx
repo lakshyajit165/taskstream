@@ -9,6 +9,7 @@ import noDataImg from "../../assets/no_data.png";
 import AddIcon from "@mui/icons-material/Add";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/material/Link";
+import { Divider } from "@mui/material";
 
 const Projects = () => {
 	const { showToast } = useContext(ToastContext);
@@ -44,14 +45,13 @@ const Projects = () => {
 			<Box sx={{ my: 4 }}>
 				{/* Heading + Add Project Button */}
 				<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-					<Typography variant="h4" component="h2">
+					<Typography variant="h5" component="h5">
 						Projects
 					</Typography>
 					<Link component={RouterLink} to="/projects/new" underline="none" color="primary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
 						Add <AddIcon fontSize="small" />
 					</Link>
 				</Box>
-
 				{loading ? (
 					<Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
 						<CircularProgress />
