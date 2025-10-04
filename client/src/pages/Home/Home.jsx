@@ -13,11 +13,14 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
 import { getTaskBackgroundColor } from "../../api/utils/cssUtils";
 import { useNavigate } from "react-router-dom";
+import { ProjectContext } from "../../context/ProjectContext";
 
 const Home = () => {
 	const { showToast } = useContext(ToastContext);
+	// fetch project from context
+	const { selectedProject, setSelectedProject } = useContext(ProjectContext);
 	const [projects, setProjects] = useState([]);
-	const [selectedProject, setSelectedProject] = useState(null);
+	// const [selectedProject, setSelectedProject] = useState(null);
 	const [tasks, setTasks] = useState([]);
 	const [tasksLoading, setTasksLoading] = useState(false);
 	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
@@ -149,7 +152,7 @@ const Home = () => {
 												justifyContent: "space-between", // Push title to left and icons to right
 												alignItems: "center", // Vertically align title and icons
 												p: 1.5, // Added padding for better aesthetics
-												bgcolor: (theme) => getTaskBackgroundColor(task.state),
+												bgcolor: () => getTaskBackgroundColor(task.state),
 											}}
 										>
 											<Typography

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Toast from "./Toast"; // your existing Snackbar/Alert component
+import Toast from "../components/Toast"; // your existing Snackbar/Alert component
 import { ToastContext } from "../context/ToastContext";
 
 /**

@@ -6,7 +6,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Projects from "./pages/Projects/Projects";
-import { ToastProvider } from "./components/ToastProvider";
+import { ToastProvider } from "./providers/ToastProvider";
 import "./App.css";
 import Settings from "./pages/Settings/Settings";
 import CreateAndUpdateProject from "./pages/CreateAndUpdateProject/CreateAndUpdateProject";
@@ -15,6 +15,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
 import NotFound from "./pages/NotFound/NotFound";
 import TaskDetails from "./pages/TaskDetails/TaskDetails";
+import { ProjectProvider } from "./providers/ProjectProvider";
 
 const theme = createTheme({
 	components: {
@@ -44,24 +45,26 @@ function App() {
 			<CssBaseline />
 			<ToastProvider>
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
-					<Routes>
-						{/* Auth pages */}
-						<Route path="/login" element={<Login />} />
-						<Route path="/signup" element={<Signup />} />
+					<ProjectProvider>
+						<Routes>
+							{/* Auth pages */}
+							<Route path="/login" element={<Login />} />
+							<Route path="/signup" element={<Signup />} />
 
-						{/* Drawer pages */}
-						<Route path="/*" element={<DrawerMenu />}>
-							<Route index element={<Navigate to="home" replace />} />
-							<Route path="home" element={<Home />} />
-							<Route path="projects" element={<Projects />} />
-							<Route path="settings" element={<Settings />} />
-							<Route path="projects/new" element={<CreateAndUpdateProject />} />
-							<Route path="projects/:id" element={<ProjectDetails />} />
-							<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
-							<Route path="tasks/:id" element={<TaskDetails />} />
-							<Route path="*" element={<NotFound />} />
-						</Route>
-					</Routes>
+							{/* Drawer pages */}
+							<Route path="/*" element={<DrawerMenu />}>
+								<Route index element={<Navigate to="home" replace />} />
+								<Route path="home" element={<Home />} />
+								<Route path="projects" element={<Projects />} />
+								<Route path="settings" element={<Settings />} />
+								<Route path="projects/new" element={<CreateAndUpdateProject />} />
+								<Route path="projects/:id" element={<ProjectDetails />} />
+								<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
+								<Route path="tasks/:id" element={<TaskDetails />} />
+								<Route path="*" element={<NotFound />} />
+							</Route>
+						</Routes>
+					</ProjectProvider>
 				</LocalizationProvider>
 			</ToastProvider>
 		</ThemeProvider>

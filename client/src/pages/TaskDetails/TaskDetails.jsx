@@ -182,7 +182,7 @@ const TaskDetails = () => {
 					Details
 				</Typography>
 
-				<Grid container spacing={4}>
+				<Grid container spacing={6}>
 					{/* Column 1: Core Dates & Assignment */}
 					<Grid item xs={12} sm={6} md={4}>
 						<Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: "primary.main" }}>
