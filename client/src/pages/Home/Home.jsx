@@ -20,11 +20,12 @@ const Home = () => {
 	// fetch project from context
 	const { selectedProject, setSelectedProject } = useContext(ProjectContext);
 	const [projects, setProjects] = useState([]);
-	// const [selectedProject, setSelectedProject] = useState(null);
 	const [tasks, setTasks] = useState([]);
 	const [tasksLoading, setTasksLoading] = useState(false);
 	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
 	const [taskState, setTaskState] = useState(null);
+	// flag that denotes tasks created in the current session - irrespective of the number of "tasks"
+	const [taskCount, setTaskCount] = useState(0);
 	const navigate = useNavigate();
 
 	// Fetch projects
@@ -56,7 +57,7 @@ const Home = () => {
 			};
 			fetchTasks();
 		}
-	}, [selectedProject]);
+	}, [selectedProject, taskCount]); // useEffect is triggered when taskCount changes in order to fetch the tasks for the selected project
 
 	// Group tasks by status
 	const groupedTasks = {
@@ -75,6 +76,11 @@ const Home = () => {
 	const createTask = (status) => {
 		setTaskState(status);
 		setOpenCreateAndUpdateTaskDialog(true);
+	};
+
+	const onTaskCreationSuccess = () => {
+		setTaskCount(taskCount + 1);
+		setOpenCreateAndUpdateTaskDialog(false);
 	};
 
 	const viewTask = (taskId) => {
@@ -162,10 +168,10 @@ const Home = () => {
 												{task.title}
 											</Typography>
 											<Box sx={{ display: "flex", gap: 0.5 }}>
-												<IconButton size="small" aria-label="move left">
+												<IconButton size="small" aria-label="move left" disabled={Object.keys(groupedTasks).indexOf(status) === 0}>
 													<KeyboardArrowLeftIcon fontSize="small" />
 												</IconButton>
-												<IconButton size="small" aria-label="move right">
+												<IconButton size="small" aria-label="move right" disabled={Object.keys(groupedTasks).indexOf(status) === Object.keys(groupedTasks).length - 1}>
 													<KeyboardArrowRightIcon fontSize="small" />
 												</IconButton>
 												<IconButton size="small" aria-label="more options" onClick={() => viewTask(task.id)}>
@@ -185,7 +191,13 @@ const Home = () => {
 				</Box>
 			)}
 			{openCreateAndUpdateTaskDialog && (
-				<CreateAndUpdateTask open={openCreateAndUpdateTaskDialog} onClose={() => setOpenCreateAndUpdateTaskDialog(false)} project={selectedProject} taskState={taskState} />
+				<CreateAndUpdateTask
+					open={openCreateAndUpdateTaskDialog}
+					onClose={() => setOpenCreateAndUpdateTaskDialog(false)}
+					project={selectedProject}
+					taskState={taskState}
+					onTaskCreationSuccess={onTaskCreationSuccess}
+				/>
 			)}
 		</Container>
 	);
