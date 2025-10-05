@@ -44,13 +44,22 @@ const Projects = () => {
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 4 }}>
 				{/* Heading + Add Project Button */}
-				<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-					<Typography variant="h5" component="h5">
-						Projects
-					</Typography>
-					<Link component={RouterLink} to="/projects/new" underline="none" color="primary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-						Add <AddIcon fontSize="small" />
-					</Link>
+				<Box sx={{ mb: 3 }}>
+					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+						<Typography variant="h4" component="h1">
+							Project Board
+						</Typography>
+						<Button
+							component={RouterLink}
+							to="/projects/new"
+							variant="contained" // Use contained for better prominence
+							color="primary"
+							startIcon={<AddIcon />}
+						>
+							New Project
+						</Button>
+					</Box>
+					<Divider /> {/* Add a divider for clear visual separation */}
 				</Box>
 				{loading ? (
 					<Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>

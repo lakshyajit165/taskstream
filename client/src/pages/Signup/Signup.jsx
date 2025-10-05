@@ -1,9 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Box, Button, TextField, Typography, Paper, Link, Divider, FormHelperText, Collapse } from "@mui/material";
+import { Box, IconButton, Button, TextField, Typography, Paper, Link, Divider, FormHelperText, Collapse } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { ToastContext } from "../../context/ToastContext";
 import { signup } from "../../api/auth/auth";
 import { useNavigate } from "react-router-dom";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Signup = () => {
 	const { showToast } = useContext(ToastContext);
@@ -16,6 +19,7 @@ const Signup = () => {
 
 	const [errors, setErrors] = useState({});
 	const [loading, setLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const validate = (fieldValues = signupPayload) => {
 		let validationErrors = { ...errors };
@@ -102,10 +106,9 @@ const Signup = () => {
 					maxWidth: { xs: "100%", sm: 500 },
 				}}
 			>
-				<Typography variant="h4" sx={{ pt: 2 }}>
-					TaskStream
+				<Typography variant="h4" sx={{ pt: 2, my: 2, fontWeight: "bold" }}>
+					taskstream_
 				</Typography>
-				<Divider sx={{ my: 2 }} />
 
 				<form onSubmit={userSignup} noValidate>
 					<TextField fullWidth label="Name" name="name" margin="normal" value={signupPayload.name} onChange={handleInputChange} error={!!errors.name} />
@@ -116,7 +119,27 @@ const Signup = () => {
 					<Collapse in={!!errors.email} timeout={300}>
 						<FormHelperText error>{errors.email}</FormHelperText>
 					</Collapse>
-					<TextField fullWidth label="Password" name="password" margin="normal" type="password" value={signupPayload.password} onChange={handleInputChange} error={!!errors.password} />
+					<TextField
+						fullWidth
+						label="Password"
+						name="password"
+						margin="normal"
+						type={showPassword ? "text" : "password"}
+						slotProps={{
+							input: {
+								endAdornment: (
+									<InputAdornment position="end">
+										<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
+											{showPassword ? <Visibility /> : <VisibilityOff />}
+										</IconButton>
+									</InputAdornment>
+								),
+							},
+						}}
+						value={signupPayload.password}
+						onChange={handleInputChange}
+						error={!!errors.password}
+					/>
 					<Collapse in={!!errors.password} timeout={300}>
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>

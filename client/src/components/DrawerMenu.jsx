@@ -54,8 +54,8 @@ const DrawerMenu = () => {
 					<IconButton color="inherit" edge="start" onClick={handleDrawerOpen} sx={{ mr: 2 }}>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h6" noWrap>
-						TaskStream
+					<Typography variant="h6" noWrap sx={{ fontWeight: "bold" }}>
+						taskstream_
 					</Typography>
 				</Toolbar>
 			</AppBar>
