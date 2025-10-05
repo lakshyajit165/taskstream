@@ -91,7 +91,7 @@ const Signup = () => {
 				display: "flex",
 				justifyContent: "center",
 				alignItems: "center",
-				minHeight: "100vh",
+				minHeight: "85vh",
 				bgcolor: "background.default",
 				px: 1,
 			}}
