@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Container, Box, Typography, Autocomplete, TextField, Paper, CircularProgress, Button, IconButton } from "@mui/material";
 import { ToastContext } from "../../context/ToastContext";
 import { getProjects } from "../../api/project/projects";
-import { getTasksByProject } from "../../api/task/tasks";
+import { getTasksByProject, updateTask } from "../../api/task/tasks";
 import "./Home.css";
 import AddIcon from "@mui/icons-material/Add";
 import scrumBoardImg from "../../assets/scrum_board.png";
@@ -25,7 +25,7 @@ const Home = () => {
 	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
 	const [taskState, setTaskState] = useState(null);
 	// flag that denotes tasks created in the current session - irrespective of the number of "tasks"
-	const [taskCount, setTaskCount] = useState(0);
+	const [taskCreatedFlag, setTaskCreatedFlag] = useState(0);
 	const navigate = useNavigate();
 
 	// Fetch projects
@@ -57,9 +57,9 @@ const Home = () => {
 			};
 			fetchTasks();
 		}
-	}, [selectedProject, taskCount]); // useEffect is triggered when taskCount changes in order to fetch the tasks for the selected project
+	}, [selectedProject, taskCreatedFlag]); // useEffect is triggered when taskCount changes in order to fetch the tasks for the selected project
 
-	// Group tasks by status
+	// Group tasks by state
 	const groupedTasks = {
 		NEW: [],
 		IN_PROGRESS: [],
@@ -73,18 +73,70 @@ const Home = () => {
 		}
 	});
 
-	const createTask = (status) => {
-		setTaskState(status);
+	const createTask = (taskState) => {
+		setTaskState(taskState);
 		setOpenCreateAndUpdateTaskDialog(true);
 	};
 
 	const onTaskCreationSuccess = () => {
-		setTaskCount(taskCount + 1);
+		setTaskCreatedFlag(taskCreatedFlag + 1);
 		setOpenCreateAndUpdateTaskDialog(false);
 	};
 
 	const viewTask = (taskId) => {
 		navigate(`/tasks/${taskId}`);
+	};
+
+	// Helper function to find the next/previous taskState
+	const getNextState = (currentTaskState, direction) => {
+		const currentIndex = Object.keys(groupedTasks).indexOf(currentTaskState);
+		const newIndex = direction === "left" ? currentIndex - 1 : currentIndex + 1;
+
+		// Return the new taskState if valid, otherwise return null
+		return Object.keys(groupedTasks)[newIndex] || null;
+	};
+
+	// --- NEW FUNCTIONALITY: Optimistic taskState Update ---
+	const updateTaskState = async (task, direction) => {
+		const currentTaskState = task.state;
+		const newStatus = getNextState(currentTaskState, direction);
+
+		if (!newStatus) return; // Exit if movement is invalid (e.g., trying to move left from NEW)
+
+		const prevTasks = tasks; // Capture current state for rollback
+
+		// 1. Create the fully updated task object for the API payload
+		const updatedTaskPayload = {
+			...task, // Use the task object closed over by the function (all existing fields)
+			state: newStatus, // OVERWRITE the state field with the correct new value
+		};
+
+		// 2. Optimistic UI Update (The correct version for immediate visual feedback)
+		setTasks(
+			prevTasks.map(
+				(t) => (t.id === task.id ? updatedTaskPayload : t) // Use the new object here too
+			)
+		);
+		// 3. Trigger API Request
+		try {
+			// The existing updateTask API expects taskPayload as the second argument
+			const response = await updateTask(task.id, updatedTaskPayload);
+
+			if (response.error) {
+				throw new Error(response.message || "Unknown API error");
+			}
+			// If API successful (200), no toast or further action needed
+		} catch (error) {
+			// 3. If API fails, rollback state and show error
+			showToast(error.message || "Failed to move task. Reverting state.", "error");
+
+			// Revert the task state by setting tasks back to previous state
+			setTasks(
+				prevTasks.map(
+					(t) => (t.id === task.id ? task : t) // Use the new object here too
+				)
+			);
+		}
 	};
 
 	return (
@@ -133,14 +185,14 @@ const Home = () => {
 				</Box>
 			) : (
 				<Box className="task-container-wrapper">
-					{Object.entries(groupedTasks).map(([status, taskList]) => (
-						<Box key={status} className="task-container">
-							{/* Header row with Status and + button */}
+					{Object.entries(groupedTasks).map(([taskState, taskList]) => (
+						<Box key={taskState} className="task-container">
+							{/* Header row with taskState and + button */}
 							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
 								<Typography variant="h6" sx={{ textTransform: "capitalize" }}>
-									{status.toLowerCase().replace("_", " ")}
+									{taskState.toLowerCase().replace("_", " ")}
 								</Typography>
-								<Button variant="outlined" size="small" onClick={() => createTask(status)} startIcon={<AddIcon />}>
+								<Button variant="outlined" size="small" onClick={() => createTask(taskState)} startIcon={<AddIcon />}>
 									Add
 								</Button>
 							</Box>
@@ -168,10 +220,20 @@ const Home = () => {
 												{task.title}
 											</Typography>
 											<Box sx={{ display: "flex", gap: 0.5 }}>
-												<IconButton size="small" aria-label="move left" disabled={Object.keys(groupedTasks).indexOf(status) === 0}>
+												<IconButton
+													size="small"
+													aria-label="move left"
+													disabled={Object.keys(groupedTasks).indexOf(taskState) === 0}
+													onClick={() => updateTaskState(task, "left")}
+												>
 													<KeyboardArrowLeftIcon fontSize="small" />
 												</IconButton>
-												<IconButton size="small" aria-label="move right" disabled={Object.keys(groupedTasks).indexOf(status) === Object.keys(groupedTasks).length - 1}>
+												<IconButton
+													size="small"
+													aria-label="move right"
+													disabled={Object.keys(groupedTasks).indexOf(taskState) === Object.keys(groupedTasks).length - 1}
+													onClick={() => updateTaskState(task, "right")}
+												>
 													<KeyboardArrowRightIcon fontSize="small" />
 												</IconButton>
 												<IconButton size="small" aria-label="more options" onClick={() => viewTask(task.id)}>
