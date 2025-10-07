@@ -32,7 +32,8 @@ import { createTask } from "../api/task/tasks";
 import { ToastContext } from "../context/ToastContext";
 import { searchUsers } from "../api/user/users";
 
-const CreateAndUpdateTask = ({ open, onClose, project, taskState, onTaskSave }) => {
+const CreateAndUpdateTask = (props) => {
+	const { open, onClose, project, taskState, onTaskSave } = props.config;
 	const { showToast } = useContext(ToastContext);
 	const [taskPayload, setTaskPayload] = useState({
 		title: "",

@@ -139,6 +139,14 @@ const Home = () => {
 		}
 	};
 
+	const createAndUpdateTaskProps = {
+		open: openCreateAndUpdateTaskDialog,
+		onClose: () => setOpenCreateAndUpdateTaskDialog(false),
+		project: selectedProject,
+		taskState: taskState,
+		onTaskSave: onTaskCreationSuccess,
+	};
+
 	return (
 		<Container maxWidth="xl">
 			{/* Project Selector */}
@@ -252,15 +260,7 @@ const Home = () => {
 					))}
 				</Box>
 			)}
-			{openCreateAndUpdateTaskDialog && (
-				<CreateAndUpdateTask
-					open={openCreateAndUpdateTaskDialog}
-					onClose={() => setOpenCreateAndUpdateTaskDialog(false)}
-					project={selectedProject}
-					taskState={taskState}
-					onTaskSave={onTaskCreationSuccess}
-				/>
-			)}
+			{openCreateAndUpdateTaskDialog && <CreateAndUpdateTask config={createAndUpdateTaskProps} />}
 		</Container>
 	);
 };
