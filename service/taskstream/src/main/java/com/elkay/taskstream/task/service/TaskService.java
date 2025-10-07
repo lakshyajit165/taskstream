@@ -125,6 +125,7 @@ public class TaskService {
         task.setTargetVersion(request.getTargetVersion());
         task.setRestrictedEdit(request.getRestrictedEdit());
         task.setUpdatedAt(LocalDateTime.now());
+        task.setUpdatedBy(currentUserId);
 
         return taskRepository.save(task);
     }

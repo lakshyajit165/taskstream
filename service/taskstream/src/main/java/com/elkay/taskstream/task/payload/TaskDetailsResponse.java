@@ -1,5 +1,7 @@
 package com.elkay.taskstream.task.payload;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -10,18 +12,28 @@ public class TaskDetailsResponse implements Serializable {
     private Long id;
     private String title;
     private String description;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Timestamp dueDate; // time stamp needed for native query
+
     private String state;        // Mapped from t.state (EnumType.STRING)
     private String priority;     // Mapped from t.priority (EnumType.STRING)
     private String type;         // Mapped from t.type (EnumType.STRING)
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Timestamp createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Timestamp updatedAt;
+
     private String targetVersion;
     private Boolean restrictedEdit;
 
     // --- Project Fields (p.*) ---
     private Long projectId;      // Mapped from p.id AS project_id
     private String projectName;  // Mapped from p.title AS project_name
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Timestamp projectDueDate; // Mapped from p.due_date as project_due_date
 
     // --- Assigned To User (ua.*) ---
