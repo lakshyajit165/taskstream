@@ -258,7 +258,7 @@ const Home = () => {
 					onClose={() => setOpenCreateAndUpdateTaskDialog(false)}
 					project={selectedProject}
 					taskState={taskState}
-					onTaskCreationSuccess={onTaskCreationSuccess}
+					onTaskSave={onTaskCreationSuccess}
 				/>
 			)}
 		</Container>

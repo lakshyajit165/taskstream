@@ -32,7 +32,7 @@ import { createTask } from "../api/task/tasks";
 import { ToastContext } from "../context/ToastContext";
 import { searchUsers } from "../api/user/users";
 
-const CreateAndUpdateTask = ({ open, onClose, project, taskState, onTaskCreationSuccess }) => {
+const CreateAndUpdateTask = ({ open, onClose, project, taskState, onTaskSave }) => {
 	const { showToast } = useContext(ToastContext);
 	const [taskPayload, setTaskPayload] = useState({
 		title: "",
@@ -147,7 +147,7 @@ const CreateAndUpdateTask = ({ open, onClose, project, taskState, onTaskCreation
 			if (Object.keys(validationErrors).length === 0) {
 				const createTaskResponse = await createTask(apiPayload);
 				showToast(createTaskResponse.message, "info");
-				onTaskCreationSuccess();
+				onTaskSave();
 				// close the modal here
 			} else {
 				setErrors(validationErrors);
