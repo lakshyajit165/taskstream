@@ -179,7 +179,7 @@ const TaskDetails = () => {
 
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
-			<Box sx={{ my: 4 }}>
+			<Box sx={{ my: 2 }}>
 				{/* Header and Title */}
 				<Typography variant="h4" component="h1" gutterBottom>
 					{task.title}
@@ -193,17 +193,17 @@ const TaskDetails = () => {
 					{task.targetVersion && <Chip label={`Version: ${task.targetVersion}`} color="default" variant="outlined" />}
 				</Stack>
 
-				<Divider sx={{ my: 3 }} />
+				<Divider sx={{ my: 1 }} />
 
 				{/* Task Description */}
-				<Box sx={{ mb: 4 }}>
+				<Box sx={{ mb: 2 }}>
 					<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 500 }}>
 						Description
 					</Typography>
 					<ReactMarkdown>{task.description}</ReactMarkdown>
 				</Box>
 
-				<Divider sx={{ my: 3 }} />
+				<Divider sx={{ my: 1 }} />
 
 				{/* Metadata Grid */}
 				<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 500 }}>
@@ -242,7 +242,7 @@ const TaskDetails = () => {
 					</Grid>
 				</Grid>
 
-				<Divider sx={{ my: 4 }} />
+				<Divider sx={{ my: 2 }} />
 
 				{/* Action Buttons */}
 				<Box sx={{ display: "flex", gap: 2 }}>

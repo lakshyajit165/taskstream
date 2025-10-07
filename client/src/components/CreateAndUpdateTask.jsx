@@ -46,6 +46,7 @@ const CreateAndUpdateTask = (props) => {
 		}
 		return null; // Autocomplete prefers null or an object for its value
 	})();
+	const appBarTitle = mode === "create" ? "Create Task" : "Update Task";
 	const [taskPayload, setTaskPayload] = useState({
 		title: mode === "update" && task ? task.title : "",
 		description: mode === "update" && task ? task.description : "",
@@ -186,7 +187,7 @@ const CreateAndUpdateTask = (props) => {
 						<CloseIcon />
 					</IconButton>
 					<Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-						Create Task
+						{appBarTitle}
 					</Typography>
 					<Button
 						autoFocus
