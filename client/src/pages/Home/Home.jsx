@@ -142,9 +142,13 @@ const Home = () => {
 	const createAndUpdateTaskProps = {
 		open: openCreateAndUpdateTaskDialog,
 		onClose: () => setOpenCreateAndUpdateTaskDialog(false),
-		project: selectedProject,
+		projectId: selectedProject ? selectedProject.id : "",
+		projectName: selectedProject ? selectedProject.title : "",
+		projectDueDate: selectedProject ? selectedProject.dueDate : "",
 		taskState: taskState,
 		onTaskSave: onTaskCreationSuccess,
+		task: null,
+		mode: "create",
 	};
 
 	return (

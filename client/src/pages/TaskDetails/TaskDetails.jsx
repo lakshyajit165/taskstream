@@ -21,6 +21,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../../context/ToastContext";
 import { deleteTask, getTaskById } from "../../api/task/tasks";
+import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
 
 // Helper function to capitalize and format enums
 const formatEnum = (value) => {
@@ -66,9 +67,36 @@ const TaskDetails = () => {
 	const [taskDetailsLoading, setTaskDetailsLoading] = useState(false);
 	const [deleteTaskLoading, setDeleteTaskLoading] = useState(false);
 	const [task, setTask] = useState(null);
+	const [taskUpdatedFlag, setTaskUpdatedFlag] = useState(0);
 
 	const [deleteTaskDialogOpen, setDeleteTaskDialogOpen] = useState(false);
+	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
+	/**
+	 * const createAndUpdateTaskProps = {
+		open: openCreateAndUpdateTaskDialog,
+		onClose: () => setOpenCreateAndUpdateTaskDialog(false),
+		project: selectedProject,
+		taskState: taskState,
+		onTaskSave: onTaskCreationSuccess,
+	};
+	 * 
+	*/
+	const onTaskUpdateSuccess = () => {
+		setTaskUpdatedFlag(taskUpdatedFlag + 1);
+		setOpenCreateAndUpdateTaskDialog(false);
+	};
 
+	const createAndUpdateTaskProps = {
+		open: openCreateAndUpdateTaskDialog,
+		onClose: () => setOpenCreateAndUpdateTaskDialog(false),
+		onTaskSave: onTaskUpdateSuccess,
+		mode: "update",
+		task: task, // Now uses the state set by the useEffect
+		projectId: task?.projectId || "",
+		projectName: task?.projectName || "",
+		projectDueDate: task?.projectDueDate || "",
+		taskState: task?.state || "",
+	};
 	// --- API Handlers ---
 
 	const handleDeleteTask = async () => {
@@ -102,7 +130,7 @@ const TaskDetails = () => {
 		if (id) {
 			fetchTask();
 		}
-	}, [id]);
+	}, [id, taskUpdatedFlag]);
 
 	// --- Rendering Logic ---
 
@@ -218,7 +246,7 @@ const TaskDetails = () => {
 
 				{/* Action Buttons */}
 				<Box sx={{ display: "flex", gap: 2 }}>
-					<Button variant="contained" color="primary" onClick={() => navigate(`/tasks/edit/${task.id}`)}>
+					<Button variant="contained" color="primary" onClick={() => setOpenCreateAndUpdateTaskDialog(true)}>
 						Update
 					</Button>
 					<Button variant="outlined" color="error" onClick={() => setDeleteTaskDialogOpen(true)}>
@@ -242,6 +270,7 @@ const TaskDetails = () => {
 					<DialogContent>
 						<DialogContentText id="delete-task-dialog-description">Are you sure you want to delete the task: {task.title}?</DialogContentText>
 					</DialogContent>
+
 					<DialogActions
 						sx={{
 							justifyContent: "flex-start",
@@ -257,6 +286,7 @@ const TaskDetails = () => {
 					</DialogActions>
 				</Dialog>
 			</Box>
+			{openCreateAndUpdateTaskDialog && <CreateAndUpdateTask config={createAndUpdateTaskProps} />}
 		</Container>
 	);
 };

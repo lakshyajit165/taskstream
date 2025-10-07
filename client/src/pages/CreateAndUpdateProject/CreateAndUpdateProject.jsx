@@ -60,11 +60,9 @@ const CreateAndUpdateProject = () => {
 
 		try {
 			if (isEdit) {
-				console.log(payload);
 				await updateProject(id, payload);
 				showToast("Project updated successfully!", "info");
 			} else {
-				console.log(payload);
 				await createProject(payload);
 				showToast("Project created successfully!", "info");
 			}

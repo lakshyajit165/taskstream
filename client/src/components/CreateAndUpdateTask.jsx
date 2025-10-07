@@ -28,24 +28,35 @@ import CloseIcon from "@mui/icons-material/Close";
 import InfoIcon from "@mui/icons-material/Info";
 import ReactMarkdown from "react-markdown";
 import { validateTaskPayload } from "../api/utils/formValidation";
-import { createTask } from "../api/task/tasks";
+import { createTask, updateTask } from "../api/task/tasks";
 import { ToastContext } from "../context/ToastContext";
 import { searchUsers } from "../api/user/users";
 
 const CreateAndUpdateTask = (props) => {
-	const { open, onClose, project, taskState, onTaskSave } = props.config;
+	const { open, onClose, projectId, projectName, projectDueDate, taskState, onTaskSave, task, mode } = props.config;
 	const { showToast } = useContext(ToastContext);
+	const taskId = task ? task.id : null;
+	const setTaskAssignedTo = (() => {
+		if (mode === "update" && task && task.assignedToId && task.assignedToName) {
+			// ✅ Initialize with a full object structure
+			return {
+				id: task.assignedToId, // Assuming you have the ID in the task object
+				name: task.assignedToName,
+			};
+		}
+		return null; // Autocomplete prefers null or an object for its value
+	})();
 	const [taskPayload, setTaskPayload] = useState({
-		title: "",
-		description: "",
-		dueDate: "",
+		title: mode === "update" && task ? task.title : "",
+		description: mode === "update" && task ? task.description : "",
+		dueDate: mode === "update" && task ? task.dueDate : "",
 		state: taskState || "",
-		priority: "",
-		type: "",
-		projectId: project?.id || null,
-		assignedTo: null,
-		targetVersion: "",
-		restrictedEdit: false,
+		priority: mode === "update" && task ? task.priority : "",
+		type: mode === "update" && task ? task.type : "",
+		projectId: projectId || null,
+		assignedTo: setTaskAssignedTo,
+		targetVersion: mode === "update" && task ? task.targetVersion : "",
+		restrictedEdit: mode === "update" && task ? task.restrictedEdit : false,
 	});
 	const [errors, setErrors] = useState({});
 	const [loading, setLoading] = useState(false);
@@ -133,7 +144,6 @@ const CreateAndUpdateTask = (props) => {
 	const submitTask = async (e) => {
 		try {
 			setLoading(true);
-			console.log(taskPayload);
 			e.preventDefault();
 
 			// Create the API payload from the current state
@@ -146,8 +156,15 @@ const CreateAndUpdateTask = (props) => {
 			}
 			const validationErrors = validateTaskPayload(apiPayload);
 			if (Object.keys(validationErrors).length === 0) {
-				const createTaskResponse = await createTask(apiPayload);
-				showToast(createTaskResponse.message, "info");
+				let saveTaskResponse;
+				if (mode === "create") {
+					saveTaskResponse = await createTask(apiPayload);
+				} else if (mode === "update") {
+					saveTaskResponse = await updateTask(taskId, apiPayload);
+				} else {
+					throw new Error("Could not save task");
+				}
+				showToast(saveTaskResponse.message, "info");
 				onTaskSave();
 				// close the modal here
 			} else {
@@ -191,7 +208,7 @@ const CreateAndUpdateTask = (props) => {
 			<Container sx={{ maxWidth: { xs: 400, sm: 600 }, py: 4 }}>
 				<form onSubmit={submitTask}>
 					{/* Project (read-only) */}
-					<TextField fullWidth label="Project" value={project?.title || ""} readOnly margin="normal" />
+					<TextField fullWidth label="Project" value={projectName || ""} readOnly margin="normal" />
 					{/* Title */}
 					<TextField fullWidth label="Task title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
 					<Collapse in={!!errors.title}>
@@ -238,7 +255,7 @@ const CreateAndUpdateTask = (props) => {
 						label="Due Date"
 						format="dd/MM/yyyy"
 						minDate={new Date()}
-						maxDate={new Date(project.dueDate)}
+						maxDate={new Date(projectDueDate)}
 						value={taskPayload.dueDate ? new Date(taskPayload.dueDate) : null}
 						onChange={(newValue) => {
 							const newDueDate = newValue ? newValue.toISOString() : "";
