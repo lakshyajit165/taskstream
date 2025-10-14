@@ -104,12 +104,12 @@ const TaskDetails = () => {
 		try {
 			const response = await deleteTask(id);
 			showToast(response.message || "Task deleted successfully.", "info");
+			navigate(-1);
 		} catch (error) {
 			showToast(error.message || "Error deleting task", "error");
 		} finally {
 			setDeleteTaskLoading(false);
 			setDeleteTaskDialogOpen(false);
-			navigate(-1);
 		}
 	};
 
