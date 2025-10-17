@@ -181,12 +181,12 @@ const TaskDetails = () => {
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 2 }}>
 				{/* Header and Title */}
-				<Typography variant="h4" component="h1" gutterBottom>
-					{task.title}
+				<Typography variant="h5" component="h1" gutterBottom>
+					Task: {task.title}
 				</Typography>
 
 				{/* Status Chips */}
-				<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 3, gap: 1 }}>
+				<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mt: 2, mb: 2, gap: 1 }}>
 					<Chip label={formatEnum(task.state)} color="primary" variant="filled" sx={{ textTransform: "capitalize" }} />
 					<Chip label={`Priority: ${formatEnum(task.priority)}`} color={getPriorityColor(task.priority)} variant="outlined" sx={{ textTransform: "capitalize" }} />
 					<Chip label={`Type: ${formatEnum(task.type)}`} color="info" variant="outlined" sx={{ textTransform: "capitalize" }} />

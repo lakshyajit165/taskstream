@@ -20,7 +20,7 @@ const Projects = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isFiltering, setIsFiltering] = useState(false);
-	const size = 5;
+	const size = 3;
 
 	useEffect(() => {
 		const fetchProjects = async () => {
@@ -47,8 +47,7 @@ const Projects = () => {
 	const ProjectDescription = ({ description }) => (
 		<Box
 			sx={{
-				color: "text.secondary",
-				typography: "body2",
+				typography: "body1",
 				overflow: "hidden",
 				textOverflow: "ellipsis",
 				display: "-webkit-box",
