@@ -16,14 +16,15 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { ToastContext } from "../context/ToastContext";
-import { userLogout } from "../api/utils/apiUtils";
 import { ProjectContext } from "../context/ProjectContext";
+import { AuthContext } from "../context/AuthContext";
 
 const drawerWidth = 240;
 
 const DrawerMenu = () => {
 	const { showToast } = useContext(ToastContext);
 	const { setSelectedProject } = useContext(ProjectContext);
+	const { setLogoutState } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const [drawerOpen, setDrawerOpen] = React.useState(false);
 	const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
@@ -39,7 +40,7 @@ const DrawerMenu = () => {
 	const handleLogoutDialogClose = () => setLogoutDialogOpen(false);
 
 	const handleLogout = () => {
-		userLogout();
+		setLogoutState();
 		setSelectedProject(null); // clear the global state for selected project
 		navigate("/login");
 		showToast("Logout successful", "info");

@@ -186,7 +186,7 @@ const CreateAndUpdateProject = () => {
 
 				<form onSubmit={handleSubmit}>
 					{/* Title */}
-					<TextField label="Title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
+					<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
 					<Collapse in={!!errors.title}>
 						<FormHelperText error>{errors.title}</FormHelperText>
 					</Collapse>
@@ -199,7 +199,7 @@ const CreateAndUpdateProject = () => {
 						{tab === "write" ? (
 							<>
 								<TextField
-									label="Project description"
+									label="Project description (Markdown enabled)"
 									name="description"
 									multiline
 									rows={4}

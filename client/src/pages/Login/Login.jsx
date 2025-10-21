@@ -5,13 +5,14 @@ import { login } from "../../api/auth/auth";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { validateLogin } from "../../api/utils/formValidation";
-import { setAuthToken } from "../../api/utils/apiUtils";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
 	const { showToast } = useContext(ToastContext);
+	const { setLoggedinState } = useContext(AuthContext);
 	const navigate = useNavigate();
 
 	const [loginPayload, setLoginPayload] = useState({
@@ -43,7 +44,7 @@ const Login = () => {
 			setLoading(true);
 			try {
 				const loginResponse = await login(loginPayload);
-				setAuthToken(loginResponse.data.token);
+				setLoggedinState(loginResponse.data.token);
 				showToast(loginResponse.message, "info");
 				setLoading(false);
 				navigate("/");
