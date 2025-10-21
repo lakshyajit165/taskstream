@@ -104,20 +104,28 @@ const CreateAndUpdateProject = () => {
 	};
 
 	const handleSubmit = async (e) => {
+		setLoading(true);
 		e.preventDefault();
 		// const payload = { title, description, dueDate, tags };
 
 		try {
-			if (isEdit) {
-				await updateProject(id, projectPayload);
-				showToast("Project updated successfully!", "info");
+			const validationErrors = validateProject(projectPayload);
+			if (Object.keys(validationErrors).length === 0) {
+				if (isEdit) {
+					await updateProject(id, projectPayload);
+					showToast("Project updated successfully!", "info");
+				} else {
+					await createProject(projectPayload);
+					showToast("Project created successfully!", "info");
+				}
+				navigate("/projects");
 			} else {
-				await createProject(projectPayload);
-				showToast("Project created successfully!", "info");
+				setErrors(validationErrors);
 			}
-			navigate("/projects");
 		} catch (err) {
 			showToast(err.message || "Failed to save project", "error");
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -210,15 +218,22 @@ const CreateAndUpdateProject = () => {
 								return newErrors;
 							});
 						}}
-						renderInput={(params) => (
-							<TextField
-								{...params}
-								fullWidth // ✅ Full width applied here
-								required
-								sx={{ mb: 3 }}
-							/>
-						)}
-						sx={{ width: "100%", mb: 2 }} // optional: ensure container width
+						// renderInput={(params) => (
+						// 	<TextField
+						// 		{...params}
+						// 		fullWidth // ✅ Full width applied here
+						// 		required
+						// 		margin="normal"
+						// 	/>
+						// )}
+						slotProps={{
+							textField: {
+								fullWidth: true,
+								margin: "normal",
+								error: !!errors.dueDate,
+							},
+						}}
+						// sx={{ width: "100%", mb: 2 }} // optional: ensure container width
 					/>
 					<Collapse in={!!errors.dueDate}>
 						<FormHelperText error>{errors.dueDate}</FormHelperText>
@@ -231,8 +246,13 @@ const CreateAndUpdateProject = () => {
 						value={tagInput}
 						onChange={(e) => setTagInput(e.target.value)}
 						onKeyDown={handleAddTag}
-						sx={{ mb: 2 }}
+						// sx={{ mb: 2 }}
+						error={!!errors.tags}
+						margin="normal"
 					/>
+					<Collapse in={!!errors.tags}>
+						<FormHelperText error>{errors.tags}</FormHelperText>
+					</Collapse>
 					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1.5, mb: 3 }}>
 						{projectPayload.tags.map((tag, index) => (
 							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="info" variant="outlined" />
