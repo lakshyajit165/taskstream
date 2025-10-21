@@ -1,7 +1,7 @@
 // src/pages/CreateAndUpdateProject.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, Box, Typography, TextField, Button, Chip, Stack, Autocomplete } from "@mui/material";
+import { Container, Box, Typography, TextField, Button, Chip, Stack, Autocomplete, Tabs, Tab } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../../context/ToastContext";
 import { getProjectById, createProject, updateProject } from "../../api/project/projects";
@@ -18,6 +18,9 @@ const CreateAndUpdateProject = () => {
 	const [dueDate, setDueDate] = useState(""); // string in YYYY-MM-DD
 	const [tags, setTags] = useState([]);
 	const [tagInput, setTagInput] = useState("");
+
+	// Markdown editor tab (write/preview)
+	const [tab, setTab] = useState("write");
 
 	// Prepopulate in edit mode
 	useEffect(() => {
@@ -83,30 +86,51 @@ const CreateAndUpdateProject = () => {
 						justifyContent: "space-between",
 					}}
 				>
-					<Typography variant="h4" component="h2" gutterBottom>
+					<Typography variant="h5" component="h5" gutterBottom>
 						{isEdit ? "Edit Project" : "Create Project"}
 					</Typography>
 				</Box>
 
 				<form onSubmit={handleSubmit}>
 					{/* Title */}
-					<TextField label="Title" fullWidth required value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mb: 3 }} />
+					<TextField label="Title" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mb: 2 }} />
 
-					{/* Description with Markdown preview */}
-					<TextField label="Description (Markdown supported)" fullWidth required multiline minRows={4} value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 1 }} />
-					<Box
-						sx={{
-							border: "1px solid #ccc",
-							borderRadius: 1,
-							p: 2,
-							mb: 3,
-							bgcolor: "#fafafa",
-						}}
-					>
-						<Typography variant="subtitle2" gutterBottom>
-							Preview:
-						</Typography>
-						<ReactMarkdown>{description || "Enter description to update the preview"}</ReactMarkdown>
+					{/* Markdown-enabled Description */}
+					<Box sx={{ mb: 2 }}>
+						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 2 }}>
+							<Tab value="write" label="Write" />
+							<Tab value="preview" label="Preview" />
+						</Tabs>
+						{tab === "write" ? (
+							<>
+								<TextField
+									label="Project description"
+									name="description"
+									multiline
+									rows={4}
+									fullWidth
+									value={description}
+									onChange={(e) => setDescription(e.target.value)}
+									// onChange={handleInputChange}
+									// error={!!errors.description}
+								/>
+								{/* <Collapse in={!!errors.description}>
+									<FormHelperText error>{errors.description}</FormHelperText>
+								</Collapse> */}
+							</>
+						) : (
+							<Box
+								sx={{
+									border: "1px solid #ccc",
+									borderRadius: 1,
+									p: 2,
+									minHeight: "100px",
+									backgroundColor: "#fafafa",
+								}}
+							>
+								<ReactMarkdown>{description || "Nothing to preview"}</ReactMarkdown>
+							</Box>
+						)}
 					</Box>
 
 					<DatePicker

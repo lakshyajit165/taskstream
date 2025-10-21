@@ -119,9 +119,6 @@ const Projects = () => {
 							<TuneOutlinedIcon />
 						</IconButton>
 					</Box>
-
-					{/* Divider below the header elements */}
-					<Divider sx={{ mt: 3 }} />
 				</Box>
 
 				{/* --- END HEADER --- */}
@@ -135,7 +132,7 @@ const Projects = () => {
 					<>
 						{projects.length === 0 ? (
 							<Box sx={{ my: 4, textAlign: "center" }}>
-								<img src={noDataImg} alt="No projects illustration" style={{ maxWidth: "400px", marginBottom: "16px" }} />
+								<img src={noDataImg} alt="No projects illustration" style={{ maxWidth: "300px", marginBottom: "16px" }} />
 								<Typography variant="body1" color="text.secondary">
 									No projects found. Please create one to get started.
 								</Typography>
