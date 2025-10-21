@@ -182,7 +182,7 @@ const Home = () => {
 						alt="Scrum Board"
 						style={{
 							width: "100%", // responsive full width inside container
-							maxWidth: "500px", // don’t stretch too much
+							maxWidth: "400px", // don’t stretch too much
 							height: "auto", // keep aspect ratio
 							borderRadius: "8px",
 						}}

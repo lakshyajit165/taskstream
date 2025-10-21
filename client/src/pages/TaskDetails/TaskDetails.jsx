@@ -181,8 +181,8 @@ const TaskDetails = () => {
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 2 }}>
 				{/* Header and Title */}
-				<Typography variant="h5" component="h1" gutterBottom>
-					Task: {task.title}
+				<Typography variant="h4" component="h1" gutterBottom>
+					{task.title}
 				</Typography>
 
 				{/* Status Chips */}
