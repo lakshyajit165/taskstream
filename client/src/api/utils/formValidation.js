@@ -69,8 +69,8 @@ export const validateProject = (values, errors = {}) => {
 	if ("title" in values) {
 		if (!values.title) {
 			validationErrors.title = "Title is required";
-		} else if (values.title.length < 3) {
-			validationErrors.title = "Title must be at least 3 characters";
+		} else if (values.title.length < 5) {
+			validationErrors.title = "Title must be at least 5 characters";
 		} else {
 			delete validationErrors.title;
 		}
