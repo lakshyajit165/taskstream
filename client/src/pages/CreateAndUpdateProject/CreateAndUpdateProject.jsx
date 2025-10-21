@@ -90,17 +90,56 @@ const CreateAndUpdateProject = () => {
 		if (e.key === "Enter" || e.key === ",") {
 			e.preventDefault();
 			const newTag = tagInput.trim();
-			if (newTag && !projectPayload.tags.includes(newTag)) {
-				// setTags([...tags, newTag]);
-				setProjectPayload((prevPayload) => ({ ...prevPayload, tags: [...projectPayload.tags, newTag] }));
+			if (!newTag) {
+				setTagInput("");
+				return;
 			}
+
+			// Use functional update and avoid duplicates
+			setProjectPayload((prev) => {
+				const existing = prev.tags || [];
+				if (existing.includes(newTag)) {
+					return prev;
+				}
+				const newTags = [...existing, newTag];
+				// Validate tags field only
+				const fieldErrors = validateProject({ tags: newTags });
+
+				setErrors((prevErrors) => {
+					const newErrors = { ...prevErrors };
+					if (fieldErrors.tags) {
+						newErrors.tags = fieldErrors.tags;
+					} else {
+						delete newErrors.tags;
+					}
+					return newErrors;
+				});
+
+				return { ...prev, tags: newTags };
+			});
+
 			setTagInput("");
 		}
 	};
 
 	const handleDeleteTag = (tagToDelete) => {
-		// setTags(tags.filter((t) => t !== tagToDelete));
-		setProjectPayload((prevPayload) => ({ ...prevPayload, tags: projectPayload.tags.filter((t) => t !== tagToDelete) }));
+		setProjectPayload((prev) => {
+			const newTags = (prev.tags || []).filter((t) => t !== tagToDelete);
+
+			// Validate tags field only
+			const fieldErrors = validateProject({ tags: newTags });
+			setErrors((prevErrors) => {
+				const newErrors = { ...prevErrors };
+				if (fieldErrors.tags) {
+					newErrors.tags = fieldErrors.tags;
+				} else {
+					delete newErrors.tags;
+				}
+				return newErrors;
+			});
+
+			return { ...prev, tags: newTags };
+		});
 	};
 
 	const handleSubmit = async (e) => {
