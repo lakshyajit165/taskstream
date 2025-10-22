@@ -13,13 +13,7 @@ const CreateAndUpdateProject = () => {
 	const navigate = useNavigate();
 	const { id } = useParams(); // undefined in create mode
 	const isEdit = Boolean(id);
-
 	const [project, setProject] = useState(null);
-	// const [title, setTitle] = useState("");
-	// const [description, setDescription] = useState("");
-	// const [dueDate, setDueDate] = useState(""); // string in YYYY-MM-DD
-	// const [tags, setTags] = useState([]);
-
 	const [projectPayload, setProjectPayload] = useState({
 		title: isEdit && project ? project.title : "",
 		description: isEdit && project ? project.description : "",
@@ -205,7 +199,6 @@ const CreateAndUpdateProject = () => {
 									rows={4}
 									fullWidth
 									value={projectPayload.description}
-									// onChange={(e) => setDescription(e.target.value)}
 									onChange={handleInputChange}
 									error={!!errors.description}
 								/>
@@ -257,14 +250,6 @@ const CreateAndUpdateProject = () => {
 								return newErrors;
 							});
 						}}
-						// renderInput={(params) => (
-						// 	<TextField
-						// 		{...params}
-						// 		fullWidth // ✅ Full width applied here
-						// 		required
-						// 		margin="normal"
-						// 	/>
-						// )}
 						slotProps={{
 							textField: {
 								fullWidth: true,
@@ -272,7 +257,6 @@ const CreateAndUpdateProject = () => {
 								error: !!errors.dueDate,
 							},
 						}}
-						// sx={{ width: "100%", mb: 2 }} // optional: ensure container width
 					/>
 					<Collapse in={!!errors.dueDate}>
 						<FormHelperText error>{errors.dueDate}</FormHelperText>
