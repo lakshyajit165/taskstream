@@ -1,6 +1,6 @@
 // AuthContext.js
 import React, { useState, useEffect } from "react";
-import { getAuthToken, setAuthToken, userLogout } from "../api/utils/apiUtils";
+import { getAuthToken, setAuthToken, userLogout, registerUnauthorizedCallback } from "../api/utils/apiUtils";
 import { AuthContext } from "../context/AuthContext";
 
 export const AuthProvider = ({ children }) => {
@@ -11,6 +11,13 @@ export const AuthProvider = ({ children }) => {
 		if (storedToken) {
 			setToken(storedToken);
 		}
+		// Register the function that updates the React state
+		registerUnauthorizedCallback(setLogoutState);
+
+		// OPTIONAL: Cleanup function to unregister when the component unmounts (best practice)
+		return () => {
+			registerUnauthorizedCallback(() => {});
+		};
 	}, []);
 
 	const isAuthenticated = !!token;

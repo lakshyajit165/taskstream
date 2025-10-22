@@ -1,4 +1,4 @@
-import { getRequestHeaders, getResponse } from "../utils/apiUtils";
+import { getRequestHeaders, getResponse, checkResponseState } from "../utils/apiUtils";
 
 const BASE_URL = "http://localhost:8000/api/v1/projects";
 
@@ -8,7 +8,8 @@ export const createProject = async (projectData) => {
 		headers: getRequestHeaders(),
 		body: JSON.stringify(projectData),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await response.json();
 
 	if (!response.ok) {
@@ -24,7 +25,8 @@ export const getProjects = async (page, size) => {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -34,7 +36,8 @@ export const getProjectById = async (id) => {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -45,7 +48,8 @@ export const updateProject = async (id, projectData) => {
 		headers: getRequestHeaders(),
 		body: JSON.stringify(projectData),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -55,7 +59,8 @@ export const deleteProject = async (id) => {
 		method: "DELETE",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };

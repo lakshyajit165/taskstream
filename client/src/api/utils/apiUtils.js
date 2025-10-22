@@ -1,3 +1,11 @@
+// 1. Singleton variable to hold the external logout function from AuthProvider
+let onUnauthorizedCallback = () => {};
+
+// 2. Export a function to allow AuthProvider to register the callback
+export const registerUnauthorizedCallback = (callback) => {
+	onUnauthorizedCallback = callback;
+};
+
 export const getRequestHeaders = () => {
 	const authToken = getAuthToken();
 	if (!authToken) {
@@ -14,9 +22,19 @@ export const getResponse = async (response) => {
 	const data = await response.json();
 	if (!response.ok) {
 		// The server sends { message, error: true } for 4xx/5xx
-		throw new Error(data.message || "Error adding task");
+		throw new Error(data.message || "Unknown error occurred");
 	}
 	return data;
+};
+
+export const checkResponseState = (response) => {
+	if (response.status === 401) {
+		// Call the external logout function registered by AuthProvider
+		onUnauthorizedCallback();
+		// Throw an error to stop further processing in the API call chain
+		throw new Error("Session expired or unauthorized access.");
+	}
+	// For other status codes, do nothing (let the API call continue)
 };
 
 export const getAuthToken = () => {
