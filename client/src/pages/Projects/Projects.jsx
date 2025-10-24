@@ -23,21 +23,22 @@ const Projects = () => {
 	const size = 3;
 
 	useEffect(() => {
-		const fetchProjects = async () => {
-			setLoading(true);
-			try {
-				// NOTE: Add search/filter parameters to getProjects here when implemented
-				const response = await getProjects(page, size);
-				setProjects(response.data.projects);
-				setTotalPages(response.data.totalPages);
-			} catch (error) {
-				showToast(error.message || "Error fetching projects", "error");
-			} finally {
-				setLoading(false);
-			}
-		};
 		fetchProjects();
 	}, [page]);
+
+	const fetchProjects = async () => {
+		setLoading(true);
+		try {
+			// NOTE: Add search/filter parameters to getProjects here when implemented
+			const response = await getProjects(page, size);
+			setProjects(response.data.projects);
+			setTotalPages(response.data.totalPages);
+		} catch (error) {
+			showToast(error.message || "Error fetching projects", "error");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handlePageChange = (event, value) => {
 		setPage(value);

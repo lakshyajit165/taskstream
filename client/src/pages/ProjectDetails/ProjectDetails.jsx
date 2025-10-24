@@ -71,7 +71,7 @@ const ProjectDetails = () => {
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 4 }}>
 				{/* Title */}
-				<Typography variant="h4" component="h1" gutterBottom>
+				<Typography variant="h4" component="h4" gutterBottom>
 					{project.title}
 				</Typography>
 

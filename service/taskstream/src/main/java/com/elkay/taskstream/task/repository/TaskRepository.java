@@ -6,6 +6,7 @@ import com.elkay.taskstream.task.payload.TaskDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -41,4 +42,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     """,
             nativeQuery = true)
     Optional<TaskDetailsResponse> findTaskDetailsById(@Param("taskId") Long taskId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tasks WHERE project_id = :projectId", nativeQuery = true)
+    void deleteAllByProjectId(@Param("projectId") Long projectId);
 }

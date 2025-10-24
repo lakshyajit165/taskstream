@@ -58,26 +58,27 @@ const CreateAndUpdateProject = () => {
 	// Prepopulate in edit mode
 	useEffect(() => {
 		if (isEdit) {
-			const fetchProject = async () => {
-				try {
-					const response = await getProjectById(id);
-					const projectDetails = response.data;
-					setProject(projectDetails);
-					// setTitle(projectDetails.title);
-					setProjectPayload((prevPayload) => ({ ...prevPayload, title: projectDetails.title }));
-					setProjectPayload((prevPayload) => ({ ...prevPayload, description: projectDetails.description }));
-					setProjectPayload((prevPayload) => ({ ...prevPayload, dueDate: projectDetails.dueDate }));
-					setProjectPayload((prevPayload) => ({ ...prevPayload, tags: projectDetails.tags }));
-					// setDescription(projectDetails.description);
-					// setDueDate(projectDetails.dueDate); // format YYYY-MM-DD
-					// setTags(projectDetails.tags || []);
-				} catch (error) {
-					showToast(error.message || "Failed to fetch project details", "error");
-				}
-			};
 			fetchProject();
 		}
 	}, [id, isEdit]);
+
+	const fetchProject = async () => {
+		try {
+			const response = await getProjectById(id);
+			const projectDetails = response.data;
+			setProject(projectDetails);
+			// setTitle(projectDetails.title);
+			setProjectPayload((prevPayload) => ({ ...prevPayload, title: projectDetails.title }));
+			setProjectPayload((prevPayload) => ({ ...prevPayload, description: projectDetails.description }));
+			setProjectPayload((prevPayload) => ({ ...prevPayload, dueDate: projectDetails.dueDate }));
+			setProjectPayload((prevPayload) => ({ ...prevPayload, tags: projectDetails.tags }));
+			// setDescription(projectDetails.description);
+			// setDueDate(projectDetails.dueDate); // format YYYY-MM-DD
+			// setTags(projectDetails.tags || []);
+		} catch (error) {
+			showToast(error.message || "Failed to fetch project details", "error");
+		}
+	};
 
 	// Handle adding tags
 	const handleAddTag = (e) => {

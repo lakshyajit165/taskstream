@@ -1,4 +1,4 @@
-import { getRequestHeaders, getResponse } from "../utils/apiUtils";
+import { getRequestHeaders, getResponse, checkResponseState } from "../utils/apiUtils";
 
 const BASE_URL = "http://localhost:8000/api/v1/tasks";
 
@@ -8,7 +8,8 @@ export const createTask = async (taskPayload) => {
 		headers: getRequestHeaders(),
 		body: JSON.stringify(taskPayload),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -18,7 +19,8 @@ export const getTaskById = async (taskId) => {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -28,7 +30,8 @@ export const getTasksByProject = async (projectId, page, size) => {
 		method: "GET",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -39,7 +42,8 @@ export const updateTask = async (taskId, taskPayload) => {
 		headers: getRequestHeaders(),
 		body: JSON.stringify(taskPayload),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };
@@ -49,7 +53,8 @@ export const deleteTask = async (taskId) => {
 		method: "DELETE",
 		headers: getRequestHeaders(),
 	});
-
+	// Check response state for 401 status
+	checkResponseState(response);
 	const data = await getResponse(response);
 	return data;
 };

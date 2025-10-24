@@ -11,6 +11,7 @@ import com.elkay.taskstream.project.model.ProjectTag;
 import com.elkay.taskstream.project.payload.ProjectRequest;
 import com.elkay.taskstream.project.payload.ProjectResponse;
 import com.elkay.taskstream.project.repository.ProjectRepository;
+import com.elkay.taskstream.task.repository.TaskRepository;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.data.domain.Page;
@@ -31,11 +32,13 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
     private final JWTUtil jwtUtil;
     private final HttpServletRequest request;
 
-    public ProjectService(ProjectRepository projectRepository, JWTUtil jwtUtil, HttpServletRequest request) {
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, JWTUtil jwtUtil, HttpServletRequest request) {
         this.projectRepository = projectRepository;
+        this.taskRepository = taskRepository;
         this.jwtUtil = jwtUtil;
         this.request = request;
     }
@@ -155,7 +158,8 @@ public class ProjectService {
         if (!project.getAuthor().equals(authorId)) {
             throw new ForbiddenException("User not allowed to delete this project");
         }
-
+        // 1. Delete all dependent tasks first
+        taskRepository.deleteAllByProjectId(projectId);
         projectRepository.delete(project);
     }
 
