@@ -1,0 +1,24 @@
+# src/test/resources/application-test.yml
+
+# 1. Override Datasource to use H2
+spring:
+  datasource:
+    # Use an in-memory database URL
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    # Spring Boot will automatically choose 'h2' as the platform
+
+  # 2. Reset the database schema for every test run
+  jpa:
+    hibernate:
+      # CRITICAL: Forces Hibernate to recreate the entire schema (all tables)
+      # from scratch for every test run, ensuring a clean state.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+
+  # 3. Disable Flyway for tests
+  # We rely on ddl-auto:create-drop for speed in tests.
+  flyway:
+    enabled: false
