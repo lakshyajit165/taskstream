@@ -79,8 +79,11 @@ const Projects = () => {
 							placeholder="Search projects..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							InputProps={{
-								startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+							slotProps={{
+								SearchIcon: {
+									marginRight: 1,
+									color: "action",
+								},
 							}}
 							sx={{ flexGrow: 1 }}
 						/>

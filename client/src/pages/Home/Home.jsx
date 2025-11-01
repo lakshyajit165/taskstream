@@ -36,6 +36,7 @@ const Home = () => {
 				setProjects(response.data.projects || []);
 			} catch (error) {
 				showToast(error.message || "Failed to load projects", "error");
+				setSelectedProject(null);
 			}
 		};
 		fetchProjects();
@@ -51,6 +52,7 @@ const Home = () => {
 					setTasks(response.data.tasks || []);
 				} catch (error) {
 					showToast(error.message || "Failed to load tasks", "error");
+					setSelectedProject(null);
 				} finally {
 					setTasksLoading(false);
 				}
