@@ -229,7 +229,17 @@ const Home = () => {
 										>
 											<Typography
 												variant="body1"
-												sx={{ fontWeight: "bold", flexGrow: 1, minWidth: 0, mr: 1, maxWidth: "16ch", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+												sx={{
+													color: "#000000",
+													fontWeight: "bold",
+													flexGrow: 1,
+													minWidth: 0,
+													mr: 1,
+													maxWidth: "16ch",
+													overflow: "hidden",
+													whiteSpace: "nowrap",
+													textOverflow: "ellipsis",
+												}}
 											>
 												{task.title}
 											</Typography>
@@ -240,7 +250,12 @@ const Home = () => {
 													disabled={Object.keys(groupedTasks).indexOf(taskState) === 0}
 													onClick={() => updateTaskState(task, "left")}
 												>
-													<KeyboardArrowLeftIcon fontSize="small" />
+													<KeyboardArrowLeftIcon
+														fontSize="small"
+														sx={{
+															color: Object.keys(groupedTasks).indexOf(taskState) === 0 ? "grey" : "#000000",
+														}}
+													/>
 												</IconButton>
 												<IconButton
 													size="small"
@@ -248,10 +263,15 @@ const Home = () => {
 													disabled={Object.keys(groupedTasks).indexOf(taskState) === Object.keys(groupedTasks).length - 1}
 													onClick={() => updateTaskState(task, "right")}
 												>
-													<KeyboardArrowRightIcon fontSize="small" />
+													<KeyboardArrowRightIcon
+														fontSize="small"
+														sx={{
+															color: Object.keys(groupedTasks).indexOf(taskState) === Object.keys(groupedTasks).length - 1 ? "grey" : "#000000",
+														}}
+													/>
 												</IconButton>
 												<IconButton size="small" aria-label="more options" onClick={() => viewTask(task.id)}>
-													<InfoOutlineIcon fontSize="small" />
+													<InfoOutlineIcon fontSize="small" sx={{ color: "#000000" }} />
 												</IconButton>
 											</Box>
 										</Paper>

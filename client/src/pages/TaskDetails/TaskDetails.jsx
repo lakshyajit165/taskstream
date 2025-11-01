@@ -205,11 +205,6 @@ const TaskDetails = () => {
 
 				<Divider sx={{ my: 1 }} />
 
-				{/* Metadata Grid */}
-				<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 500 }}>
-					Details
-				</Typography>
-
 				<Grid container spacing={6}>
 					{/* Column 1: Core Dates & Assignment */}
 					<Grid item xs={12} sm={6} md={4}>

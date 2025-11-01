@@ -5,9 +5,12 @@ import { Container, Box, Typography, CircularProgress, Button, Chip, Stack, Aler
 import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../../context/ToastContext";
 import { deleteProject, getProjectById } from "../../api/project/projects";
-import resourceNotFound from "../../assets/resource_not_found.png";
+import resourceNotFoundLightTheme from "../../assets/resource_not_found_light_theme.png";
+import resourceNotFoundDarkTheme from "../../assets/resource_not_foun_dark_theme.png";
+import { CustomThemeContext } from "../../context/CustomThemeContext";
 
 const ProjectDetails = () => {
+	const { mode } = useContext(CustomThemeContext);
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { showToast } = useContext(ToastContext);
@@ -83,7 +86,7 @@ const ProjectDetails = () => {
 				}}
 			>
 				<img
-					src={resourceNotFound}
+					src={mode === "light" ? resourceNotFoundLightTheme : resourceNotFoundDarkTheme}
 					alt="Page not found illustration" // Improved alt text
 					style={{
 						maxWidth: "300px",

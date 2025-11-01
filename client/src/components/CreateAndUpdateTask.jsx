@@ -227,7 +227,7 @@ const CreateAndUpdateTask = (props) => {
 									label="Task description"
 									name="description"
 									multiline
-									rows={4}
+									rows={8}
 									fullWidth
 									value={taskPayload.description}
 									onChange={handleInputChange}
@@ -239,13 +239,15 @@ const CreateAndUpdateTask = (props) => {
 							</>
 						) : (
 							<Box
-								sx={{
-									border: "1px solid #ccc",
+								sx={(theme) => ({
+									border: `1px solid ${theme.palette.divider}`,
 									borderRadius: 1,
 									p: 2,
-									minHeight: "100px",
-									backgroundColor: "#fafafa",
-								}}
+									height: "184px", // MUI ~23px per row * 8 = 184px
+									overflowY: "auto", // ✅ Scroll when content exceeds
+									backgroundColor: "inherit",
+									color: theme.palette.text.primary,
+								})}
 							>
 								<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
 							</Box>

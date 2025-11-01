@@ -197,7 +197,7 @@ const CreateAndUpdateProject = () => {
 									label="Project description (Markdown enabled)"
 									name="description"
 									multiline
-									rows={4}
+									rows={8}
 									fullWidth
 									value={projectPayload.description}
 									onChange={handleInputChange}
@@ -209,13 +209,15 @@ const CreateAndUpdateProject = () => {
 							</>
 						) : (
 							<Box
-								sx={{
-									border: "1px solid #ccc",
+								sx={(theme) => ({
+									border: `1px solid ${theme.palette.divider}`,
 									borderRadius: 1,
 									p: 2,
-									minHeight: "100px",
-									backgroundColor: "#fafafa",
-								}}
+									height: "184px", // MUI ~23px per row * 8 = 184px
+									overflowY: "auto", // ✅ Scroll when content exceeds
+									backgroundColor: "inherit",
+									color: theme.palette.text.primary,
+								})}
 							>
 								<ReactMarkdown>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
 							</Box>

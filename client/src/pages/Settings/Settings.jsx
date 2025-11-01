@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import {
 	Container,
 	Box,
@@ -13,12 +13,13 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import { CustomThemeContext } from "../../context/CustomThemeContext";
 
 const Settings = () => {
-	const [value, setValue] = useState("light");
+	const { mode, toggleTheme } = useContext(CustomThemeContext);
 
 	const handleChange = (event) => {
-		setValue(event.target.value);
+		toggleTheme(event.target.value);
 	};
 
 	// Component for the Light label with icon
@@ -50,7 +51,7 @@ const Settings = () => {
 				</Typography>
 				<FormControl>
 					{/* <FormLabel id="demo-controlled-radio-buttons-group">Gender</FormLabel> */}
-					<RadioGroup aria-labelledby="demo-controlled-radio-buttons-group" name="controlled-radio-buttons-group" value={value} onChange={handleChange}>
+					<RadioGroup aria-labelledby="demo-controlled-radio-buttons-group" name="controlled-radio-buttons-group" value={mode} onChange={handleChange}>
 						<FormControlLabel
 							value="light"
 							control={<Radio />}

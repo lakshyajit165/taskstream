@@ -1,4 +1,3 @@
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Routes, Route, Navigate } from "react-router-dom";
 import DrawerMenu from "./components/DrawerMenu";
@@ -19,32 +18,11 @@ import { ProjectProvider } from "./providers/ProjectProvider";
 import { AuthProvider } from "./providers/AuthProvider";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
-
-const theme = createTheme({
-	components: {
-		MuiButton: {
-			styleOverrides: {
-				root: {
-					textTransform: "none",
-				},
-			},
-		},
-		MuiTab: {
-			styleOverrides: {
-				root: {
-					textTransform: "none",
-				},
-			},
-		},
-	},
-	typography: {
-		fontFamily: '"Lato", sans-serif',
-	},
-});
+import { CustomThemeProvider } from "./providers/CustomThemeProvider";
 
 function App() {
 	return (
-		<ThemeProvider theme={theme}>
+		<CustomThemeProvider>
 			<CssBaseline />
 			<AuthProvider>
 				<ToastProvider>
@@ -86,7 +64,7 @@ function App() {
 					</LocalizationProvider>
 				</ToastProvider>
 			</AuthProvider>
-		</ThemeProvider>
+		</CustomThemeProvider>
 	);
 }
 

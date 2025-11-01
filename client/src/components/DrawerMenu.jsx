@@ -50,7 +50,7 @@ const DrawerMenu = () => {
 		<Box sx={{ display: "flex" }}>
 			<CssBaseline />
 
-			<AppBar position="fixed">
+			<AppBar position="fixed" color="primary">
 				<Toolbar>
 					<IconButton color="inherit" edge="start" onClick={handleDrawerOpen} sx={{ mr: 2 }}>
 						<MenuIcon />
