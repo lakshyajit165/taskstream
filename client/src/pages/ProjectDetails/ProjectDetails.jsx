@@ -63,11 +63,6 @@ const ProjectDetails = () => {
 
 	if (!project) {
 		return (
-			// <Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
-			// 	<Box sx={{ my: 4 }}>
-			// 		<Alert severity="error">Project not found.</Alert>
-			// 	</Box>
-			// </Container>
 			<Box
 				sx={{
 					// 1. Enable Flexbox for alignment

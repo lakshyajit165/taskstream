@@ -22,6 +22,9 @@ import ReactMarkdown from "react-markdown";
 import { ToastContext } from "../../context/ToastContext";
 import { deleteTask, getTaskById } from "../../api/task/tasks";
 import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
+import resourceNotFoundLightTheme from "../../assets/resource_not_found_light_theme.png";
+import resourceNotFoundDarkTheme from "../../assets/resource_not_foun_dark_theme.png";
+import { CustomThemeContext } from "../../context/CustomThemeContext";
 
 // Helper function to capitalize and format enums
 const formatEnum = (value) => {
@@ -60,6 +63,7 @@ const formatDate = (dateString) => {
 };
 
 const TaskDetails = () => {
+	const { mode } = useContext(CustomThemeContext);
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { showToast } = useContext(ToastContext);
@@ -159,11 +163,35 @@ const TaskDetails = () => {
 
 	if (!task) {
 		return (
-			<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
-				<Box sx={{ my: 4 }}>
-					<Alert severity="error">Task not found or failed to load.</Alert>
-				</Box>
-			</Container>
+			<Box
+				sx={{
+					// 1. Enable Flexbox for alignment
+					display: "flex",
+					// 2. Set direction to column so items stack vertically
+					flexDirection: "column",
+					// 3. Vertically center the content
+					justifyContent: "center",
+					// 4. Horizontally center the content (for the Typography and image)
+					alignItems: "center",
+					// 5. Ensure the box takes up the full viewport height minus any header/footer
+					//    (or 100% of its parent container, e.g., the DrawerMenu content area)
+					minHeight: "50vh", // Adjust this value (e.g., 100vh, 80vh) based on your layout needs
+
+					// Remove the redundant my: 4 style as centering handles the placement
+				}}
+			>
+				<img
+					src={mode === "light" ? resourceNotFoundLightTheme : resourceNotFoundDarkTheme}
+					alt="Page not found illustration" // Improved alt text
+					style={{
+						maxWidth: "300px",
+						marginBottom: "5px",
+					}}
+				/>
+				<Typography variant="body1" color="text.secondary" sx={{ textAlign: "center" }}>
+					Task not found
+				</Typography>
+			</Box>
 		);
 	}
 
