@@ -11,17 +11,21 @@ import com.elkay.taskstream.project.model.ProjectTag;
 import com.elkay.taskstream.project.payload.ProjectRequest;
 import com.elkay.taskstream.project.payload.ProjectResponse;
 import com.elkay.taskstream.project.repository.ProjectRepository;
+import com.elkay.taskstream.project.utils.ProjectSpecifications;
 import com.elkay.taskstream.task.repository.TaskRepository;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +105,38 @@ public class ProjectService {
         Long currentUserId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page - 1, size);
         return projectRepository.findAll(pageable)
+                .map(project -> {
+                    HashMap<String, Object> additionalParams = new HashMap<>();
+                    // editable only if the current user is the author
+                    additionalParams.put("isEditable", project.getAuthor().equals(currentUserId));
+                    return mapToResponse(project, additionalParams);
+                });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProjectResponse> searchProjects(
+            String searchText,
+            LocalDateTime dueDateRangeStart,
+            LocalDateTime dueDateRangeEnd,
+            LocalDateTime createdAtRangeStart,
+            LocalDateTime createdAtRangeEnd,
+            List<String> tags,
+            int page,
+            int size
+    ) {
+        if (page < 1) {
+            throw new BadRequestException("Page number must be at least 1");
+        }
+        if (size < 1 || size > 10) { // You can tweak max size as per your requirements
+            throw new BadRequestException("Page size must be between 1 and 10");
+        }
+        Long currentUserId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Specification<Project> searchProjectSpecification = (root, query, cb) -> cb.conjunction();
+        searchProjectSpecification = searchProjectSpecification
+                .and(ProjectSpecifications.filter(searchText, dueDateRangeStart, dueDateRangeEnd, createdAtRangeStart, createdAtRangeEnd, tags));
+
+        return projectRepository.findAll(searchProjectSpecification, pageable)
                 .map(project -> {
                     HashMap<String, Object> additionalParams = new HashMap<>();
                     // editable only if the current user is the author

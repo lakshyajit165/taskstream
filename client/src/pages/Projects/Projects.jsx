@@ -80,9 +80,11 @@ const Projects = () => {
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							slotProps={{
-								SearchIcon: {
-									marginRight: 1,
-									color: "action",
+								input: {
+									SearchIcon: {
+										marginRight: 1,
+										color: "action",
+									},
 								},
 							}}
 							sx={{ flexGrow: 1 }}
@@ -107,7 +109,7 @@ const Projects = () => {
 						</IconButton>
 
 						{/* Filter Button */}
-						<IconButton
+						{/* <IconButton
 							color=""
 							aria-label="Toggle filters"
 							onClick={() => setIsFiltering(!isFiltering)}
@@ -121,7 +123,7 @@ const Projects = () => {
 							}}
 						>
 							<FilterAltOutlinedIcon />
-						</IconButton>
+						</IconButton> */}
 					</Box>
 				</Box>
 

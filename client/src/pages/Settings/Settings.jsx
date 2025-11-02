@@ -41,14 +41,10 @@ const Settings = () => {
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<Box sx={{ my: 2 }}>
-				{/* Header and Title */}
-				<Typography variant="h5" component="h1" gutterBottom>
-					Settings
-				</Typography>
-				<Divider sx={{ my: 1 }} />
 				<Typography variant="h6" component="h2" gutterBottom>
 					Theme
 				</Typography>
+				<Divider sx={{ my: 1 }} />
 				<FormControl>
 					{/* <FormLabel id="demo-controlled-radio-buttons-group">Gender</FormLabel> */}
 					<RadioGroup aria-labelledby="demo-controlled-radio-buttons-group" name="controlled-radio-buttons-group" value={mode} onChange={handleChange}>

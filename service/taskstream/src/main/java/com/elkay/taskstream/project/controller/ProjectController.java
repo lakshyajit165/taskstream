@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
@@ -83,6 +86,39 @@ public class ProjectController {
         return ResponseEntity.ok(
                 new GenericResponse<>("Projects fetched successfully", false, listProjectResponse)
         );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<GenericResponse<PaginatedProjectResponse>> searchProjects(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) LocalDateTime dueDateRangeStart,
+            @RequestParam(required = false) LocalDateTime dueDateRangeEnd,
+            @RequestParam(required = false) LocalDateTime createdAtRangeStart,
+            @RequestParam(required = false) LocalDateTime createdAtRangeEnd,
+            @RequestParam(required = false) List<String> tags,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProjectResponse> projectPage = projectService.searchProjects(
+                searchText,
+                dueDateRangeStart,
+                dueDateRangeEnd,
+                createdAtRangeStart,
+                createdAtRangeEnd,
+                tags,
+                page,
+                size
+        );
+        // Build response payload
+        PaginatedProjectResponse listProjectResponse = new PaginatedProjectResponse();
+        listProjectResponse.setProjects(projectPage.getContent());
+        listProjectResponse.setCurrentPage(projectPage.getNumber() + 1);
+        listProjectResponse.setTotalPages(projectPage.getTotalPages());
+        listProjectResponse.setTotalElements(projectPage.getTotalElements());
+        return ResponseEntity.ok(
+                new GenericResponse<>("Projects fetched successfully", false, listProjectResponse)
+        );
+
     }
 
     /**
