@@ -10,6 +10,8 @@ import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link as RouterLink } from "react-router-dom";
 import { Divider } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import TuneIcon from "@mui/icons-material/Tune";
 
 const Projects = () => {
 	const { showToast } = useContext(ToastContext);
@@ -81,10 +83,11 @@ const Projects = () => {
 							onChange={(e) => setSearchQuery(e.target.value)}
 							slotProps={{
 								input: {
-									SearchIcon: {
-										marginRight: 1,
-										color: "action",
-									},
+									startAdornment: (
+										<InputAdornment position="start">
+											<SearchIcon />
+										</InputAdornment>
+									),
 								},
 							}}
 							sx={{ flexGrow: 1 }}
@@ -109,7 +112,7 @@ const Projects = () => {
 						</IconButton>
 
 						{/* Filter Button */}
-						{/* <IconButton
+						<IconButton
 							color=""
 							aria-label="Toggle filters"
 							onClick={() => setIsFiltering(!isFiltering)}
@@ -122,8 +125,8 @@ const Projects = () => {
 								flexShrink: 0,
 							}}
 						>
-							<FilterAltOutlinedIcon />
-						</IconButton> */}
+							<TuneIcon />
+						</IconButton>
 					</Box>
 				</Box>
 
