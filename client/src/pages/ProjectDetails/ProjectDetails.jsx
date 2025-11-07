@@ -146,10 +146,13 @@ const ProjectDetails = () => {
 							minWidth: "350px",
 						},
 					}}
+					maxWidth="sm"
 				>
 					<DialogTitle id="delete-project-dialog-title">{"Delete Project"}</DialogTitle>
 					<DialogContent>
-						<DialogContentText id="delete-project-dialog-description">Are you sure you want to delete this project?</DialogContentText>
+						<DialogContentText id="delete-project-dialog-description">
+							Deleting this project will permanently delete all linked tasks. Are you sure you wish to delete this project?
+						</DialogContentText>
 					</DialogContent>
 					<DialogActions
 						sx={{

@@ -7,6 +7,8 @@ import { ToastContext } from "../../context/ToastContext";
 import { getProjectById, createProject, updateProject } from "../../api/project/projects";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { validateProject } from "../../api/utils/formValidation";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -184,8 +186,8 @@ const CreateAndUpdateProject = () => {
 					{/* Markdown-enabled Description */}
 					<Box sx={{ mb: 2 }}>
 						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 2 }}>
-							<Tab value="write" label="Write" />
-							<Tab value="preview" label="Preview" />
+							<Tab value="write" label="Write" icon={<EditNoteIcon />} iconPosition="start" />
+							<Tab value="preview" label="Preview" icon={<ViewHeadlineIcon />} iconPosition="start" />
 						</Tabs>
 						{tab === "write" ? (
 							<>
@@ -275,9 +277,9 @@ const CreateAndUpdateProject = () => {
 					<Collapse in={!!errors.tags}>
 						<FormHelperText error>{errors.tags}</FormHelperText>
 					</Collapse>
-					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1.5, mb: 3 }}>
+					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1, mb: 3 }}>
 						{projectPayload.tags.map((tag, index) => (
-							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="info" variant="outlined" />
+							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" />
 						))}
 					</Stack>
 

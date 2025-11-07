@@ -48,3 +48,31 @@ export const setAuthToken = (token) => {
 export const userLogout = () => {
 	localStorage.removeItem("token");
 };
+
+export const buildQueryParams = (filters, currentPage, pageSize) => {
+	const params = new URLSearchParams();
+
+	// Mapping over all filter keys
+	Object.keys(filters).forEach((key) => {
+		const value = filters[key];
+
+		// Only add the parameter if the value is not null, not undefined, and not an empty string
+		if (value !== null && value !== undefined && value !== "") {
+			if (Array.isArray(value)) {
+				value.forEach((item) => {
+					// Append the key for each item in the array
+					params.append(key, item);
+				});
+			} else {
+				// Append single values (strings, dates, numbers) as before
+				params.append(key, value);
+			}
+		}
+	});
+
+	// Add required parameters
+	params.append("page", currentPage);
+	params.append("size", pageSize);
+
+	return params.toString();
+};

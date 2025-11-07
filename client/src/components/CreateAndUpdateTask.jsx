@@ -31,6 +31,8 @@ import { validateTaskPayload } from "../api/utils/formValidation";
 import { createTask, updateTask } from "../api/task/tasks";
 import { ToastContext } from "../context/ToastContext";
 import { searchUsers } from "../api/user/users";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 
 const CreateAndUpdateTask = (props) => {
 	const { open, onClose, projectId, projectName, projectDueDate, taskState, onTaskSave, task, mode } = props.config;
@@ -218,8 +220,8 @@ const CreateAndUpdateTask = (props) => {
 					{/* Markdown-enabled Description */}
 					<Box sx={{ marginBottom: "2px" }}>
 						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 1 }}>
-							<Tab value="write" label="Write" />
-							<Tab value="preview" label="Preview" />
+							<Tab value="write" label="Write" icon={<EditNoteIcon />} iconPosition="start" />
+							<Tab value="preview" label="Preview" icon={<ViewHeadlineIcon />} iconPosition="start" />
 						</Tabs>
 						{tab === "write" ? (
 							<>
