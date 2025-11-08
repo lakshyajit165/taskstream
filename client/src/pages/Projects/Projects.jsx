@@ -6,7 +6,6 @@ import { Container, Box, Typography, CircularProgress, Pagination, Stack, Chip, 
 import ReactMarkdown from "react-markdown";
 import noDataImg from "../../assets/no_data.png";
 import AddIcon from "@mui/icons-material/Add";
-import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link as RouterLink } from "react-router-dom";
 import { Divider } from "@mui/material";
