@@ -5,13 +5,20 @@ import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.RoleRepository;
 import com.elkay.taskstream.auth.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.sql.DataSource;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -19,7 +26,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+/**
+CRITICAL TEST SETUP: These annotations ensure the test environment is isolated and pre-populated.
+ 1. @ActiveProfiles("test"): Activates the 'test' profile, which loads 'application-test.yml'. This guarantees
+    that the in-memory H2 database and necessary test-specific configurations (like ddl-auto: create-drop) are used,
+    overriding production settings.
+ 2. @Sql(...): Executes the /data.sql script (which contains necessary INSERT statements for roles/users)
+    once before any test method runs. This guarantees that the required initial data exists in the database
+    immediately after the schema is created by Hibernate, ensuring a clean and consistent state for every test run.
+ */
+@ActiveProfiles("test")
+@Sql(scripts = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class AuthControllerTest {
+
 
     @Autowired
     private MockMvc mockMvc;

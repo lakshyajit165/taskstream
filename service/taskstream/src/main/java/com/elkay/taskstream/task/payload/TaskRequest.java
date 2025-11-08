@@ -6,7 +6,7 @@ import com.elkay.taskstream.task.model.TaskType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class TaskRequest {
 
@@ -17,7 +17,7 @@ public class TaskRequest {
     private String description;
 
     @NotNull(message = "Due date is required")
-    private LocalDateTime dueDate;
+    private Instant dueDate;
 
     @NotNull(message = "State is required")
     private TaskState state;
@@ -59,11 +59,11 @@ public class TaskRequest {
         this.description = description;
     }
 
-    public LocalDateTime getDueDate() {
+    public Instant getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 

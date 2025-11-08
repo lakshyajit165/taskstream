@@ -1,6 +1,6 @@
 package com.elkay.taskstream.project.payload;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +9,9 @@ public class ProjectResponse {
     private Long id;
     private String title;
     private String description;
-    private LocalDateTime dueDate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant dueDate;
+    private Instant createdAt;
+    private Instant updatedAt;
     private List<String> tags;
 
     /**
@@ -29,8 +29,8 @@ public class ProjectResponse {
     }
 
     // constructor
-    public ProjectResponse(Long id, String title, String description, LocalDateTime dueDate,
-                           LocalDateTime createdAt, LocalDateTime updatedAt, List<String> tags, Map<String, ?> additionalParams) {
+    public ProjectResponse(Long id, String title, String description, Instant dueDate,
+                           Instant createdAt, Instant updatedAt, List<String> tags, Map<String, ?> additionalParams) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -47,9 +47,9 @@ public class ProjectResponse {
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public LocalDateTime getDueDate() { return dueDate; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Instant getDueDate() { return dueDate; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
     public List<String> getTags() { return tags; }
     public Map<String, Object> getAdditionalParams() { return additionalParams; }
 
@@ -65,15 +65,15 @@ public class ProjectResponse {
         this.description = description;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 

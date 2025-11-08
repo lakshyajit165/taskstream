@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
@@ -27,7 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Tells JUnit to create only one instance of the test class
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Tells JUnit to create only one instance of the test
+@ActiveProfiles("test")
+@Sql(scripts = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class ProjectControllerTest {
 
     @Autowired
@@ -75,7 +80,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("My Project");
         request.setDescription("Description");
-        request.setDueDate(LocalDateTime.now().plusDays(7));
+        request.setDueDate(LocalDateTime.now().plusDays(7).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag1", "tag2"));
 
         mockMvc.perform(post("/api/v1/projects/create")
@@ -93,7 +99,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("Project Without JWT");
         request.setDescription("Desc");
-        request.setDueDate(LocalDateTime.now().plusDays(5));
+        request.setDueDate(LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag"));
 
         mockMvc.perform(post("/api/v1/projects/create")
@@ -107,7 +114,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("Project created by non admin");
         request.setDescription("Desc");
-        request.setDueDate(LocalDateTime.now().plusDays(5));
+        request.setDueDate(LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag"));
 
         mockMvc.perform(post("/api/v1/projects/create")
@@ -127,7 +135,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("Paginated Project");
         request.setDescription("Desc");
-        request.setDueDate(LocalDateTime.now().plusDays(5));
+        request.setDueDate(LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag1"));
 
         // create project(by admin)
@@ -162,7 +171,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("Global Project");
         request.setDescription("Some description");
-        request.setDueDate(LocalDateTime.now().plusDays(4));
+        request.setDueDate(LocalDateTime.now().plusDays(4).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag1"));
 
         mockMvc.perform(post("/api/v1/projects/create")
@@ -198,7 +208,8 @@ public class ProjectControllerTest {
         ProjectRequest createRequest = new ProjectRequest();
         createRequest.setTitle("Get Project by id");
         createRequest.setDescription("Project description");
-        createRequest.setDueDate(LocalDateTime.now().plusDays(3).withHour(0).withMinute(0).withSecond(0).withNano(0));
+        createRequest.setDueDate(LocalDateTime.now().plusDays(3).withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.systemDefault())
+                .toInstant());
         createRequest.setTags(Set.of("tag1"));
 
         // create project
@@ -212,7 +223,7 @@ public class ProjectControllerTest {
         long projectId = objectMapper.readTree(createResponse).path("data").path("id").asLong();
 
         // format with seconds
-        String expectedDueDate = createRequest.getDueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        String expectedDueDate = createRequest.getDueDate().toString();
 
         mockMvc.perform(get("/api/v1/projects/" + projectId)
                         .header("Authorization", "Bearer " + jwtTokenUser))
@@ -244,7 +255,8 @@ public class ProjectControllerTest {
         ProjectRequest createRequest = new ProjectRequest();
         createRequest.setTitle("Old Title");
         createRequest.setDescription("Old Desc");
-        createRequest.setDueDate(LocalDateTime.now().plusDays(3));
+        createRequest.setDueDate(LocalDateTime.now().plusDays(3).atZone(ZoneId.systemDefault())
+                .toInstant());
         createRequest.setTags(Set.of("tag1"));
 
         // create projects
@@ -260,7 +272,8 @@ public class ProjectControllerTest {
         ProjectRequest updateRequest = new ProjectRequest();
         updateRequest.setTitle("Updated Title");
         updateRequest.setDescription("Updated Desc");
-        updateRequest.setDueDate(LocalDateTime.now().plusDays(10));
+        updateRequest.setDueDate(LocalDateTime.now().plusDays(10).atZone(ZoneId.systemDefault())
+                .toInstant());
         updateRequest.setTags(Set.of("tag2", "tag3"));
 
         // update project
@@ -278,7 +291,8 @@ public class ProjectControllerTest {
         ProjectRequest updateRequest = new ProjectRequest();
         updateRequest.setTitle("Title");
         updateRequest.setDescription("Desc");
-        updateRequest.setDueDate(LocalDateTime.now().plusDays(2));
+        updateRequest.setDueDate(LocalDateTime.now().plusDays(2).atZone(ZoneId.systemDefault())
+                .toInstant());
         updateRequest.setTags(Set.of("tag"));
 
         mockMvc.perform(put("/api/v1/projects/9999")
@@ -297,7 +311,8 @@ public class ProjectControllerTest {
         ProjectRequest request = new ProjectRequest();
         request.setTitle("Delete Project");
         request.setDescription("Desc");
-        request.setDueDate(LocalDateTime.now().plusDays(5));
+        request.setDueDate(LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault())
+                .toInstant());
         request.setTags(Set.of("tag1"));
 
         // create project

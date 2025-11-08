@@ -5,17 +5,17 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public class ProjectSpecifications {
     
     public static Specification<Project> filter(
             String searchText,
-            LocalDateTime dueDateRangeStart,
-            LocalDateTime dueDateRangeEnd,
-            LocalDateTime createdAtRangeStart,
-            LocalDateTime createdAtRangeEnd,
+            Instant dueDateRangeStart,
+            Instant dueDateRangeEnd,
+            Instant createdAtRangeStart,
+            Instant createdAtRangeEnd,
             List<String> tags
     ) {
         return (root, query, cb) -> {

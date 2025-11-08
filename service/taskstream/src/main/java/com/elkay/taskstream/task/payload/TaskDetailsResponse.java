@@ -3,28 +3,23 @@ package com.elkay.taskstream.task.payload;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
+
 
 public class TaskDetailsResponse implements Serializable {
     // --- Task Fields (t.*) ---
     private Long id;
     private String title;
     private String description;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private Timestamp dueDate; // time stamp needed for native query
+    
+    private Instant dueDate; // time stamp needed for native query
 
     private String state;        // Mapped from t.state (EnumType.STRING)
     private String priority;     // Mapped from t.priority (EnumType.STRING)
     private String type;         // Mapped from t.type (EnumType.STRING)
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private Timestamp createdAt;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private Timestamp updatedAt;
+    
+    private Instant createdAt;
+    private Instant updatedAt;
 
     private String targetVersion;
     private Boolean restrictedEdit;
@@ -34,7 +29,7 @@ public class TaskDetailsResponse implements Serializable {
     private String projectName;  // Mapped from p.title AS project_name
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private Timestamp projectDueDate; // Mapped from p.due_date as project_due_date
+    private Instant projectDueDate; // Mapped from p.due_date as project_due_date
 
     // --- Assigned To User (ua.*) ---
     private Long assignedToId;   // Mapped from ua.id AS assigned_to_id
@@ -51,7 +46,7 @@ public class TaskDetailsResponse implements Serializable {
     public TaskDetailsResponse() {
     }
 
-    public TaskDetailsResponse(Long id, String title, String description, Timestamp dueDate, String state, String priority, String type, Timestamp createdAt, Timestamp updatedAt, String targetVersion, Boolean restrictedEdit, Long projectId, String projectName, Timestamp projectDueDate, Long assignedToId, String assignedToName, Long createdById, String createdByName, Long updatedById, String updatedByName) {
+    public TaskDetailsResponse(Long id, String title, String description, Instant dueDate, String state, String priority, String type, Instant createdAt, Instant updatedAt, String targetVersion, Boolean restrictedEdit, Long projectId, String projectName, Instant projectDueDate, Long assignedToId, String assignedToName, Long createdById, String createdByName, Long updatedById, String updatedByName) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -98,11 +93,11 @@ public class TaskDetailsResponse implements Serializable {
         this.description = description;
     }
 
-    public Timestamp getDueDate() {
+    public Instant getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Timestamp dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -130,19 +125,19 @@ public class TaskDetailsResponse implements Serializable {
         this.type = type;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -178,11 +173,11 @@ public class TaskDetailsResponse implements Serializable {
         this.projectName = projectName;
     }
 
-    public Timestamp getProjectDueDate() {
+    public Instant getProjectDueDate() {
         return projectDueDate;
     }
 
-    public void setProjectDueDate(Timestamp projectDueDate) {
+    public void setProjectDueDate(Instant projectDueDate) {
         this.projectDueDate = projectDueDate;
     }
 

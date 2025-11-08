@@ -2,7 +2,7 @@ package com.elkay.taskstream.task.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "tasks")
@@ -14,7 +14,7 @@ public class Task {
 
     private String title;
     private String description;
-    private LocalDateTime dueDate;
+    private Instant dueDate;
 
     @Enumerated(EnumType.STRING)
     private TaskState state;
@@ -32,18 +32,18 @@ public class Task {
     private String targetVersion;
     private Boolean restrictedEdit;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     // getters, setters, constructors...
 
     public Task() {
     }
 
-    public Task(Long id, String title, String description, LocalDateTime dueDate,
+    public Task(Long id, String title, String description, Instant dueDate,
                 TaskState state, TaskPriority priority, TaskType type,
                 Long projectId, Long createdBy, Long updatedBy, Long assignedTo, String targetVersion,
-                Boolean restrictedEdit, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                Boolean restrictedEdit, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -85,11 +85,11 @@ public class Task {
         this.description = description;
     }
 
-    public LocalDateTime getDueDate() {
+    public Instant getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -165,19 +165,19 @@ public class Task {
         this.restrictedEdit = restrictedEdit;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

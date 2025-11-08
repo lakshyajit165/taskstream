@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,10 +116,10 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public Page<ProjectResponse> searchProjects(
             String searchText,
-            LocalDateTime dueDateRangeStart,
-            LocalDateTime dueDateRangeEnd,
-            LocalDateTime createdAtRangeStart,
-            LocalDateTime createdAtRangeEnd,
+            Instant dueDateRangeStart,
+            Instant dueDateRangeEnd,
+            Instant createdAtRangeStart,
+            Instant createdAtRangeEnd,
             List<String> tags,
             int page,
             int size

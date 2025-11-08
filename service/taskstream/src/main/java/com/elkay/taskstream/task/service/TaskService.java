@@ -20,7 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -70,8 +71,8 @@ public class TaskService {
         task.setAssignedTo(assignedUser.getId());
         task.setTargetVersion(taskRequest.getTargetVersion());
         task.setRestrictedEdit(taskRequest.getRestrictedEdit());
-        task.setCreatedAt(LocalDateTime.now());
-        task.setUpdatedAt(LocalDateTime.now());
+        task.setCreatedAt(Instant.now());
+        task.setUpdatedAt(Instant.now());
 
         return taskRepository.save(task);
     }
@@ -124,7 +125,7 @@ public class TaskService {
         task.setUpdatedBy(currentUserId);
         task.setTargetVersion(request.getTargetVersion());
         task.setRestrictedEdit(request.getRestrictedEdit());
-        task.setUpdatedAt(LocalDateTime.now());
+        task.setUpdatedAt(Instant.now());
         task.setUpdatedBy(currentUserId);
 
         return taskRepository.save(task);

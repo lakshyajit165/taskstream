@@ -152,6 +152,27 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<!--
+
+			A great comment explaining why this configuration is required in the maven-surefire-plugin would be:
+			Summary of Purpose
+			- This configuration is essential to guarantee that the isolated test environment is loaded when running tests via the command line (mvn test).
+			- Plugin: The maven-surefire-plugin runs the tests.
+			- argLine: Passes JVM arguments specifically to the process that runs your tests.
+			- -Dspring.profiles.active=test: This JVM argument explicitly activates the test profile.
+			Without this, the test runner might fail to load the application-test.yml overrides reliably,
+			causing it to fall back to the default application.yml and attempt to connect to the external PostgreSQL database.
+
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version> <configuration>
+				<argLine>
+					-Dspring.profiles.active=test
+				</argLine>
+			</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>

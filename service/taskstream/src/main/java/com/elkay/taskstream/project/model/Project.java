@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,18 +25,18 @@ public class Project {
     @Column(length = 2000)
     private String description;
 
-    private LocalDateTime dueDate;
+    private Instant dueDate;
 
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     /**
      * orphanRemoval = true is useful when a child entity cannot exist without its parent.
@@ -47,7 +47,7 @@ public class Project {
 
     public Project() {}
 
-    public Project(String title, String description, LocalDateTime dueDate, Long authorId) {
+    public Project(String title, String description, Instant dueDate, Long authorId) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
@@ -61,12 +61,12 @@ public class Project {
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public LocalDateTime getDueDate() { return dueDate; }
-    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public Instant getDueDate() { return dueDate; }
+    public void setDueDate(Instant dueDate) { this.dueDate = dueDate; }
     public Long getAuthor() { return authorId; }
     public void setCreatedBy(Long authorId) { this.authorId = authorId; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
     public Set<ProjectTag> getTags() { return tags; }
     public void setTags(Set<ProjectTag> tags) { this.tags = tags; }
 

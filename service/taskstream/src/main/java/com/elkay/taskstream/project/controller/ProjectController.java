@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -91,10 +91,10 @@ public class ProjectController {
     @GetMapping("/search")
     public ResponseEntity<GenericResponse<PaginatedProjectResponse>> searchProjects(
             @RequestParam(required = false) String searchText,
-            @RequestParam(required = false) LocalDateTime dueDateRangeStart,
-            @RequestParam(required = false) LocalDateTime dueDateRangeEnd,
-            @RequestParam(required = false) LocalDateTime createdAtRangeStart,
-            @RequestParam(required = false) LocalDateTime createdAtRangeEnd,
+            @RequestParam(required = false) Instant dueDateRangeStart,
+            @RequestParam(required = false) Instant dueDateRangeEnd,
+            @RequestParam(required = false) Instant createdAtRangeStart,
+            @RequestParam(required = false) Instant createdAtRangeEnd,
             @RequestParam(required = false) List<String> tags,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
