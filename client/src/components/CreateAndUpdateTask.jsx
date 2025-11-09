@@ -101,8 +101,7 @@ const CreateAndUpdateTask = (props) => {
 					const users = await searchUsers(query);
 					setUserOptions(users?.data?.userSuggestions || []);
 				} catch (error) {
-					console.error("Failed to fetch users:", error);
-					showToast("Failed to load user options.", "error");
+					showToast(error.message || "Failed to load user options.", "error");
 					setUserOptions([]);
 				} finally {
 					setUsersLoading(false);

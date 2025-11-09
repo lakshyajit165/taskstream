@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { getProjects } from "../../api/project/projects";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
@@ -40,20 +40,73 @@ const Projects = () => {
 	});
 	const [tagInput, setTagInput] = useState("");
 	const [dialogFilterCount, setDialogFilterCount] = useState(0);
+	const searchTimeoutRef = useRef(null);
+
+	/**
+	 *	Hook
+       	- useCallback		 
+	   		- Primary Purpose: Caches the provided function definition itself.	
+			- When to Use: When passing a function to an optimized child component to 
+				prevent unnecessary re-renders.
+		- useMemo	
+			- Primary Purpose: Caches the result of an expensive function call (a value).	
+			- When to Use: When calculating a costly value that shouldn't be re-calculated on every render.
+	 * 
+	*/
+
+	const fetchProjects = useCallback(async () => {
+		setLoading(true);
+		try {
+			// NOTE: Add search/filter parameters to getProjects here when implemented
+			const queryParams = buildQueryParams(searchFilters, page, size);
+			const response = await getProjects(queryParams);
+			setProjects(response.data.projects);
+			setTotalPages(response.data.totalPages);
+		} catch (error) {
+			showToast(error.message || "Error fetching projects", "error");
+		} finally {
+			setLoading(false);
+		}
+	}, [searchFilters, page, size]);
 
 	useEffect(() => {
 		fetchProjects();
 	}, [page]);
 
-	const handleSearchTextChange = async (event) => {
-		setSearchFilters((filters) => {
-			return { ...filters, searchText: event.target.value };
-		});
-		if (!searchFilters.searchText) {
-			return;
-		}
-		await fetchProjects();
-	};
+	// --- Debounced Project Search Function ---
+
+	const handleSearchTextChange = useCallback(
+		async (event) => {
+			const newSearchText = event.target.value;
+
+			// Immediately update the display state (the input field)
+			setSearchFilters((filters) => {
+				return { ...filters, searchText: newSearchText };
+			});
+
+			// Clear any existing timer
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current);
+			}
+
+			// Only start debouncing if the query is not empty
+			if (!newSearchText.trim()) {
+				// If query is cleared, fetch immediately to reset the list
+				if (searchFilters.searchText.trim()) {
+					await fetchProjects();
+				}
+				return;
+			}
+
+			// Set a new timer
+			searchTimeoutRef.current = setTimeout(() => {
+				// Note: fetchProjects will use the `searchFilters.searchText` value
+				// which was already updated by setSearchFilters above.
+				fetchProjects();
+			}, 500); // Debounce delay of 500ms
+		},
+		[searchFilters, fetchProjects]
+	);
 
 	const handleFilterDialogOpen = () => {
 		setOpenFilterDialog(true);
@@ -67,21 +120,6 @@ const Projects = () => {
 		event.preventDefault();
 		console.log(searchFilters);
 		handleFilterDialogClose();
-	};
-
-	const fetchProjects = async () => {
-		setLoading(true);
-		try {
-			// NOTE: Add search/filter parameters to getProjects here when implemented
-			const queryParams = buildQueryParams(searchFilters, page, size);
-			const response = await getProjects(queryParams);
-			setProjects(response.data.projects);
-			setTotalPages(response.data.totalPages);
-		} catch (error) {
-			showToast(error.message || "Error fetching projects", "error");
-		} finally {
-			setLoading(false);
-		}
 	};
 
 	const handlePageChange = (event, value) => {
@@ -251,7 +289,7 @@ const Projects = () => {
 							<Box sx={{ my: 4, textAlign: "center" }}>
 								<img src={noDataImg} alt="No projects illustration" style={{ maxWidth: "300px", marginBottom: "16px" }} />
 								<Typography variant="body1" color="text.secondary">
-									No projects found. Please create one to get started.
+									No projects found. Please create one to get started or modify the search filters.
 								</Typography>
 							</Box>
 						) : (
