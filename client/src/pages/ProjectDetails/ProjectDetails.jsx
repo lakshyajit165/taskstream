@@ -104,7 +104,40 @@ const ProjectDetails = () => {
 				</Typography>
 
 				{/* Description (Markdown, no border) */}
-				<Box sx={{ mb: 3 }}>
+				<Box
+					sx={{
+						mb: 3,
+						// --- General Markdown Styling Fixes ---
+						"& *": {
+							// Ensure all content wraps properly
+							wordBreak: "break-word",
+							overflowWrap: "break-word",
+						},
+						"& ul, & ol": {
+							ml: 0,
+							paddingLeft: "20px",
+						},
+						"& img": {
+							// Make images responsive
+							maxWidth: "100%",
+							height: "auto",
+							display: "block",
+						},
+						// --- FIX FOR LINKS (<a> tags) ---
+						"& a": {
+							textDecoration: "none",
+							// Use primary color for visibility on a detail page
+							color: (theme) => theme.palette.primary.main,
+							cursor: "pointer",
+						},
+						// Ensure no underline appears on hover/focus/visited/active
+						"& a:hover, & a:focus, & a:visited, & a:active": {
+							textDecoration: "none",
+							color: (theme) => theme.palette.primary.main, // Slightly darker on hover
+						},
+						// --- END FIX ---
+					}}
+				>
 					<ReactMarkdown>{project.description}</ReactMarkdown>
 				</Box>
 

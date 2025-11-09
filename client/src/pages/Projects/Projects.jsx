@@ -120,6 +120,7 @@ const Projects = () => {
 	};
 
 	// Component for rendering the project description in a clean way
+	// Component for rendering the project description in a clean way
 	const ProjectDescription = ({ description }) => (
 		<Box
 			sx={{
@@ -132,6 +133,38 @@ const Projects = () => {
 				mt: 0.5,
 				"& p": { m: 0 },
 				"& h1, & h2, & h3, & h4, & h5, & h6": { m: 0, fontSize: "inherit" },
+
+				// --- FIX: Prevent Horizontal Scroll for all content ---
+				"& *": {
+					// General rule for all descendants to help with wrapping
+					wordBreak: "break-word",
+					overflowWrap: "break-word",
+				},
+				"& ul, & ol": {
+					// Specifically for lists to ensure they don't overflow
+					ml: 0,
+					paddingLeft: "20px",
+				},
+				"& img": {
+					// Make images responsive within the container
+					maxWidth: "100%",
+					height: "auto",
+					display: "block",
+				},
+				// Increased specificity to ensure link styling applies
+				"& a": {
+					// Ensure text decoration is removed across all states
+					textDecoration: "none",
+					// Set the link color
+					color: (theme) => theme.palette.text.primary,
+					cursor: "pointer",
+				},
+				// Explicitly cover hover, focus, and visited states to ensure no underline appears
+				"& a:hover, & a:focus, & a:visited, & a:active": {
+					textDecoration: "none",
+					color: (theme) => theme.palette.text.primary,
+				},
+				// --- END FIX ---
 			}}
 		>
 			<ReactMarkdown>{description}</ReactMarkdown>
