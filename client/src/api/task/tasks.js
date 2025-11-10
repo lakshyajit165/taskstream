@@ -1,6 +1,7 @@
 import { getRequestHeaders, getResponse, checkResponseState } from "../utils/apiUtils";
+import { HOST_URL } from "../utils/constants";
 
-const BASE_URL = "http://localhost:8000/api/v1/tasks";
+const BASE_URL = `${HOST_URL}/api/v1/tasks`;
 
 export const createTask = async (taskPayload) => {
 	const response = await fetch(`${BASE_URL}/create`, {

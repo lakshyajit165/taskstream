@@ -1,6 +1,7 @@
 import { getResponse } from "../utils/apiUtils";
+import { HOST_URL } from "../utils/constants";
 
-const BASE_URL = "http://localhost:8000/api/v1/auth";
+const BASE_URL = `${HOST_URL}/api/v1/auth`;
 
 export const login = async (loginData) => {
 	const response = await fetch(`${BASE_URL}/login`, {

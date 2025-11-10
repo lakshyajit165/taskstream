@@ -1,6 +1,7 @@
 import { getRequestHeaders, getResponse, checkResponseState } from "../utils/apiUtils";
+import { HOST_URL } from "../utils/constants";
 
-const BASE_URL = "http://localhost:8000/api/v1/projects";
+const BASE_URL = `${HOST_URL}/api/v1/projects`;
 
 export const createProject = async (projectData) => {
 	const response = await fetch(`${BASE_URL}/create`, {

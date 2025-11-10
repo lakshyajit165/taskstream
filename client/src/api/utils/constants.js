@@ -3,3 +3,4 @@ export const IN_PROGRESS_TASK_BACKGROUND_COLOR = "#fffde7";
 export const COMPLETED_TASK_BACKGROUND_COLOR = "#edfbdeff";
 export const BACKLOG_TASK_BACKGROUND_COLOR = "#ffebee";
 export const DEFAULT_TASK_BACKGROUND_COLOR = "background.paper";
+export const HOST_URL = "http://localhost:8000";

@@ -1,6 +1,7 @@
 import { getRequestHeaders, getResponse, checkResponseState } from "../utils/apiUtils";
+import { HOST_URL } from "../utils/constants";
 
-const BASE_URL = "http://localhost:8000/api/v1/users";
+const BASE_URL = `${HOST_URL}/api/v1/users`;
 
 export const searchUsers = async (name) => {
 	const response = await fetch(`${BASE_URL}/search?name=${name}`, {

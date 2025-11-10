@@ -30,14 +30,15 @@ const Projects = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const size = 3;
 	const [openFilterDialog, setOpenFilterDialog] = useState(false);
-	const [searchFilters, setSearchFilters] = useState({
+	const defaultSearchFilters = {
 		searchText: "",
 		dueDateRangeStart: "",
 		dueDateRangeEnd: "",
 		createdDateRangeStart: "",
 		createdDateRangeEnd: "",
 		tags: [],
-	});
+	};
+	const [searchFilters, setSearchFilters] = useState(defaultSearchFilters);
 	const [tagInput, setTagInput] = useState("");
 	const [dialogFilterCount, setDialogFilterCount] = useState(0);
 	const searchTimeoutRef = useRef(null);
@@ -54,20 +55,23 @@ const Projects = () => {
 	 * 
 	*/
 
-	const fetchProjects = useCallback(async () => {
-		setLoading(true);
-		try {
-			// NOTE: Add search/filter parameters to getProjects here when implemented
-			const queryParams = buildQueryParams(searchFilters, page, size);
-			const response = await getProjects(queryParams);
-			setProjects(response.data.projects);
-			setTotalPages(response.data.totalPages);
-		} catch (error) {
-			showToast(error.message || "Error fetching projects", "error");
-		} finally {
-			setLoading(false);
-		}
-	}, [searchFilters, page, size]);
+	const fetchProjects = useCallback(
+		async (filtersToUse = searchFilters) => {
+			setLoading(true);
+			try {
+				// NOTE: Add search/filter parameters to getProjects here when implemented
+				const queryParams = buildQueryParams(filtersToUse, page, size);
+				const response = await getProjects(queryParams);
+				setProjects(response.data.projects);
+				setTotalPages(response.data.totalPages);
+			} catch (error) {
+				showToast(error.message || "Error fetching projects", "error");
+			} finally {
+				setLoading(false);
+			}
+		},
+		[page, size]
+	);
 
 	useEffect(() => {
 		fetchProjects();
@@ -93,7 +97,7 @@ const Projects = () => {
 			if (!newSearchText.trim()) {
 				// If query is cleared, fetch immediately to reset the list
 				if (searchFilters.searchText.trim()) {
-					await fetchProjects();
+					await fetchProjects(searchFilters);
 				}
 				return;
 			}
@@ -102,7 +106,7 @@ const Projects = () => {
 			searchTimeoutRef.current = setTimeout(() => {
 				// Note: fetchProjects will use the `searchFilters.searchText` value
 				// which was already updated by setSearchFilters above.
-				fetchProjects();
+				fetchProjects(searchFilters);
 			}, 500); // Debounce delay of 500ms
 		},
 		[searchFilters, fetchProjects]
@@ -143,6 +147,9 @@ const Projects = () => {
 					return prev;
 				}
 				const newTags = [...existingTags, newTag];
+				if (existingTags.length === 0 && newTags.length > 0) {
+					setDialogFilterCount(dialogFilterCount + 1);
+				}
 				return { ...prev, tags: newTags };
 			});
 
@@ -152,12 +159,36 @@ const Projects = () => {
 
 	const handleDeleteTag = (tagToDelete) => {
 		setSearchFilters((prev) => {
+			const existingTags = prev.tags || [];
 			const newTags = (prev.tags || []).filter((t) => t !== tagToDelete);
+			if (existingTags.length > 0 && newTags.length === 0) {
+				setDialogFilterCount(dialogFilterCount - 1);
+			}
 			return { ...prev, tags: newTags };
 		});
 	};
 
-	// Component for rendering the project description in a clean way
+	const applySearchFilters = async () => {
+		await fetchProjects(searchFilters);
+	};
+
+	const handleClearFilters = async () => {
+		// 1. Reset state to default values (This triggers UI updates)
+		setSearchFilters(defaultSearchFilters);
+		setTagInput("");
+
+		// 2. Clear any running debounce timer
+		if (searchTimeoutRef.current) {
+			clearTimeout(searchTimeoutRef.current);
+		}
+
+		// 3. Await the fetch, explicitly using the default filters
+		await fetchProjects(defaultSearchFilters);
+
+		setDialogFilterCount(0);
+		handleFilterDialogClose();
+	};
+
 	// Component for rendering the project description in a clean way
 	const ProjectDescription = ({ description }) => (
 		<Box
@@ -424,10 +455,10 @@ const Projects = () => {
 								label="From"
 								format="dd/MM/yyyy"
 								sx={{ flexGrow: 1 }}
-								value={searchFilters.createdDateRangeStart ? new Date(searchFilters.createdDateRangeStart) : null}
+								value={searchFilters.createdAtRangeStart ? new Date(searchFilters.createdAtRangeStart) : null}
 								onChange={(newValue) => {
 									const newCreatedDateRangeStart = newValue ? newValue.toISOString() : "";
-									if (newCreatedDateRangeStart && searchFilters.createdDateRangeStart === "") {
+									if (newCreatedDateRangeStart && searchFilters.createdAtRangeStart === "") {
 										setDialogFilterCount(dialogFilterCount + 1);
 									}
 									if (newCreatedDateRangeStart === "") {
@@ -435,7 +466,7 @@ const Projects = () => {
 									}
 									setSearchFilters((prev) => ({
 										...prev,
-										createdDateRangeStart: newCreatedDateRangeStart,
+										createdAtRangeStart: newCreatedDateRangeStart,
 									}));
 								}}
 							/>
@@ -443,10 +474,10 @@ const Projects = () => {
 								label="To"
 								format="dd/MM/yyyy"
 								sx={{ flexGrow: 1 }}
-								value={searchFilters.createdDateRangeEnd ? new Date(searchFilters.createdDateRangeEnd) : null}
+								value={searchFilters.createdAtRangeEnd ? new Date(searchFilters.createdAtRangeEnd) : null}
 								onChange={(newValue) => {
 									const newCreatedDateRangeEnd = newValue ? newValue.toISOString() : "";
-									if (newCreatedDateRangeEnd && searchFilters.createdDateRangeEnd === "") {
+									if (newCreatedDateRangeEnd && searchFilters.createdAtRangeEnd === "") {
 										setDialogFilterCount(dialogFilterCount + 1);
 									}
 									if (newCreatedDateRangeEnd === "") {
@@ -454,7 +485,7 @@ const Projects = () => {
 									}
 									setSearchFilters((prev) => ({
 										...prev,
-										createdDateRangeEnd: newCreatedDateRangeEnd,
+										createdAtRangeEnd: newCreatedDateRangeEnd,
 									}));
 								}}
 							/>
@@ -484,11 +515,14 @@ const Projects = () => {
 						padding: "16px 24px", // Standard MUI padding (slightly cleaner than 25px)
 					}}
 				>
-					<Button variant="contained" type="submit" form="filters-form">
+					<Button variant="contained" type="submit" form="filters-form" onClick={applySearchFilters}>
 						Apply
 					</Button>
 					<Button variant="outlined" onClick={handleFilterDialogClose}>
 						Cancel
+					</Button>
+					<Button variant="text" color="error" onClick={handleClearFilters}>
+						Clear Filters
 					</Button>
 				</DialogActions>
 			</Dialog>
