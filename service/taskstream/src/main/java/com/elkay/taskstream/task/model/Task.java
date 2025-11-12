@@ -1,7 +1,5 @@
 package com.elkay.taskstream.task.model;
-
 import jakarta.persistence.*;
-
 import java.time.Instant;
 
 @Entity

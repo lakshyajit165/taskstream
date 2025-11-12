@@ -75,16 +75,7 @@ const TaskDetails = () => {
 
 	const [deleteTaskDialogOpen, setDeleteTaskDialogOpen] = useState(false);
 	const [openCreateAndUpdateTaskDialog, setOpenCreateAndUpdateTaskDialog] = useState(false);
-	/**
-	 * const createAndUpdateTaskProps = {
-		open: openCreateAndUpdateTaskDialog,
-		onClose: () => setOpenCreateAndUpdateTaskDialog(false),
-		project: selectedProject,
-		taskState: taskState,
-		onTaskSave: onTaskCreationSuccess,
-	};
-	 * 
-	*/
+
 	const onTaskUpdateSuccess = () => {
 		setTaskUpdatedFlag(taskUpdatedFlag + 1);
 		setOpenCreateAndUpdateTaskDialog(false);
@@ -291,7 +282,7 @@ const TaskDetails = () => {
 				>
 					<DialogTitle id="delete-task-dialog-title">{"Delete Task"}</DialogTitle>
 					<DialogContent>
-						<DialogContentText id="delete-task-dialog-description">Are you sure you want to delete the task: {task.title}?</DialogContentText>
+						<DialogContentText id="delete-task-dialog-description">Are you sure you want to delete this task?</DialogContentText>
 					</DialogContent>
 
 					<DialogActions

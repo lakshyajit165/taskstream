@@ -27,9 +27,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query(value = """
         SELECT
-            t.id, t.title, t.description, t.due_date, t.state, t.priority, t.type, t.created_at, t.updated_at,
+            t.id, t.title, t.description,
+            t.due_date::timestamptz AS due_date, -- CAST to TIMESTAMP WITH TIME ZONE
+            t.state, t.priority, t.type,
+            t.created_at::timestamptz AS created_at, -- CAST to TIMESTAMP WITH TIME ZONE
+            t.updated_at::timestamptz AS updated_at, -- CAST to TIMESTAMP WITH TIME ZONE
             t.target_version, t.restricted_edit,
-            p.id AS project_id, p.title AS project_name, p.due_date AS project_due_date,
+            p.id AS project_id, p.title AS project_name,
+            p.due_date::timestamptz AS project_due_date, -- CAST Project due date
             ua.id AS assigned_to_id, ua.name AS assigned_to_name,
             uc.id AS created_by_id, uc.name AS created_by_name,
             uu.id AS updated_by_id, uu.name AS updated_by_name
