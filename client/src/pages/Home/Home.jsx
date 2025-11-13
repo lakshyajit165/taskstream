@@ -48,7 +48,7 @@ const Home = () => {
 			setTasksLoading(true);
 			const fetchTasks = async () => {
 				try {
-					const response = await getTasksByProject(selectedProject.id, 1, 10);
+					const response = await getTasksByProject(selectedProject.id, 1, 100);
 					setTasks(response.data.tasks || []);
 				} catch (error) {
 					showToast(error.message || "Failed to load tasks", "error");
@@ -213,7 +213,15 @@ const Home = () => {
 
 							{/* Task list */}
 							{taskList.length > 0 ? (
-								<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+								<Box
+									sx={{
+										display: "flex",
+										flexDirection: "column",
+										gap: 1,
+										maxHeight: "450px", // Max height for the task card container
+										overflowY: "auto", // Enables scrolling
+									}}
+								>
 									{taskList.map((task) => (
 										<Paper
 											key={task.id}

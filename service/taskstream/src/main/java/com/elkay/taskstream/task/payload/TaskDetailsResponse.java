@@ -27,7 +27,7 @@ public class TaskDetailsResponse implements Serializable {
     // --- Project Fields (p.*) ---
     private Long projectId;      // Mapped from p.id AS project_id
     private String projectName;  // Mapped from p.title AS project_name
-    
+
     private Instant projectDueDate; // Mapped from p.due_date as project_due_date
 
     // --- Assigned To User (ua.*) ---

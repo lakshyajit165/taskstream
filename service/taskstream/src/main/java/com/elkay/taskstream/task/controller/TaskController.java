@@ -36,7 +36,7 @@ public class TaskController {
     public ResponseEntity<GenericResponse<PaginatedTaskResponse>> getTasksByProject(
             @PathVariable Long projectId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "100") int size
     ) {
         Page<Task> tasks = taskService.getTasksByProject(projectId, page, size);
 
