@@ -164,7 +164,6 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
     }
 
-    // work in progress
     @Test
     void getAllProjects_Success_WithPagination() throws Exception {
         // create a project by current user
@@ -201,6 +200,60 @@ public class ProjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Page size must be between 1 and 10"))
                 .andExpect(jsonPath("$.error").value(Boolean.TRUE));
+    }
+
+    @Test
+    void searchProjects_Success_WithPagination() throws Exception {
+        // create 2 projects by current user
+        ProjectRequest reactProjectRequest = new ProjectRequest();
+        reactProjectRequest.setTitle("React Project");
+        reactProjectRequest.setDescription("React project description");
+        reactProjectRequest.setDueDate(LocalDateTime.now().plusDays(4).atZone(ZoneId.systemDefault())
+                .toInstant());
+        reactProjectRequest.setTags(Set.of("React.js"));
+
+        mockMvc.perform(post("/api/v1/projects/create")
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reactProjectRequest)))
+                .andExpect(status().isOk());
+
+        ProjectRequest javaProjectRequest = new ProjectRequest();
+        javaProjectRequest.setTitle("Java Project");
+        javaProjectRequest.setDescription("Java project description");
+        javaProjectRequest.setDueDate(LocalDateTime.now().plusDays(4).atZone(ZoneId.systemDefault())
+                .toInstant());
+        javaProjectRequest.setTags(Set.of("Java"));
+
+        mockMvc.perform(post("/api/v1/projects/create")
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(javaProjectRequest)))
+                .andExpect(status().isOk());
+
+        // default api request(without filters)
+        mockMvc.perform(get("/api/v1/projects/search?page=1&size=1")
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)) // can be jwtTokenUser too
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Projects fetched successfully"))
+                .andExpect(jsonPath("$.error").value(Boolean.FALSE))
+                .andExpect(jsonPath("$.data.projects").isArray())
+                .andExpect(jsonPath("$.data.currentPage", is(1)))
+                .andExpect(jsonPath("$.data.totalPages").isNumber())
+                .andExpect(jsonPath("$.data.totalPages", is(2)))
+                .andExpect(jsonPath("$.data.totalElements").isNumber());
+
+        // api request with search text
+        mockMvc.perform(get("/api/v1/projects/search?searchText=react&page=1&size=1")
+                        .header("Authorization", "Bearer " + jwtTokenAdmin)) // can be jwtTokenUser too
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Projects fetched successfully"))
+                .andExpect(jsonPath("$.error").value(Boolean.FALSE))
+                .andExpect(jsonPath("$.data.projects").isArray())
+                .andExpect(jsonPath("$.data.currentPage", is(1)))
+                .andExpect(jsonPath("$.data.totalPages").isNumber())
+                .andExpect(jsonPath("$.data.totalPages", is(1)))
+                .andExpect(jsonPath("$.data.totalElements").isNumber());
     }
 
     @Test
