@@ -52,7 +52,7 @@ public class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Container
-    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
+    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:17")
             .withDatabaseName("taskstreamdb")
             .withUsername("postgres")
             .withPassword("postgres123")

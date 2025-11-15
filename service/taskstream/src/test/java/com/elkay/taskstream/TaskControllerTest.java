@@ -61,7 +61,7 @@ public class TaskControllerTest {
     private Long projectId = 0L;
 
     @Container
-    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
+    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:17")
             .withDatabaseName("taskstreamdb")
             .withUsername("postgres")
             .withPassword("postgres123")

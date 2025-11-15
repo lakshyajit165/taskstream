@@ -60,7 +60,7 @@ public class ProjectControllerTest {
     private static final String USER_EMAIL = "jane.doe@gmail.com";
 
     @Container
-    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
+    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:17")
             .withDatabaseName("taskstreamdb")
             .withUsername("postgres")
             .withPassword("postgres123")
