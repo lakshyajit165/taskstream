@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,30 +16,28 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 
+import java.time.Duration;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-/**
-CRITICAL TEST SETUP: These annotations ensure the test environment is isolated and pre-populated.
- 1. @ActiveProfiles("test"): Activates the 'test' profile, which loads 'application-test.yml'. This guarantees
-    that the in-memory H2 database and necessary test-specific configurations (like ddl-auto: create-drop) are used,
-    overriding production settings.
- 2. @Sql(...): Executes the /data.sql script (which contains necessary INSERT statements for roles/users)
-    once before any test method runs. This guarantees that the required initial data exists in the database
-    immediately after the schema is created by Hibernate, ensuring a clean and consistent state for every test run.
- */
-@ActiveProfiles("test")
-@Sql(scripts = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Tells JUnit to create only one instance of the test
+@Testcontainers
 public class AuthControllerTest {
-
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,12 +51,61 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Container
+    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
+            .withDatabaseName("taskstreamdb")
+            .withUsername("postgres")
+            .withPassword("postgres123")
+            .withStartupTimeout(Duration.ofMinutes(2));
+
+    /**
+     * the container starts immediately when the class is loaded,
+     * before Spring Boot tries to initialize the ApplicationContext,
+     * before @DynamicPropertySource runs, and before JUnit runs any test lifecycle logic.
+     *
+     * That means:
+     *
+     * ✔ postgresqlContainer.getJdbcUrl() is safe
+     * ✔ Ports are mapped
+     * ✔ Dynamic properties resolve correctly
+     * ✔ ApplicationContext loads successfully
+     *
+     * This guarantees the PostgreSQL container is fully running when Spring Boot
+     * reads the datasource properties.
+     *
+     * */
+    static {
+        postgresqlContainer.start();
+    }
+
+    @DynamicPropertySource
+    static void setDatabaseProperties(DynamicPropertyRegistry registry) {
+        // 1. Database Connection (Standard)
+        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
+        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
+        registry.add("spring.jpa.database-platform", () -> "org.hibernate.dialect.PostgreSQLDialect");
+
+        // 2. CRITICAL: Disable Hibernate DDL interference
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+
+        // 3. CRITICAL: Configure Flyway for testing
+        registry.add("spring.flyway.enabled", () -> "true"); // Ensure Flyway is active
+
+        // Optional: Point to the location of your migration scripts
+        registry.add("spring.flyway.locations", () -> "classpath:db/migration");
+    }
+
     @BeforeEach
     void setUp() {
         // Clean database before each test
         userRepository.deleteAll();
     }
 
+    @Test
+    void testPostgresContainerRunning() {
+        assertThat(postgresqlContainer.isRunning()).isTrue();
+    }
     // ===================== SIGNUP TESTS =====================
 
     // SIGNUP: Missing name

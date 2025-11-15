@@ -60,8 +60,6 @@ public class TaskControllerTest {
 
     private Long projectId = 0L;
 
-
-    // will be started before and stopped after each test method
     @Container
     private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
             .withDatabaseName("taskstreamdb")
@@ -69,6 +67,22 @@ public class TaskControllerTest {
             .withPassword("postgres123")
             .withStartupTimeout(Duration.ofMinutes(2));
 
+    /**
+     * the container starts immediately when the class is loaded,
+     * before Spring Boot tries to initialize the ApplicationContext,
+     * before @DynamicPropertySource runs, and before JUnit runs any test lifecycle logic.
+     *
+     * That means:
+     *
+     * ✔ postgresqlContainer.getJdbcUrl() is safe
+     * ✔ Ports are mapped
+     * ✔ Dynamic properties resolve correctly
+     * ✔ ApplicationContext loads successfully
+     *
+     * This guarantees the PostgreSQL container is fully running when Spring Boot
+     * reads the datasource properties.
+     *
+     * */
     static {
         postgresqlContainer.start();
     }
@@ -114,10 +128,8 @@ public class TaskControllerTest {
     }
 
     @Test
-    void test() {
+    void testPostgresContainerRunning() {
         assertThat(postgresqlContainer.isRunning()).isTrue();
-        assertThat(postgresqlContainer.isRunning()).isTrue();
-
     }
 
     @Test

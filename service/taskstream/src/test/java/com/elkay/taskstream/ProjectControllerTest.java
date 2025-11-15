@@ -16,14 +16,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,8 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // Tells JUnit to create only one instance of the test
-@ActiveProfiles("test")
-@Sql(scripts = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Testcontainers
 public class ProjectControllerTest {
 
     @Autowired
@@ -52,6 +58,51 @@ public class ProjectControllerTest {
 
     private static final String ADMIN_EMAIL = "john.doe@gmail.com";
     private static final String USER_EMAIL = "jane.doe@gmail.com";
+
+    @Container
+    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.6.12")
+            .withDatabaseName("taskstreamdb")
+            .withUsername("postgres")
+            .withPassword("postgres123")
+            .withStartupTimeout(Duration.ofMinutes(2));
+
+    /**
+     * the container starts immediately when the class is loaded,
+     * before Spring Boot tries to initialize the ApplicationContext,
+     * before @DynamicPropertySource runs, and before JUnit runs any test lifecycle logic.
+     *
+     * That means:
+     *
+     * ✔ postgresqlContainer.getJdbcUrl() is safe
+     * ✔ Ports are mapped
+     * ✔ Dynamic properties resolve correctly
+     * ✔ ApplicationContext loads successfully
+     *
+     * This guarantees the PostgreSQL container is fully running when Spring Boot
+     * reads the datasource properties.
+     *
+     * */
+    static {
+        postgresqlContainer.start();
+    }
+
+    @DynamicPropertySource
+    static void setDatabaseProperties(DynamicPropertyRegistry registry) {
+        // 1. Database Connection (Standard)
+        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
+        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
+        registry.add("spring.jpa.database-platform", () -> "org.hibernate.dialect.PostgreSQLDialect");
+
+        // 2. CRITICAL: Disable Hibernate DDL interference
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+
+        // 3. CRITICAL: Configure Flyway for testing
+        registry.add("spring.flyway.enabled", () -> "true"); // Ensure Flyway is active
+
+        // Optional: Point to the location of your migration scripts
+        registry.add("spring.flyway.locations", () -> "classpath:db/migration");
+    }
 
     /**
      * mockMvc and objectMapper are no longer static. They’re autowired into the test class normally.
@@ -73,6 +124,10 @@ public class ProjectControllerTest {
         projectRepository.deleteAll();
     }
 
+    @Test
+    void testPostgresContainerRunning() {
+        assertThat(postgresqlContainer.isRunning()).isTrue();
+    }
     // ===================== CREATE PROJECT =====================
 
     @Test
