@@ -12,6 +12,7 @@ public class GenericResponse<T> implements Serializable{
     private T data;
 
     public GenericResponse() {
+
     }
 
     public GenericResponse(String message, boolean error) {
