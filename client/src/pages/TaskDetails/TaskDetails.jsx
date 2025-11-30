@@ -192,7 +192,9 @@ const TaskDetails = () => {
 			<Typography variant="caption" color="text.secondary" display="block" sx={{ fontWeight: "bold" }}>
 				{label}
 			</Typography>
-			<Typography variant="body1">{value}</Typography>
+			<Typography variant="body1" sx={{ maxWidth: "150px" }}>
+				{value}
+			</Typography>
 		</Box>
 	);
 
