@@ -207,7 +207,7 @@ const CreateAndUpdateTask = (props) => {
 					</Button>
 				</Toolbar>
 			</AppBar>
-			<Container sx={{ maxWidth: { xs: 400, sm: 600 }, py: 4 }}>
+			<Container sx={{ maxWidth: { xs: 400, sm: 800 }, py: 4 }}>
 				<form onSubmit={submitTask}>
 					{/* Project (read-only) */}
 					<TextField fullWidth label="Project" value={projectName || ""} readOnly margin="normal" />

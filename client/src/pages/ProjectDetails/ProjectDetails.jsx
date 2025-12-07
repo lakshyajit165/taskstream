@@ -96,7 +96,7 @@ const ProjectDetails = () => {
 	}
 
 	return (
-		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
+		<Container sx={{ maxWidth: { xs: 400, sm: 800 } }}>
 			<Box sx={{ my: 4 }}>
 				{/* Title */}
 				<Typography variant="h5" component="h1" gutterBottom>

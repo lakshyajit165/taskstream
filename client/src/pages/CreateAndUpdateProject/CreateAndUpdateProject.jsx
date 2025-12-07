@@ -162,7 +162,7 @@ const CreateAndUpdateProject = () => {
 	};
 
 	return (
-		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
+		<Container sx={{ maxWidth: { xs: 400, sm: 800 } }}>
 			<Box sx={{ my: 2 }}>
 				{/* Heading with image on right */}
 				<Box

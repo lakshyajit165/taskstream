@@ -241,8 +241,7 @@ const Projects = () => {
 	);
 
 	return (
-		// Container set to 'sm' as requested
-		<Container maxWidth="sm">
+		<Container sx={{ maxWidth: { xs: 400, sm: 800 } }}>
 			<Box sx={{ my: 4 }}>
 				{/* --- HEADER: Search Field (Full Width) + Icon Buttons --- */}
 				<Box sx={{ mb: 3 }}>
