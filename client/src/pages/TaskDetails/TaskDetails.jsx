@@ -226,10 +226,10 @@ const TaskDetails = () => {
 
 				<Divider sx={{ my: 1 }} />
 
-				<Grid container spacing={6}>
+				<Grid container spacing={6} sx={{ display: "flex", justifyContent: "flex-start" }}>
 					{/* Column 1: Core Dates & Assignment */}
 					<Grid item xs={12} sm={6} md={4}>
-						<Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: "primary.main" }}>
+						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
 							Dates & Assignment
 						</Typography>
 						<DetailItem label="Task Due Date" value={task.dueDate ? formatDate(task.dueDate) : "Not Set"} />
@@ -239,7 +239,7 @@ const TaskDetails = () => {
 
 					{/* Column 2: Project Context */}
 					<Grid item xs={12} sm={6} md={4}>
-						<Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: "primary.main" }}>
+						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
 							Project Context
 						</Typography>
 						<DetailItem label="Project Name" value={task.projectName || "N/A"} />
@@ -248,7 +248,7 @@ const TaskDetails = () => {
 
 					{/* Column 3: Audit Trail */}
 					<Grid item xs={12} sm={12} md={4}>
-						<Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, color: "primary.main" }}>
+						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
 							Audit Trail
 						</Typography>
 						<DetailItem label="Created By" value={task.createdByName || "N/A"} />
