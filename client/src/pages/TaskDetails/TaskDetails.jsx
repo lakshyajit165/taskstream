@@ -25,6 +25,9 @@ import CreateAndUpdateTask from "../../components/CreateAndUpdateTask";
 import resourceNotFoundLightTheme from "../../assets/resource_not_found_light_theme.png";
 import resourceNotFoundDarkTheme from "../../assets/resource_not_foun_dark_theme.png";
 import { CustomThemeContext } from "../../context/CustomThemeContext";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 
 // Helper function to capitalize and format enums
 const formatEnum = (value) => {
@@ -208,10 +211,10 @@ const TaskDetails = () => {
 
 				{/* Status Chips */}
 				<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mt: 2, mb: 2, gap: 1 }}>
-					<Chip label={formatEnum(task.state)} color="primary" variant="filled" sx={{ textTransform: "capitalize" }} />
-					<Chip label={`Priority: ${formatEnum(task.priority)}`} color={getPriorityColor(task.priority)} variant="outlined" sx={{ textTransform: "capitalize" }} />
-					<Chip label={`Type: ${formatEnum(task.type)}`} color="info" variant="outlined" sx={{ textTransform: "capitalize" }} />
-					{task.targetVersion && <Chip label={`Version: ${task.targetVersion}`} color="default" variant="outlined" />}
+					<Chip label={formatEnum(task.state)} color="primary" variant="filled" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
+					<Chip label={`Priority: ${formatEnum(task.priority)}`} color={getPriorityColor(task.priority)} variant="outlined" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
+					<Chip label={`Type: ${formatEnum(task.type)}`} color="info" variant="outlined" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
+					{task.targetVersion && <Chip label={`Version: ${task.targetVersion}`} color="default" variant="outlined" sx={{ borderRadius: "5px" }} />}
 				</Stack>
 
 				<Divider sx={{ my: 1 }} />
@@ -226,39 +229,48 @@ const TaskDetails = () => {
 
 				<Divider sx={{ my: 1 }} />
 
-				<Grid container spacing={6} sx={{ display: "flex", justifyContent: "flex-start" }}>
+				<Grid container spacing={4} sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
 					{/* Column 1: Core Dates & Assignment */}
 					<Grid item xs={12} sm={6} md={4}>
-						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
-							Dates & Assignment
-						</Typography>
-						<DetailItem label="Task Due Date" value={task.dueDate ? formatDate(task.dueDate) : "Not Set"} />
-						<DetailItem label="Assigned To" value={task.assignedToName || "Unassigned"} />
-						<DetailItem label="Restricted Edit" value={task.restrictedEdit ? "Yes" : "No"} />
-					</Grid>
-
-					{/* Column 2: Project Context */}
-					<Grid item xs={12} sm={6} md={4}>
-						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
-							Project Context
-						</Typography>
-						<DetailItem label="Project Name" value={task.projectName || "N/A"} />
-						<DetailItem label="Project Due Date" value={task.projectDueDate ? formatDate(task.projectDueDate) : "Not Set"} />
-					</Grid>
-
-					{/* Column 3: Audit Trail */}
-					<Grid item xs={12} sm={12} md={4}>
-						<Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 400, color: "primary.main" }}>
-							Audit Trail
-						</Typography>
+						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
+							<AssignmentOutlinedIcon fontSize="small" />
+							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
+								Audit Trail
+							</Typography>
+						</Box>
 						<DetailItem label="Created By" value={task.createdByName || "N/A"} />
 						<DetailItem label="Last Updated By" value={task.updatedByName || "N/A"} />
 						<DetailItem label="Created At" value={task.createdAt ? formatDate(task.createdAt) : "N/A"} />
 						<DetailItem label="Last Updated At" value={task.updatedAt ? formatDate(task.updatedAt) : "N/A"} />
 					</Grid>
+					{/* Column 2: Project Context */}
+					<Grid item xs={12} sm={6} md={4}>
+						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
+							<ArticleOutlinedIcon fontSize="small" />
+							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
+								Project Context
+							</Typography>
+						</Box>
+						<DetailItem label="Project Name" value={task.projectName || "N/A"} />
+						<DetailItem label="Project Due Date" value={task.projectDueDate ? formatDate(task.projectDueDate) : "Not Set"} />
+					</Grid>
+
+					{/* Column 3: Audit Trail */}
+
+					<Grid item xs={12} sm={6} md={4}>
+						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
+							<CalendarTodayOutlinedIcon fontSize="small" />
+							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
+								Dates & Assignment
+							</Typography>
+						</Box>
+						<DetailItem label="Task Due Date" value={task.dueDate ? formatDate(task.dueDate) : "Not Set"} />
+						<DetailItem label="Assigned To" value={task.assignedToName || "Unassigned"} />
+						<DetailItem label="Restricted Edit" value={task.restrictedEdit ? "Yes" : "No"} />
+					</Grid>
 				</Grid>
 
-				<Divider sx={{ my: 2 }} />
+				{/* <Divider sx={{ my: 2 }} /> */}
 
 				{/* Action Buttons */}
 				<Box sx={{ display: "flex", gap: 2 }}>
