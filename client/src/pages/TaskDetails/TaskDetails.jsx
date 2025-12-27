@@ -71,7 +71,7 @@ const TaskDetails = () => {
 	const navigate = useNavigate();
 	const { showToast } = useContext(ToastContext);
 
-	const [taskDetailsLoading, setTaskDetailsLoading] = useState(false);
+	const [taskDetailsLoading, setTaskDetailsLoading] = useState(true);
 	const [deleteTaskLoading, setDeleteTaskLoading] = useState(false);
 	const [task, setTask] = useState(null);
 	const [taskUpdatedFlag, setTaskUpdatedFlag] = useState(0);
@@ -155,7 +155,7 @@ const TaskDetails = () => {
 		);
 	}
 
-	if (!task) {
+	if (!taskDetailsLoading && !task) {
 		return (
 			<Box
 				sx={{
@@ -231,7 +231,7 @@ const TaskDetails = () => {
 
 				<Grid container spacing={4} sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
 					{/* Column 1: Core Dates & Assignment */}
-					<Grid item xs={12} sm={6} md={4}>
+					<Grid item size={{ xs: 12, sm: 4 }}>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<AssignmentOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
@@ -244,7 +244,7 @@ const TaskDetails = () => {
 						<DetailItem label="Last Updated At" value={task.updatedAt ? formatDate(task.updatedAt) : "N/A"} />
 					</Grid>
 					{/* Column 2: Project Context */}
-					<Grid item xs={12} sm={6} md={4}>
+					<Grid item size={{ xs: 12, sm: 4 }}>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<ArticleOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
@@ -257,7 +257,7 @@ const TaskDetails = () => {
 
 					{/* Column 3: Audit Trail */}
 
-					<Grid item xs={12} sm={6} md={4}>
+					<Grid item size={{ xs: 12, sm: 4 }}>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<CalendarTodayOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
