@@ -4,23 +4,24 @@ import com.elkay.taskstream.auth.jwt.JWTUtil;
 import com.elkay.taskstream.auth.model.Role;
 import com.elkay.taskstream.auth.model.User;
 import com.elkay.taskstream.auth.model.UserVerificationCode;
-import com.elkay.taskstream.auth.payload.ForgotPasswordRequest;
+import com.elkay.taskstream.auth.payload.InitiateResetPasswordRequest;
 import com.elkay.taskstream.auth.payload.LoginRequest;
+import com.elkay.taskstream.auth.payload.ResetPasswordRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.RoleRepository;
 import com.elkay.taskstream.auth.repository.UserRepository;
 import com.elkay.taskstream.auth.repository.UserVerificationCodeRepository;
 import com.elkay.taskstream.config.AdminConfig;
 import com.elkay.taskstream.constants.AppConstants;
-import com.elkay.taskstream.exception.BadRequestException;
-import com.elkay.taskstream.exception.InternalServerError;
-import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
-import com.elkay.taskstream.exception.ResourceNotFoundException;
+import com.elkay.taskstream.exception.*;
 import com.elkay.taskstream.mail.EmailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.elkay.taskstream.auth.utils.VerificationCode.generateSixDigitCode;
@@ -33,19 +34,22 @@ public class AuthService {
     private final JWTUtil jwtUtil;
     private final UserVerificationCodeRepository userVerificationCodeRepository;
     private final EmailService emailService;
+    private final VerificationCodeService verificationCodeService;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        PasswordEncoder passwordEncoder,
                        JWTUtil jwtUtil,
                        UserVerificationCodeRepository userVerificationCodeRepository,
-                       EmailService emailService) {
+                       EmailService emailService,
+                       VerificationCodeService verificationCodeService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userVerificationCodeRepository = userVerificationCodeRepository;
         this.emailService = emailService;
+        this.verificationCodeService = verificationCodeService;
     }
 
     /**
@@ -106,13 +110,13 @@ public class AuthService {
     }
 
     @Transactional
-    public String sendVerificationCode(ForgotPasswordRequest forgotPasswordRequest) {
+    public String sendVerificationCode(InitiateResetPasswordRequest initiateResetPasswordRequest) {
         // check if user with this email exists
         // Fetch user by email
-        String email = forgotPasswordRequest.getEmail();
+        String email = initiateResetPasswordRequest.getEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
-
+        // This deletes old code with attempts
         userVerificationCodeRepository.deleteByEmail(email);
         String code = generateSixDigitCode();
 
@@ -123,4 +127,44 @@ public class AuthService {
         emailService.sendEmail(email, AppConstants.FORGOT_PASSWORD_EMAIL_SUBJECT, emailBody);
         return "Verification code sent";
     }
+
+    @Transactional
+    public String resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        String email = resetPasswordRequest.getEmail();
+        String code = resetPasswordRequest.getVerificationCode();
+
+        UserVerificationCode userVerificationCode = userVerificationCodeRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("No verification code found"));
+
+        // 1. Check max attempts
+        if (userVerificationCode.getAttempts() >= 3) {
+            verificationCodeService.removeCodeDueToFailure(email);
+            throw new TooManyAttemptsException("Too many failed attempts");
+        }
+
+        // 2. Verify code match
+        if (!userVerificationCode.getVerificationCode().equals(code)) {
+            verificationCodeService.incrementFailureCount(userVerificationCode.getId());
+            throw new InvalidCodeException("Invalid verification code");
+        }
+
+        // 3. Check expiration
+        if (userVerificationCode.isExpired()) {
+            verificationCodeService.removeCodeDueToFailure(email);
+            throw new ExpiredCodeException("Verification code has expired");
+        }
+
+        // 4. Success logic (stays in the primary transaction)
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+        userRepository.save(user);
+
+        userVerificationCodeRepository.delete(userVerificationCode);
+
+        return "Password reset successful";
+    }
+
 }

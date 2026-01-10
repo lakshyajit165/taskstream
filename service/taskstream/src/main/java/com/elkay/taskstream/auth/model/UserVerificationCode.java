@@ -31,7 +31,7 @@ public class UserVerificationCode {
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
-        expiresAt = Instant.now().plus(5, ChronoUnit.MINUTES); // 5 min expiry
+        expiresAt = Instant.now().plus(1, ChronoUnit.MINUTES); // 5 min expiry
     }
 
     // Business logic methods

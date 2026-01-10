@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/signup",
                                 "/api/v1/auth/send_verification_code",
+                                "/api/v1/auth/reset_password",
                                 "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight for all endpoints
                         .anyRequest().authenticated()

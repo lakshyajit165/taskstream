@@ -1,11 +1,10 @@
 package com.elkay.taskstream.auth.controller;
 
-import com.elkay.taskstream.auth.payload.ForgotPasswordRequest;
+import com.elkay.taskstream.auth.payload.InitiateResetPasswordRequest;
 import com.elkay.taskstream.auth.payload.LoginRequest;
+import com.elkay.taskstream.auth.payload.ResetPasswordRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.service.AuthService;
-import com.elkay.taskstream.auth.utils.VerificationCode;
-import com.elkay.taskstream.constants.AppConstants;
 import com.elkay.taskstream.mail.EmailService;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.validation.Valid;
@@ -51,14 +50,15 @@ public class AuthController {
     }
 
     @PostMapping("/send_verification_code")
-    public ResponseEntity<GenericResponse<String>> sendVerificationCode(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        logger.info("Received request to send verification code to: {}", forgotPasswordRequest.getEmail());
-        String message = authService.sendVerificationCode(forgotPasswordRequest);
+    public ResponseEntity<GenericResponse<String>> sendVerificationCode(@Valid @RequestBody InitiateResetPasswordRequest initiateResetPasswordRequest) {
+        logger.info("Received request to send verification code to: {}", initiateResetPasswordRequest.getEmail());
+        String message = authService.sendVerificationCode(initiateResetPasswordRequest);
         return ResponseEntity.ok(new GenericResponse<>(message, false));
     }
 
-//    @PostMapping("/reset_password")
-//    public ResponseEntity<GenericResponse<String>> resetPassword() {
-//
-//    }
+    @PostMapping("/reset_password")
+    public ResponseEntity<GenericResponse<String>> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        String message = authService.resetPassword(resetPasswordRequest);
+        return ResponseEntity.ok(new GenericResponse<>(message, false));
+    }
 }
