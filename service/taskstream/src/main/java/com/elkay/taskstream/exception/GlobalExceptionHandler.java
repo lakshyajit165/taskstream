@@ -42,6 +42,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new GenericResponse<>(ex.getMessage(), true));
     }
 
+    // ==================== Verification Code Exceptions ====================
+
+    @ExceptionHandler(ExpiredCodeException.class)
+    public ResponseEntity<GenericResponse<Void>> handleExpiredCodeException(ExpiredCodeException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
+    @ExceptionHandler(InvalidCodeException.class)
+    public ResponseEntity<GenericResponse<Void>> handleInvalidCodeException(InvalidCodeException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<GenericResponse<Void>> handleTooManyAttemptsException(TooManyAttemptsException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
     // This is triggered when request payload validation fails(jakarta validations)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GenericResponse<?>> handleValidationExceptions(MethodArgumentNotValidException ex) {

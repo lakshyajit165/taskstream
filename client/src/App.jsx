@@ -19,6 +19,7 @@ import { AuthProvider } from "./providers/AuthProvider";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import { CustomThemeProvider } from "./providers/CustomThemeProvider";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 function App() {
 	return (
@@ -33,6 +34,7 @@ function App() {
 								<Route element={<PublicRoute />}>
 									<Route path="/login" element={<Login />} />
 									<Route path="/signup" element={<Signup />} />
+									<Route path="/forgot_password" element={<ForgotPassword />} />
 								</Route>
 
 								{/* 2. PROTECTED ROUTES: Layout and Content */}

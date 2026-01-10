@@ -3,20 +3,27 @@ package com.elkay.taskstream.auth.service;
 import com.elkay.taskstream.auth.jwt.JWTUtil;
 import com.elkay.taskstream.auth.model.Role;
 import com.elkay.taskstream.auth.model.User;
+import com.elkay.taskstream.auth.model.UserVerificationCode;
+import com.elkay.taskstream.auth.payload.ForgotPasswordRequest;
 import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.RoleRepository;
 import com.elkay.taskstream.auth.repository.UserRepository;
+import com.elkay.taskstream.auth.repository.UserVerificationCodeRepository;
 import com.elkay.taskstream.config.AdminConfig;
+import com.elkay.taskstream.constants.AppConstants;
 import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.exception.InternalServerError;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
+import com.elkay.taskstream.mail.EmailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+
+import static com.elkay.taskstream.auth.utils.VerificationCode.generateSixDigitCode;
 
 @Service
 public class AuthService {
@@ -24,12 +31,21 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
+    private final UserVerificationCodeRepository userVerificationCodeRepository;
+    private final EmailService emailService;
 
-    public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTUtil jwtUtil) {
+    public AuthService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder,
+                       JWTUtil jwtUtil,
+                       UserVerificationCodeRepository userVerificationCodeRepository,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.userVerificationCodeRepository = userVerificationCodeRepository;
+        this.emailService = emailService;
     }
 
     /**
@@ -87,5 +103,24 @@ public class AuthService {
         // Generate JWT token
         Set<Role> roles = user.getRoles();
         return jwtUtil.generateToken(user.getId(), user.getEmail(), roles);
+    }
+
+    @Transactional
+    public String sendVerificationCode(ForgotPasswordRequest forgotPasswordRequest) {
+        // check if user with this email exists
+        // Fetch user by email
+        String email = forgotPasswordRequest.getEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
+
+        userVerificationCodeRepository.deleteByEmail(email);
+        String code = generateSixDigitCode();
+
+        UserVerificationCode verificationCode = new UserVerificationCode(email, code);
+        userVerificationCodeRepository.save(verificationCode);
+
+        String emailBody = String.format(AppConstants.FORGOT_PASSWORD_EMAIL_TEXT, code);
+        emailService.sendEmail(email, AppConstants.FORGOT_PASSWORD_EMAIL_SUBJECT, emailBody);
+        return "Verification code sent";
     }
 }

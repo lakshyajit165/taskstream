@@ -231,7 +231,7 @@ const TaskDetails = () => {
 
 				<Grid container spacing={4} sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
 					{/* Column 1: Core Dates & Assignment */}
-					<Grid item size={{ xs: 12, sm: 4 }}>
+					<Grid>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<AssignmentOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
@@ -244,7 +244,7 @@ const TaskDetails = () => {
 						<DetailItem label="Last Updated At" value={task.updatedAt ? formatDate(task.updatedAt) : "N/A"} />
 					</Grid>
 					{/* Column 2: Project Context */}
-					<Grid item size={{ xs: 12, sm: 4 }}>
+					<Grid>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<ArticleOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>
@@ -257,7 +257,7 @@ const TaskDetails = () => {
 
 					{/* Column 3: Audit Trail */}
 
-					<Grid item size={{ xs: 12, sm: 4 }}>
+					<Grid>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, color: "primary.main" }}>
 							<CalendarTodayOutlinedIcon fontSize="small" />
 							<Typography variant="h6" component="h2" sx={{ fontWeight: 400, color: "inherit" }}>

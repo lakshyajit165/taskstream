@@ -1,10 +1,16 @@
 package com.elkay.taskstream.auth.controller;
 
+import com.elkay.taskstream.auth.payload.ForgotPasswordRequest;
 import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.service.AuthService;
+import com.elkay.taskstream.auth.utils.VerificationCode;
+import com.elkay.taskstream.constants.AppConstants;
+import com.elkay.taskstream.mail.EmailService;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +20,14 @@ import java.util.HashMap;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(AuthService authService) {
+    private final AuthService authService;
+    private final EmailService emailService;
+
+    public AuthController(AuthService authService, EmailService emailService) {
         this.authService = authService;
+        this.emailService = emailService;
     }
 
     /**
@@ -39,4 +49,16 @@ public class AuthController {
         String message = authService.signup(signupRequest);
         return ResponseEntity.ok(new GenericResponse<>(message, false));
     }
+
+    @PostMapping("/send_verification_code")
+    public ResponseEntity<GenericResponse<String>> sendVerificationCode(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        logger.info("Received request to send verification code to: {}", forgotPasswordRequest.getEmail());
+        String message = authService.sendVerificationCode(forgotPasswordRequest);
+        return ResponseEntity.ok(new GenericResponse<>(message, false));
+    }
+
+//    @PostMapping("/reset_password")
+//    public ResponseEntity<GenericResponse<String>> resetPassword() {
+//
+//    }
 }
