@@ -1,23 +1,26 @@
 import React, { useState, useContext, useRef } from "react";
 import { Box, IconButton, Button, TextField, Typography, Paper, Link, Divider, FormHelperText, Collapse } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { login } from "../../api/auth/auth";
+import { initiateForgotPassword, resetPassword } from "../../api/auth/auth";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
-import { validateLogin } from "../../api/utils/formValidation";
+import { validateInitiateForgotPasswordPayload, validateResetPasswordPayload } from "../../api/utils/formValidation";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { AuthContext } from "../../context/AuthContext";
+import { EMAIL_VERIFICATION_STEP, RESET_PASSWORD_STEP } from "../../api/utils/constants";
 
 const ForgotPassword = () => {
 	const { showToast } = useContext(ToastContext);
-	const { setLoggedinState } = useContext(AuthContext);
 	const navigate = useNavigate();
 
-	const [step, setStep] = useState(1); // 1: email, 2: verification code
-	const [loginPayload, setLoginPayload] = useState({
+	const [step, setStep] = useState(RESET_PASSWORD_STEP);
+	const [initiateForgotPasswordPayload, setInitiateForgotPasswordPayload] = useState({
 		email: "",
+	});
+	const [resetPasswordPayload, setResetPasswordPayload] = useState({
+		email: "",
+		verificationCode: "",
 		password: "",
 	});
 	const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
@@ -26,38 +29,52 @@ const ForgotPassword = () => {
 	const [loading, setLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 
-	const validate = (fieldValues = loginPayload) => {
-		let validationErrors = validateLogin(fieldValues);
+	const validateEmail = (fieldValues = initiateForgotPasswordPayload) => {
+		let validationErrors = validateInitiateForgotPasswordPayload(fieldValues, errors);
 		setErrors(validationErrors);
 		return validationErrors;
 	};
 
-	const handleInputChange = (e) => {
+	const validateReset = (fieldValues = resetPasswordPayload) => {
+		let validationErrors = validateResetPasswordPayload(fieldValues, errors);
+		setErrors(validationErrors);
+		return validationErrors;
+	};
+
+	const handleEmailChange = (e) => {
 		const { name, value } = e.target;
-		const newValues = { ...loginPayload, [name]: value };
-		setLoginPayload(newValues);
-		validate({ [name]: value });
+		const newValues = { ...initiateForgotPasswordPayload, [name]: value };
+		setInitiateForgotPasswordPayload(newValues);
+		setResetPasswordPayload({ ...resetPasswordPayload, email: value });
+		validateEmail({ [name]: value });
+	};
+
+	const handlePasswordChange = (e) => {
+		const { name, value } = e.target;
+		const newValues = { ...resetPasswordPayload, [name]: value };
+		setResetPasswordPayload(newValues);
+		validateReset({ [name]: value });
 	};
 
 	const handleCodeChange = (index, value) => {
-		// Only allow single digit
 		if (value.length > 1) return;
-
-		// Only allow numbers
 		if (value && !/^\d$/.test(value)) return;
 
 		const newCode = [...verificationCode];
 		newCode[index] = value;
 		setVerificationCode(newCode);
 
-		// Auto-focus next input
+		// Update resetPasswordPayload with the code
+		const codeString = newCode.join("");
+		setResetPasswordPayload({ ...resetPasswordPayload, verificationCode: codeString });
+		validateReset({ verificationCode: codeString });
+
 		if (value && index < 5) {
 			inputRefs.current[index + 1]?.focus();
 		}
 	};
 
 	const handleKeyDown = (index, e) => {
-		// Handle backspace
 		if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
 			inputRefs.current[index - 1]?.focus();
 		}
@@ -75,7 +92,10 @@ const ForgotPassword = () => {
 		}
 		setVerificationCode(newCode);
 
-		// Focus the next empty input or last input
+		// Update resetPasswordPayload with the code
+		const codeString = newCode.join("");
+		setResetPasswordPayload({ ...resetPasswordPayload, verificationCode: codeString });
+
 		const nextEmptyIndex = newCode.findIndex((val) => !val);
 		if (nextEmptyIndex !== -1) {
 			inputRefs.current[nextEmptyIndex]?.focus();
@@ -86,15 +106,14 @@ const ForgotPassword = () => {
 
 	const submitEmail = async (e) => {
 		e.preventDefault();
-		const validationErrors = validate({ email: loginPayload.email });
+		const validationErrors = validateEmail(initiateForgotPasswordPayload);
 
 		if (Object.keys(validationErrors).length === 0) {
 			setLoading(true);
 			try {
-				// Call your API to send verification code
-				// await sendVerificationCode(loginPayload.email);
-				showToast("Verification code sent to your email", "info");
-				setStep(2);
+				const response = await initiateForgotPassword(initiateForgotPasswordPayload);
+				showToast(response.message || "Verification code sent to your email", "info");
+				setStep(RESET_PASSWORD_STEP);
 				setLoading(false);
 			} catch (error) {
 				showToast(error.message || "Error sending verification code", "error");
@@ -103,25 +122,21 @@ const ForgotPassword = () => {
 		}
 	};
 
-	const submitVerificationCode = async (e) => {
+	const submitResetPassword = async (e) => {
 		e.preventDefault();
-		const code = verificationCode.join("");
+		const validationErrors = validateReset(resetPasswordPayload);
 
-		if (code.length !== 6) {
-			showToast("Please enter complete 6-digit code", "error");
-			return;
-		}
-
-		setLoading(true);
-		try {
-			// Call your API to verify code and reset password
-			// await verifyCodeAndResetPassword(loginPayload.email, code);
-			showToast("Code verified successfully", "success");
-			setLoading(false);
-			// Navigate to password reset or login
-		} catch (error) {
-			showToast(error.message || "Invalid verification code", "error");
-			setLoading(false);
+		if (Object.keys(validationErrors).length === 0) {
+			setLoading(true);
+			try {
+				const response = await resetPassword(resetPasswordPayload);
+				showToast(response.message || "Password reset successfully", "success");
+				setLoading(false);
+				navigate("/login");
+			} catch (error) {
+				showToast(error.message || "Error resetting password", "error");
+				setLoading(false);
+			}
 		}
 	};
 
@@ -150,34 +165,46 @@ const ForgotPassword = () => {
 					taskstream_
 				</Typography>
 
-				{step === 1 ? (
+				{step === EMAIL_VERIFICATION_STEP ? (
 					<>
 						<Typography variant="body1" sx={{ mb: 1 }}>
 							Enter email to get verification code
 						</Typography>
 
 						<form onSubmit={submitEmail} noValidate>
-							<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
+							<TextField
+								fullWidth
+								label="Email"
+								name="email"
+								margin="normal"
+								type="email"
+								value={initiateForgotPasswordPayload.email}
+								onChange={handleEmailChange}
+								error={!!errors.email}
+							/>
 							<Collapse in={!!errors.email} timeout={300}>
 								<FormHelperText error>{errors.email}</FormHelperText>
 							</Collapse>
 							<Button disabled={loading} type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-								{loading ? "Sending..." : "Submit"}
+								{loading ? "Sending..." : "Send Verification Code"}
 							</Button>
 						</form>
 					</>
-				) : (
+				) : step === RESET_PASSWORD_STEP ? (
 					<>
 						<Typography variant="body1" sx={{ mb: 1 }}>
-							Enter verification code
+							Enter verification code and new password (Valid for 5 minutes).
 						</Typography>
 
-						<form onSubmit={submitVerificationCode}>
+						<form onSubmit={submitResetPassword} noValidate>
+							<Typography variant="body2" sx={{ mb: 1, mt: 2, color: "text.secondary" }}>
+								Verification Code
+							</Typography>
 							<Box
 								sx={{
 									display: "flex",
 									gap: { xs: 0.5, sm: 1 },
-									mb: 3,
+									mb: 1,
 								}}
 							>
 								{verificationCode.map((digit, index) => (
@@ -188,30 +215,77 @@ const ForgotPassword = () => {
 										onChange={(e) => handleCodeChange(index, e.target.value)}
 										onKeyDown={(e) => handleKeyDown(index, e)}
 										onPaste={handlePaste}
-										inputProps={{
-											maxLength: 1,
-											style: {
-												textAlign: "center",
-												fontSize: "24px",
-												fontWeight: "bold",
+										error={!!errors.verificationCode}
+										slotProps={{
+											input: {
+												inputProps: {
+													maxLength: 1,
+												},
 											},
 										}}
 										sx={{
 											flex: 1,
 											"& input": {
+												textAlign: "center",
+												fontSize: "24px",
+												fontWeight: "bold",
 												padding: { xs: "12px 0", sm: "16px 0" },
 											},
 										}}
 									/>
 								))}
 							</Box>
+							<Collapse in={!!errors.verificationCode} timeout={300}>
+								<FormHelperText error>{errors.verificationCode}</FormHelperText>
+							</Collapse>
 
-							<Button disabled={loading} type="submit" fullWidth variant="contained" sx={{ mb: 2 }}>
-								{loading ? "Verifying..." : "Verify Code"}
+							<TextField
+								fullWidth
+								label="New Password"
+								name="password"
+								margin="normal"
+								type={showPassword ? "text" : "password"}
+								value={resetPasswordPayload.password}
+								onChange={handlePasswordChange}
+								error={!!errors.password}
+								slotProps={{
+									input: {
+										endAdornment: (
+											<InputAdornment position="end">
+												<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
+													{showPassword ? <Visibility /> : <VisibilityOff />}
+												</IconButton>
+											</InputAdornment>
+										),
+									},
+								}}
+							/>
+							<Collapse in={!!errors.password} timeout={300}>
+								<FormHelperText error>{errors.password}</FormHelperText>
+							</Collapse>
+
+							<Button disabled={loading} type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+								{loading ? "Resetting..." : "Reset Password"}
 							</Button>
 						</form>
 					</>
+				) : (
+					<>
+						<Typography variant="h6" sx={{ mb: 1 }}>
+							Unknown stage in password reset flow. Try logging in again!
+						</Typography>
+						<Link component={RouterLink} to="/login" variant="body1">
+							Back to Login
+						</Link>
+					</>
 				)}
+
+				<Typography variant="body2" sx={{ mt: 2 }}>
+					Remember your password?{" "}
+					<Link component={RouterLink} to="/login">
+						Login
+					</Link>
+				</Typography>
 			</Paper>
 		</Box>
 	);

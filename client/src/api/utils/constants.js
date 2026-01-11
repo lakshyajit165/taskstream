@@ -4,3 +4,5 @@ export const COMPLETED_TASK_BACKGROUND_COLOR = "#edfbdeff";
 export const BACKLOG_TASK_BACKGROUND_COLOR = "#ffebee";
 export const DEFAULT_TASK_BACKGROUND_COLOR = "background.paper";
 export const HOST_URL = "http://localhost:8000";
+export const EMAIL_VERIFICATION_STEP = "EMAIL_VERIFICATION";
+export const RESET_PASSWORD_STEP = "RESET_PASSWORD_STEP";

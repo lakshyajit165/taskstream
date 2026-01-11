@@ -28,3 +28,29 @@ export const signup = async (signupData) => {
 	const data = await getResponse(response);
 	return data;
 };
+
+export const initiateForgotPassword = async (initiateForgotPasswordData) => {
+	const response = await fetch(`${BASE_URL}/send_verification_code`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(initiateForgotPasswordData),
+	});
+
+	const data = await getResponse(response);
+	return data;
+};
+
+export const resetPassword = async (resetPasswordData) => {
+	const response = await fetch(`${BASE_URL}/reset_password`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(resetPasswordData),
+	});
+
+	const data = await getResponse(response);
+	return data;
+};

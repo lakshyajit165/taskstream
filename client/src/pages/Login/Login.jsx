@@ -109,6 +109,13 @@ const Login = () => {
 					<Collapse in={!!errors.password} timeout={300}>
 						<FormHelperText error>{errors.password}</FormHelperText>
 					</Collapse>
+
+					<Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
+						<Link component={RouterLink} to="/forgot_password" variant="body2">
+							Forgot Password
+						</Link>
+					</Box>
+
 					<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
 						Login
 					</Button>

@@ -137,3 +137,50 @@ export const validateTaskPayload = (values, errors = {}) => {
 	}
 	return validationErrors;
 };
+
+export const validateInitiateForgotPasswordPayload = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+
+	if ("email" in values) {
+		if (!values.email) {
+			validationErrors.email = "Email is required";
+		} else if (!/\S+@\S+\.\S+/.test(values.email)) {
+			validationErrors.email = "Email is not valid";
+		} else {
+			delete validationErrors.email;
+		}
+	}
+	return validationErrors;
+};
+
+export const validateResetPasswordPayload = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+	if ("email" in values) {
+		if (!values.email) {
+			validationErrors.email = "Email is required";
+		} else if (!/\S+@\S+\.\S+/.test(values.email)) {
+			validationErrors.email = "Email is not valid";
+		} else {
+			delete validationErrors.email;
+		}
+	}
+	if ("password" in values) {
+		if (!values.password) {
+			validationErrors.password = "Password is required";
+		} else if (values.password.length < 6) {
+			validationErrors.password = "Password must be at least 6 characters";
+		} else {
+			delete validationErrors.password;
+		}
+	}
+	if ("verificationCode" in values) {
+		if (!values.verificationCode) {
+			validationErrors.verificationCode = "Verification code is required";
+		} else if (!/^\d{6}$/.test(values.verificationCode)) {
+			validationErrors.verificationCode = "Verification code must be exactly 6 digits";
+		} else {
+			delete validationErrors.verificationCode;
+		}
+	}
+	return validationErrors;
+};
