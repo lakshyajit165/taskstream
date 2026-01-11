@@ -14,7 +14,7 @@ const ForgotPassword = () => {
 	const { showToast } = useContext(ToastContext);
 	const navigate = useNavigate();
 
-	const [step, setStep] = useState(RESET_PASSWORD_STEP);
+	const [step, setStep] = useState(EMAIL_VERIFICATION_STEP);
 	const [initiateForgotPasswordPayload, setInitiateForgotPasswordPayload] = useState({
 		email: "",
 	});
