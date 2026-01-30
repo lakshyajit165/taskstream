@@ -9,6 +9,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { AuthContext } from "../../context/AuthContext";
+import Stack from "@mui/material/Stack";
+import ProductDescription from "../../components/ProductDescription";
 
 const Login = () => {
 	const { showToast } = useContext(ToastContext);
@@ -66,67 +68,78 @@ const Login = () => {
 				px: 1,
 			}}
 		>
-			<Paper
-				elevation={0}
+			<Stack
+				direction={{ xs: "column-reverse", md: "row" }}
 				sx={{
-					px: { xs: 2, sm: 4 },
-					pb: 4,
-					pt: 0,
-					width: "100%",
-					maxWidth: { xs: "100%", sm: 500 },
+					justifyContent: "center",
+					gap: { xs: 6, sm: 12 },
+					p: 2,
+					mx: "auto",
 				}}
 			>
-				<Typography variant="h4" sx={{ pt: 2, my: 2, fontWeight: "bold" }}>
-					taskstream_
-				</Typography>
+				<ProductDescription />
+				<Paper
+					elevation={0}
+					sx={{
+						px: { xs: 2, sm: 4 },
+						pb: 4,
+						pt: 0,
+						width: "100%",
+						maxWidth: { xs: "100%", sm: 500 },
+					}}
+				>
+					<Typography variant="h4" sx={{ pt: 2, my: 2, fontWeight: "bold" }}>
+						taskstream_
+					</Typography>
 
-				<form onSubmit={userLogin} noValidate>
-					<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
-					<Collapse in={!!errors.email} timeout={300}>
-						<FormHelperText error>{errors.email}</FormHelperText>
-					</Collapse>
-					<TextField
-						fullWidth
-						label="Password"
-						name="password"
-						margin="normal"
-						type={showPassword ? "text" : "password"}
-						slotProps={{
-							input: {
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
-											{showPassword ? <Visibility /> : <VisibilityOff />}
-										</IconButton>
-									</InputAdornment>
-								),
-							},
-						}}
-						value={loginPayload.password}
-						onChange={handleInputChange}
-						error={!!errors.password}
-					/>
-					<Collapse in={!!errors.password} timeout={300}>
-						<FormHelperText error>{errors.password}</FormHelperText>
-					</Collapse>
+					<form onSubmit={userLogin} noValidate>
+						<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
+						<Collapse in={!!errors.email} timeout={300}>
+							<FormHelperText error>{errors.email}</FormHelperText>
+						</Collapse>
+						<TextField
+							fullWidth
+							label="Password"
+							name="password"
+							margin="normal"
+							type={showPassword ? "text" : "password"}
+							slotProps={{
+								input: {
+									endAdornment: (
+										<InputAdornment position="end">
+											<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
+												{showPassword ? <Visibility /> : <VisibilityOff />}
+											</IconButton>
+										</InputAdornment>
+									),
+								},
+							}}
+							value={loginPayload.password}
+							onChange={handleInputChange}
+							error={!!errors.password}
+						/>
+						<Collapse in={!!errors.password} timeout={300}>
+							<FormHelperText error>{errors.password}</FormHelperText>
+						</Collapse>
 
-					<Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
-						<Link component={RouterLink} to="/forgot_password" variant="body2">
-							Forgot Password
+						<Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
+							<Link component={RouterLink} to="/forgot_password" variant="body2">
+								Forgot Password
+							</Link>
+						</Box>
+
+						<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+							Login
+						</Button>
+					</form>
+					<Typography variant="body2" sx={{ mt: 2 }}>
+						Don't have an account?{" "}
+						<Link component={RouterLink} to="/signup">
+							Sign Up
 						</Link>
-					</Box>
-
-					<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-						Login
-					</Button>
-				</form>
-				<Typography variant="body2" sx={{ mt: 2 }}>
-					Don't have an account?{" "}
-					<Link component={RouterLink} to="/signup">
-						Sign Up
-					</Link>
-				</Typography>
-			</Paper>
+					</Typography>
+				</Paper>
+			</Stack>
 		</Box>
 	);
 };
