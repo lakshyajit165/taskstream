@@ -10,7 +10,7 @@ const items = [
 	{
 		icon: <LightbulbOutlinedIcon sx={{ color: "text.secondary" }} />,
 		title: "Lightweight & Free",
-		description: "A lightweight and free alternative to JIRA for your project management needs.",
+		description: "A lightweight and free tool to handle your project management needs.",
 	},
 	{
 		icon: <GroupsOutlinedIcon sx={{ color: "text.secondary" }} />,
