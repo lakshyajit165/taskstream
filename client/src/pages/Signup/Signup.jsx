@@ -77,7 +77,7 @@ const Signup = () => {
 				const data = await signup(signupPayload);
 				// route to login page here
 				// show toast here
-				showToast(data.message || "Signup successful", "info");
+				showToast(data.message || "Signup successful", "success");
 				setLoading(false);
 				navigate("/login");
 			} catch (error) {

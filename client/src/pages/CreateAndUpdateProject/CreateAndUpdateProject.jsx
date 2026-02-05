@@ -9,6 +9,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { validateProject } from "../../api/utils/formValidation";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
+import CodeIcon from "@mui/icons-material/Code";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -145,10 +146,10 @@ const CreateAndUpdateProject = () => {
 			if (Object.keys(validationErrors).length === 0) {
 				if (isEdit) {
 					await updateProject(id, projectPayload);
-					showToast("Project updated successfully!", "info");
+					showToast("Project updated successfully!", "success");
 				} else {
 					await createProject(projectPayload);
-					showToast("Project created successfully!", "info");
+					showToast("Project created successfully!", "success");
 				}
 				navigate("/projects");
 			} else {
@@ -184,7 +185,7 @@ const CreateAndUpdateProject = () => {
 						<FormHelperText error>{errors.title}</FormHelperText>
 					</Collapse>
 					{/* Markdown-enabled Description */}
-					<Box sx={{ mb: 2 }}>
+					<Box sx={{ mb: 1 }}>
 						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 2 }}>
 							<Tab value="write" label="Write" icon={<EditNoteIcon />} iconPosition="start" />
 							<Tab value="preview" label="Preview" icon={<ViewHeadlineIcon />} iconPosition="start" />
@@ -192,7 +193,7 @@ const CreateAndUpdateProject = () => {
 						{tab === "write" ? (
 							<>
 								<TextField
-									label="Project description (Markdown enabled)"
+									label="Project description"
 									name="description"
 									multiline
 									rows={8}
@@ -220,6 +221,12 @@ const CreateAndUpdateProject = () => {
 								<ReactMarkdown>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
 							</Box>
 						)}
+					</Box>
+					<Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+						<CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+						<Typography variant="caption" color="text.secondary">
+							Markdown is enabled
+						</Typography>
 					</Box>
 
 					<DatePicker

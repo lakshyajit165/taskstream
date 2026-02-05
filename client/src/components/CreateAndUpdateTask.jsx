@@ -33,6 +33,7 @@ import { ToastContext } from "../context/ToastContext";
 import { searchUsers } from "../api/user/users";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
+import CodeIcon from "@mui/icons-material/Code";
 
 const CreateAndUpdateTask = (props) => {
 	const { open, onClose, projectId, projectName, projectDueDate, taskState, onTaskSave, task, mode } = props.config;
@@ -108,7 +109,7 @@ const CreateAndUpdateTask = (props) => {
 				}
 			}, 500); // 500ms debounce
 		},
-		[showToast]
+		[showToast],
 	);
 
 	const handleInputChange = (e) => {
@@ -166,7 +167,7 @@ const CreateAndUpdateTask = (props) => {
 				} else {
 					throw new Error("Could not save task");
 				}
-				showToast(saveTaskResponse.message, "info");
+				showToast(saveTaskResponse.message, "success");
 				onTaskSave();
 				// close the modal here
 			} else {
@@ -253,6 +254,12 @@ const CreateAndUpdateTask = (props) => {
 								<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
 							</Box>
 						)}
+					</Box>
+					<Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+						<CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+						<Typography variant="caption" color="text.secondary">
+							Markdown is enabled
+						</Typography>
 					</Box>
 					{/* Due date */}
 					<DatePicker

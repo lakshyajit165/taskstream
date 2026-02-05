@@ -25,7 +25,7 @@ const ProjectDetails = () => {
 		setDeleteProjectLoading(true);
 		try {
 			const response = await deleteProject(id);
-			showToast(response.message, "info");
+			showToast(response.message, "success");
 		} catch (error) {
 			showToast(error.message || "Error deleting project", "error");
 		} finally {

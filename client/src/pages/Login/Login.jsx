@@ -47,7 +47,7 @@ const Login = () => {
 			try {
 				const loginResponse = await login(loginPayload);
 				setLoggedinState(loginResponse.data.token);
-				showToast(loginResponse.message, "info");
+				showToast(loginResponse.message, "success");
 				setLoading(false);
 				navigate("/");
 			} catch (error) {

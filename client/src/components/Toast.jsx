@@ -1,8 +1,12 @@
 import React from "react";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Box } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Slide from "@mui/material/Slide";
+
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import InfoIcon from "@mui/icons-material/Info";
 
 const maxMessageLength = 50;
 function SlideTransition(props) {
@@ -26,13 +30,31 @@ const Toast = ({ open, onClose, severity = "info", message }) => {
 		return str;
 	};
 
+	// choose icon based on severity
+	const getIcon = () => {
+		switch (severity) {
+			case "success":
+				return <CheckCircleIcon fontSize="small" sx={{ mr: 1, color: "success.main" }} />;
+			case "error":
+				return <CancelIcon fontSize="small" sx={{ mr: 1, color: "error.main" }} />;
+			case "info":
+			default:
+				return <InfoIcon fontSize="small" sx={{ mr: 1, color: "info.main" }} />;
+		}
+	};
+
 	return (
 		<Snackbar
 			open={open}
 			autoHideDuration={3000}
 			onClose={onClose}
 			anchorOrigin={{ vertical: "bottom", horizontal: "middle" }}
-			message={truncate(message)}
+			message={
+				<Box sx={{ display: "flex", alignItems: "center" }}>
+					{getIcon()}
+					{truncate(message)}
+				</Box>
+			}
 			action={action}
 			slots={{ transition: SlideTransition }}
 			slotProps={{

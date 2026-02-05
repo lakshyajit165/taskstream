@@ -101,7 +101,7 @@ const TaskDetails = () => {
 		setDeleteTaskLoading(true);
 		try {
 			const response = await deleteTask(id);
-			showToast(response.message || "Task deleted successfully.", "info");
+			showToast(response.message || "Task deleted successfully.", "success");
 			navigate(-1);
 		} catch (error) {
 			showToast(error.message || "Error deleting task", "error");

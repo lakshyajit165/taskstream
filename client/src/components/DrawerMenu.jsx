@@ -43,7 +43,7 @@ const DrawerMenu = () => {
 		setLogoutState();
 		setSelectedProject(null); // clear the global state for selected project
 		navigate("/login");
-		showToast("Logout successful", "info");
+		showToast("Logout successful", "success");
 	};
 
 	return (
