@@ -51,3 +51,8 @@ logging:
   level:
     org:
       flywaydb: INFO
+
+aws:
+  region: ap-south-1
+  s3:
+    bucket: taskstream-resources

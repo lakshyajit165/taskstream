@@ -80,6 +80,23 @@ public class GlobalExceptionHandler {
                 .body(new GenericResponse<>("User not authorized to perform this action", true));
     }
 
+    // aws s3 exceptions
+    @ExceptionHandler(InvalidUploadRequestException.class)
+    public ResponseEntity<GenericResponse<Void>> handleInvalidUploadRequestException(
+            AuthorizationDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
+    @ExceptionHandler(S3PresignFailedException.class)
+    public ResponseEntity<GenericResponse<Void>> handleS3PresignFailedException(
+            AuthorizationDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new GenericResponse<>(ex.getMessage(), true));
+    }
+
     // to handle all other exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GenericResponse<Void>> handleAllExceptions(Exception ex, HttpServletRequest request) {
