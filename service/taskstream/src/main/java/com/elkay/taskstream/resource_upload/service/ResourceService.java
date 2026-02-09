@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
+@Service
 public class ResourceService {
 
     private final S3Presigner s3Presigner;
