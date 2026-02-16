@@ -56,6 +56,9 @@ public class SecurityConfig {
                                 "/api/v1/auth/signup",
                                 "/api/v1/auth/send_verification_code",
                                 "/api/v1/auth/reset_password",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
                                 "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight for all endpoints
                         .anyRequest().authenticated()
