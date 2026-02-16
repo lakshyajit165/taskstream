@@ -70,7 +70,7 @@ const Projects = () => {
 				setLoading(false);
 			}
 		},
-		[page, size]
+		[page, size],
 	);
 
 	useEffect(() => {
@@ -109,7 +109,7 @@ const Projects = () => {
 				fetchProjects(searchFilters);
 			}, 500); // Debounce delay of 500ms
 		},
-		[searchFilters, fetchProjects]
+		[searchFilters, fetchProjects],
 	);
 
 	const handleFilterDialogOpen = () => {

@@ -1,1 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Open+Sans&display=swap");
+
+blockquote {
+	margin: 1rem 0;
+	padding: 0.5rem 1rem;
+	border-left: 5px solid #ccc; /* A nice blue accent line */
+
+	color: #777; /* Dimmed text color */
+}
