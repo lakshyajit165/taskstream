@@ -184,3 +184,5 @@ export const validateResetPasswordPayload = (values, errors = {}) => {
 	}
 	return validationErrors;
 };
+
+export const isVideoUrl = (url = "") => /\.(mp4|webm|ogg|mov)$/i.test(url);
