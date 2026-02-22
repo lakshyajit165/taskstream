@@ -10,6 +10,8 @@ import { validateProject } from "../../api/utils/formValidation";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import CodeIcon from "@mui/icons-material/Code";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import { isVideoUrl } from "../../api/utils/formValidation";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -162,6 +164,65 @@ const CreateAndUpdateProject = () => {
 		}
 	};
 
+	// const handleFileUpload = () => {
+	// 	/**
+	// 	 * 1. triggered by clicking file upload
+	// 	 * 2. Opens a window from user's local machine to choose files
+	// 	 * 3. Only image or video files can be choosen.
+	// 	 * 4. There needs to be some upper limit on each file size.
+	// 	 * 5. First verify the size limits are satishfied for all files, else throw a validation error.
+	// 	 * 6. Make an api call to get presigned urls for each file and upload them one by one.
+	// 	 * 7. The above api call also returns the fileUrl. This url will be part of the project description.
+	// 	 * 8. Add the above url to the project description if the upload is successful, it should be added
+	// 	 * where the cursor is active, else if the project description field is out of focus, add it to the end.
+	// 	 * 9. It should be added with the appropriate HTML tag like <image src = ""> or <video src = "">
+	// 	 * 10. These images or videos should cover the full width of the description field, height can be auto.
+	// 	 */
+	// };
+	const markdownComponents = {
+		/* ---------- images ---------- */
+		img: ({ src, alt }) => (
+			<img
+				src={src}
+				alt={alt}
+				loading="lazy"
+				style={{
+					width: "100%",
+					height: "auto",
+					borderRadius: 8,
+					margin: "12px 0",
+					display: "block",
+				}}
+			/>
+		),
+
+		/* ---------- links (videos or normal links) ---------- */
+		a: ({ href, children }) => {
+			if (isVideoUrl(href)) {
+				return (
+					<video
+						src={href}
+						controls
+						preload="metadata"
+						style={{
+							width: "100%",
+							height: "auto",
+							borderRadius: 8,
+							margin: "12px 0",
+							display: "block",
+						}}
+					/>
+				);
+			}
+
+			return (
+				<a href={href} target="_blank" rel="noopener noreferrer">
+					{children}
+				</a>
+			);
+		},
+	};
+
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 800 } }}>
 			<Box sx={{ my: 2 }}>
@@ -218,7 +279,7 @@ const CreateAndUpdateProject = () => {
 									color: theme.palette.text.primary,
 								})}
 							>
-								<ReactMarkdown>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
+								<ReactMarkdown components={markdownComponents}>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
 							</Box>
 						)}
 					</Box>
@@ -226,6 +287,10 @@ const CreateAndUpdateProject = () => {
 						<CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
 						<Typography variant="caption" color="text.secondary">
 							Markdown is enabled
+						</Typography>
+						<AddPhotoAlternateOutlinedIcon sx={{ fontSize: 16, color: "text.secondary", marginLeft: "10px" }} />
+						<Typography variant="caption" color="text.secondary">
+							Upload file
 						</Typography>
 					</Box>
 
@@ -286,7 +351,7 @@ const CreateAndUpdateProject = () => {
 					</Collapse>
 					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1, mb: 3 }}>
 						{projectPayload.tags.map((tag, index) => (
-							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" />
+							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" style={{ borderRadius: "5px" }} />
 						))}
 					</Stack>
 

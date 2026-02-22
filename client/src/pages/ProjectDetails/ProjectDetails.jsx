@@ -103,6 +103,15 @@ const ProjectDetails = () => {
 					{project.title}
 				</Typography>
 
+				{/* Tags */}
+				{project.tags && project.tags.length > 0 && (
+					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 1, gap: 1 }}>
+						{project.tags.map((tag, index) => (
+							<Chip key={index} label={tag} color="info" variant="outlined" size="small" style={{ borderRadius: "5px" }} />
+						))}
+					</Stack>
+				)}
+
 				{/* Description (Markdown, no border) */}
 				<Box
 					sx={{
@@ -145,15 +154,6 @@ const ProjectDetails = () => {
 				<Typography variant="body1" sx={{ mb: 2 }}>
 					<strong>Due Date:</strong> {new Date(project.dueDate).toLocaleDateString()}
 				</Typography>
-
-				{/* Tags */}
-				{project.tags && project.tags.length > 0 && (
-					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 3, gap: 1 }}>
-						{project.tags.map((tag, index) => (
-							<Chip key={index} label={tag} color="info" variant="outlined" />
-						))}
-					</Stack>
-				)}
 
 				{/* Buttons */}
 				{project && project.additionalParams && project.additionalParams.isEditable ? (

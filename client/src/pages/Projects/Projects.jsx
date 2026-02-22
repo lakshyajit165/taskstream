@@ -371,7 +371,7 @@ const Projects = () => {
 																}}
 															>
 																{project.tags.map((tag, tagIndex) => (
-																	<Chip key={tagIndex} label={tag} size="small" color="info" variant="outlined" />
+																	<Chip key={tagIndex} label={tag} size="small" color="info" variant="outlined" style={{ borderRadius: "5px" }} />
 																))}
 															</Stack>
 														)}

@@ -211,10 +211,16 @@ const TaskDetails = () => {
 
 				{/* Status Chips */}
 				<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mt: 2, mb: 2, gap: 1 }}>
-					<Chip label={formatEnum(task.state)} color="primary" variant="filled" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
-					<Chip label={`Priority: ${formatEnum(task.priority)}`} color={getPriorityColor(task.priority)} variant="outlined" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
-					<Chip label={`Type: ${formatEnum(task.type)}`} color="info" variant="outlined" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
-					{task.targetVersion && <Chip label={`Version: ${task.targetVersion}`} color="default" variant="outlined" sx={{ borderRadius: "5px" }} />}
+					<Chip size="small" label={formatEnum(task.state)} color="primary" variant="filled" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
+					<Chip
+						size="small"
+						label={`Priority: ${formatEnum(task.priority)}`}
+						color={getPriorityColor(task.priority)}
+						variant="outlined"
+						sx={{ textTransform: "capitalize", borderRadius: "5px" }}
+					/>
+					<Chip size="small" label={`Type: ${formatEnum(task.type)}`} color="info" variant="outlined" sx={{ textTransform: "capitalize", borderRadius: "5px" }} />
+					{task.targetVersion && <Chip size="small" label={`Version: ${task.targetVersion}`} color="default" variant="outlined" sx={{ borderRadius: "5px" }} />}
 				</Stack>
 
 				<Divider sx={{ my: 1 }} />
