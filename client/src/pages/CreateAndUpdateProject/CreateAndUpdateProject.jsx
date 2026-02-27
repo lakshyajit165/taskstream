@@ -13,6 +13,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { isVideoUrl } from "../../api/utils/formValidation";
 import { MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "../../api/utils/constants";
+import { getPresignedUrl, uploadFileToS3 } from "../../api/resource_upload/resourceUpload";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -35,6 +36,8 @@ const CreateAndUpdateProject = () => {
 	const [tab, setTab] = useState("write");
 
 	const fileInputRef = React.useRef(null);
+	// for description cursor position
+	const descriptionRef = React.useRef(null);
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -167,19 +170,16 @@ const CreateAndUpdateProject = () => {
 		}
 	};
 
-	const handleFileUpload = () => {
-		console.log("handle file called");
+	const handleFileUpload = async () => {
 		if (!fileInputRef.current) return;
-		// open window for file input
-		fileInputRef.current.click();
-		// select files
-		fileInputRef.current.onchange = (e) => {
-			const files = Array.from(e.target.files || []);
 
+		fileInputRef.current.click();
+
+		fileInputRef.current.onchange = async (e) => {
+			const files = Array.from(e.target.files || []);
 			if (!files.length) return;
 
-			/* ---------------- type validation ---------------- */
-
+			/* ---------------- TYPE VALIDATION ---------------- */
 			for (const file of files) {
 				const isImage = file.type.startsWith("image/");
 				const isVideo = file.type.startsWith("video/");
@@ -191,8 +191,7 @@ const CreateAndUpdateProject = () => {
 				}
 			}
 
-			/* ---------------- size validation ---------------- */
-
+			/* ---------------- SIZE VALIDATION ---------------- */
 			for (const file of files) {
 				if (file.size > MAX_FILE_SIZE) {
 					showToast(`${file.name} exceeds ${MAX_FILE_SIZE_MB}MB limit`, "error");
@@ -200,20 +199,75 @@ const CreateAndUpdateProject = () => {
 					return;
 				}
 			}
+
+			try {
+				for (const file of files) {
+					/* ---------------- GET PRESIGNED URL ---------------- */
+
+					const presignedRequest = {
+						fileName: file.name,
+						contentType: file.type,
+						resourceType: "projects",
+					};
+
+					const presignedResponse = await getPresignedUrl(presignedRequest);
+
+					const { uploadUrl, fileUrl } = presignedResponse;
+
+					/* ---------------- UPLOAD TO S3 ---------------- */
+
+					await uploadFileToS3(uploadUrl, file);
+
+					/* ---------------- GENERATE MARKDOWN ---------------- */
+
+					let markdownSnippet = "";
+
+					if (file.type.startsWith("image/")) {
+						markdownSnippet = `\n![${file.name}](${fileUrl})\n`;
+					} else {
+						// Use markdown link, your ReactMarkdown renders video automatically
+						markdownSnippet = `\n[${file.name}](${fileUrl})\n`;
+					}
+
+					/* ---------------- INSERT AT CURSOR ---------------- */
+
+					setProjectPayload((prev) => {
+						const currentText = prev.description || "";
+
+						const textarea = descriptionRef.current;
+						if (!textarea) {
+							return {
+								...prev,
+								description: currentText + markdownSnippet,
+							};
+						}
+
+						const start = textarea.selectionStart;
+						const end = textarea.selectionEnd;
+
+						if (start === undefined || end === undefined) {
+							return {
+								...prev,
+								description: currentText + markdownSnippet,
+							};
+						}
+
+						const newText = currentText.substring(0, start) + markdownSnippet + currentText.substring(end);
+
+						return {
+							...prev,
+							description: newText,
+						};
+					});
+				}
+
+				showToast("File(s) uploaded successfully", "success");
+			} catch (err) {
+				showToast(err.message || "File upload failed", "error");
+			} finally {
+				e.target.value = null; // reset input
+			}
 		};
-		/**
-		 * 1. triggered by clicking file upload
-		 * 2. Opens a window from user's local machine to choose files
-		 * 3. Only image or video files can be choosen.
-		 * 4. There needs to be some upper limit on each file size.
-		 * 5. First verify the size limits are satishfied for all files, else throw a validation error.
-		 * 6. Make an api call to get presigned urls for each file and upload them one by one.
-		 * 7. The above api call also returns the fileUrl. This url will be part of the project description.
-		 * 8. Add the above url to the project description if the upload is successful, it should be added
-		 * where the cursor is active, else if the project description field is out of focus, add it to the end.
-		 * 9. It should be added with the appropriate HTML tag like <image src = ""> or <video src = "">
-		 * 10. These images or videos should cover the full width of the description field, height can be auto.
-		 */
 	};
 	const markdownComponents = {
 		/* ---------- images ---------- */
@@ -297,6 +351,7 @@ const CreateAndUpdateProject = () => {
 									multiline
 									rows={8}
 									fullWidth
+									inputRef={descriptionRef}
 									value={projectPayload.description}
 									onChange={handleInputChange}
 									error={!!errors.description}

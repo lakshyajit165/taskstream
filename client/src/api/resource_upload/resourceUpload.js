@@ -1,14 +1,13 @@
 import { getResponse } from "../utils/apiUtils";
 import { HOST_URL } from "../utils/constants";
+import { getRequestHeaders } from "../utils/apiUtils";
 
 const BASE_URL = `${HOST_URL}/api/v1/resource/upload`;
 
 export const getPresignedUrl = async (presignedUrlRequest) => {
 	const response = await fetch(`${BASE_URL}/get_presigned_url`, {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
+		headers: getRequestHeaders(),
 		body: JSON.stringify(presignedUrlRequest),
 	});
 
