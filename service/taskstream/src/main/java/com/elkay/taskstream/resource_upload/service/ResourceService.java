@@ -36,8 +36,7 @@ public class ResourceService {
     public PresignedUrlResponse generateUploadUrl(
             String fileName,
             String contentType,
-            String resourceType,
-            Long resourceId
+            String resourceType
     ) {
 
         // ------------------------------------------------------------
@@ -49,10 +48,6 @@ public class ResourceService {
 
         if (contentType == null || contentType.isBlank()) {
             throw new InvalidUploadRequestException("Content type must be provided");
-        }
-
-        if (resourceId == null) {
-            throw new InvalidUploadRequestException("Resource ID must be provided");
         }
 
         if (!ALLOWED_RESOURCE_TYPES.contains(resourceType)) {
@@ -70,18 +65,17 @@ public class ResourceService {
             String extension = fileName.substring(fileName.lastIndexOf("."));
 
             // ------------------------------------------------------------
-            // STEP 3: Generate unique image ID
+            // STEP 3: Generate unique resource ID
             // ------------------------------------------------------------
-            String imageId = UUID.randomUUID().toString();
+            String resourceId = UUID.randomUUID().toString();
 
             // ------------------------------------------------------------
             // STEP 4: Construct S3 object key (path inside bucket)
             // ------------------------------------------------------------
             String key = String.format(
-                    "taskstream-resources/uploads/%s/%d/%s%s",
+                    "taskstream-resources/uploads/%s/%s%s",
                     resourceType,
                     resourceId,
-                    imageId,
                     extension
             );
 

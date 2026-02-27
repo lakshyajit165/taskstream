@@ -4,16 +4,14 @@ public class PresignedUrlRequest {
     private String fileName;
     private String contentType;
     private String resourceType; // "projects" or "tasks"
-    private Long resourceId;
 
     public PresignedUrlRequest() {
     }
 
-    public PresignedUrlRequest(String fileName, String contentType, String resourceType, Long resourceId) {
+    public PresignedUrlRequest(String fileName, String contentType, String resourceType) {
         this.fileName = fileName;
         this.contentType = contentType;
         this.resourceType = resourceType;
-        this.resourceId = resourceId;
     }
 
     public String getFileName() {
@@ -40,11 +38,4 @@ public class PresignedUrlRequest {
         this.resourceType = resourceType;
     }
 
-    public Long getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(Long resourceId) {
-        this.resourceId = resourceId;
-    }
 }

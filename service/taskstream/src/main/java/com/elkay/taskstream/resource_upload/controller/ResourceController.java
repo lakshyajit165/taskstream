@@ -30,14 +30,13 @@ public class ResourceController {
     @PostMapping("/get_presigned_url")
     public PresignedUrlResponse getPresignedUrl(@RequestBody PresignedUrlRequest request) {
 
-        logger.info("Generating presigned upload URL for resourceType={}, resourceId={}",
-                request.getResourceType(), request.getResourceId());
+        logger.info("Generating presigned upload URL for resourceType={}",
+                request.getResourceType());
 
         return resourceService.generateUploadUrl(
                 request.getFileName(),
                 request.getContentType(),
-                request.getResourceType(),
-                request.getResourceId()
+                request.getResourceType()
         );
     }
 }
