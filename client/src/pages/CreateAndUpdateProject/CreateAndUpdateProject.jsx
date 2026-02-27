@@ -12,8 +12,8 @@ import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { isVideoUrl } from "../../api/utils/formValidation";
-import { MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "../../api/utils/constants";
-import { getPresignedUrl, uploadFileToS3 } from "../../api/resource_upload/resourceUpload";
+import { uploadResources } from "../../utils/resourceUpload";
+import { markdownComponents } from "../../components/markdownComponents";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -170,147 +170,64 @@ const CreateAndUpdateProject = () => {
 		}
 	};
 
-	const handleFileUpload = async () => {
+	const handleFileUpload = () => {
 		if (!fileInputRef.current) return;
-
 		fileInputRef.current.click();
-
-		fileInputRef.current.onchange = async (e) => {
-			const files = Array.from(e.target.files || []);
-			if (!files.length) return;
-
-			/* ---------------- TYPE VALIDATION ---------------- */
-			for (const file of files) {
-				const isImage = file.type.startsWith("image/");
-				const isVideo = file.type.startsWith("video/");
-
-				if (!isImage && !isVideo) {
-					showToast(`Unsupported file type: ${file.name}`, "error");
-					e.target.value = null;
-					return;
-				}
-			}
-
-			/* ---------------- SIZE VALIDATION ---------------- */
-			for (const file of files) {
-				if (file.size > MAX_FILE_SIZE) {
-					showToast(`${file.name} exceeds ${MAX_FILE_SIZE_MB}MB limit`, "error");
-					e.target.value = null;
-					return;
-				}
-			}
-
-			try {
-				for (const file of files) {
-					/* ---------------- GET PRESIGNED URL ---------------- */
-
-					const presignedRequest = {
-						fileName: file.name,
-						contentType: file.type,
-						resourceType: "projects",
-					};
-
-					const presignedResponse = await getPresignedUrl(presignedRequest);
-
-					const { uploadUrl, fileUrl } = presignedResponse;
-
-					/* ---------------- UPLOAD TO S3 ---------------- */
-
-					await uploadFileToS3(uploadUrl, file);
-
-					/* ---------------- GENERATE MARKDOWN ---------------- */
-
-					let markdownSnippet = "";
-
-					if (file.type.startsWith("image/")) {
-						markdownSnippet = `\n![${file.name}](${fileUrl})\n`;
-					} else {
-						// Use markdown link, your ReactMarkdown renders video automatically
-						markdownSnippet = `\n[${file.name}](${fileUrl})\n`;
-					}
-
-					/* ---------------- INSERT AT CURSOR ---------------- */
-
-					setProjectPayload((prev) => {
-						const currentText = prev.description || "";
-
-						const textarea = descriptionRef.current;
-						if (!textarea) {
-							return {
-								...prev,
-								description: currentText + markdownSnippet,
-							};
-						}
-
-						const start = textarea.selectionStart;
-						const end = textarea.selectionEnd;
-
-						if (start === undefined || end === undefined) {
-							return {
-								...prev,
-								description: currentText + markdownSnippet,
-							};
-						}
-
-						const newText = currentText.substring(0, start) + markdownSnippet + currentText.substring(end);
-
-						return {
-							...prev,
-							description: newText,
-						};
-					});
-				}
-
-				showToast("File(s) uploaded successfully", "success");
-			} catch (err) {
-				showToast(err.message || "File upload failed", "error");
-			} finally {
-				e.target.value = null; // reset input
-			}
-		};
 	};
-	const markdownComponents = {
-		/* ---------- images ---------- */
-		img: ({ src, alt }) => (
-			<img
-				src={src}
-				alt={alt}
-				loading="lazy"
-				style={{
-					width: "100%",
-					height: "auto",
-					borderRadius: 8,
-					margin: "12px 0",
-					display: "block",
-				}}
-			/>
-		),
 
-		/* ---------- links (videos or normal links) ---------- */
-		a: ({ href, children }) => {
-			if (isVideoUrl(href)) {
-				return (
-					<video
-						src={href}
-						controls
-						preload="metadata"
-						style={{
-							width: "100%",
-							height: "auto",
-							borderRadius: 8,
-							margin: "12px 0",
-							display: "block",
-						}}
-					/>
-				);
+	const insertAtCursor = (markdownSnippet) => {
+		setProjectPayload((prev) => {
+			const currentText = prev.description || "";
+			const textarea = descriptionRef.current;
+
+			// If textarea not focused or ref missing → append to end
+			if (!textarea || textarea.selectionStart === null) {
+				return {
+					...prev,
+					description: currentText + markdownSnippet,
+				};
 			}
 
-			return (
-				<a href={href} target="_blank" rel="noopener noreferrer">
-					{children}
-				</a>
-			);
-		},
+			const start = textarea.selectionStart;
+			const end = textarea.selectionEnd;
+
+			const newText = currentText.substring(0, start) + markdownSnippet + currentText.substring(end);
+
+			return {
+				...prev,
+				description: newText,
+			};
+		});
+	};
+
+	const handleFileChange = async (e) => {
+		const files = Array.from(e.target.files || []);
+		if (!files.length) return;
+
+		try {
+			const uploadedFiles = await uploadResources({
+				files,
+				resourceType: "projects",
+			});
+
+			uploadedFiles.forEach(({ fileName, fileType, fileUrl }) => {
+				let markdownSnippet = "";
+
+				if (fileType.startsWith("image/")) {
+					markdownSnippet = `\n![${fileName}](${fileUrl})\n`;
+				} else {
+					markdownSnippet = `\n[${fileName}](${fileUrl})\n`;
+				}
+
+				insertAtCursor(markdownSnippet);
+			});
+
+			showToast("File(s) uploaded successfully", "success");
+		} catch (err) {
+			showToast(err.message || "File upload failed", "error");
+		} finally {
+			e.target.value = null;
+		}
 	};
 
 	return (
@@ -331,7 +248,7 @@ const CreateAndUpdateProject = () => {
 
 				<form onSubmit={handleSubmit}>
 					{/** hidden file input */}
-					<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} />
+					<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} onChange={handleFileChange} />
 					{/* Title */}
 					<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
 					<Collapse in={!!errors.title}>

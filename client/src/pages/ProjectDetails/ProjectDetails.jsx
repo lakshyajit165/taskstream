@@ -8,6 +8,7 @@ import { deleteProject, getProjectById } from "../../api/project/projects";
 import resourceNotFoundLightTheme from "../../assets/resource_not_found_light_theme.png";
 import resourceNotFoundDarkTheme from "../../assets/resource_not_foun_dark_theme.png";
 import { CustomThemeContext } from "../../context/CustomThemeContext";
+import { markdownComponents } from "../../components/markdownComponents";
 
 const ProjectDetails = () => {
 	const { mode } = useContext(CustomThemeContext);
@@ -147,7 +148,7 @@ const ProjectDetails = () => {
 						// --- END FIX ---
 					}}
 				>
-					<ReactMarkdown>{project.description}</ReactMarkdown>
+					<ReactMarkdown components={markdownComponents}>{project.description}</ReactMarkdown>
 				</Box>
 
 				{/* Due Date */}
