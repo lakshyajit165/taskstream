@@ -12,6 +12,7 @@ import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { isVideoUrl } from "../../api/utils/formValidation";
+import { MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "../../api/utils/constants";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -32,6 +33,8 @@ const CreateAndUpdateProject = () => {
 
 	// Markdown editor tab (write/preview)
 	const [tab, setTab] = useState("write");
+
+	const fileInputRef = React.useRef(null);
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -164,21 +167,54 @@ const CreateAndUpdateProject = () => {
 		}
 	};
 
-	// const handleFileUpload = () => {
-	// 	/**
-	// 	 * 1. triggered by clicking file upload
-	// 	 * 2. Opens a window from user's local machine to choose files
-	// 	 * 3. Only image or video files can be choosen.
-	// 	 * 4. There needs to be some upper limit on each file size.
-	// 	 * 5. First verify the size limits are satishfied for all files, else throw a validation error.
-	// 	 * 6. Make an api call to get presigned urls for each file and upload them one by one.
-	// 	 * 7. The above api call also returns the fileUrl. This url will be part of the project description.
-	// 	 * 8. Add the above url to the project description if the upload is successful, it should be added
-	// 	 * where the cursor is active, else if the project description field is out of focus, add it to the end.
-	// 	 * 9. It should be added with the appropriate HTML tag like <image src = ""> or <video src = "">
-	// 	 * 10. These images or videos should cover the full width of the description field, height can be auto.
-	// 	 */
-	// };
+	const handleFileUpload = () => {
+		console.log("handle file called");
+		if (!fileInputRef.current) return;
+		// open window for file input
+		fileInputRef.current.click();
+		// select files
+		fileInputRef.current.onchange = (e) => {
+			const files = Array.from(e.target.files || []);
+
+			if (!files.length) return;
+
+			/* ---------------- type validation ---------------- */
+
+			for (const file of files) {
+				const isImage = file.type.startsWith("image/");
+				const isVideo = file.type.startsWith("video/");
+
+				if (!isImage && !isVideo) {
+					showToast(`Unsupported file type: ${file.name}`, "error");
+					e.target.value = null;
+					return;
+				}
+			}
+
+			/* ---------------- size validation ---------------- */
+
+			for (const file of files) {
+				if (file.size > MAX_FILE_SIZE) {
+					showToast(`${file.name} exceeds ${MAX_FILE_SIZE_MB}MB limit`, "error");
+					e.target.value = null;
+					return;
+				}
+			}
+		};
+		/**
+		 * 1. triggered by clicking file upload
+		 * 2. Opens a window from user's local machine to choose files
+		 * 3. Only image or video files can be choosen.
+		 * 4. There needs to be some upper limit on each file size.
+		 * 5. First verify the size limits are satishfied for all files, else throw a validation error.
+		 * 6. Make an api call to get presigned urls for each file and upload them one by one.
+		 * 7. The above api call also returns the fileUrl. This url will be part of the project description.
+		 * 8. Add the above url to the project description if the upload is successful, it should be added
+		 * where the cursor is active, else if the project description field is out of focus, add it to the end.
+		 * 9. It should be added with the appropriate HTML tag like <image src = ""> or <video src = "">
+		 * 10. These images or videos should cover the full width of the description field, height can be auto.
+		 */
+	};
 	const markdownComponents = {
 		/* ---------- images ---------- */
 		img: ({ src, alt }) => (
@@ -240,6 +276,8 @@ const CreateAndUpdateProject = () => {
 				</Box>
 
 				<form onSubmit={handleSubmit}>
+					{/** hidden file input */}
+					<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} />
 					{/* Title */}
 					<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
 					<Collapse in={!!errors.title}>
@@ -288,10 +326,23 @@ const CreateAndUpdateProject = () => {
 						<Typography variant="caption" color="text.secondary">
 							Markdown is enabled
 						</Typography>
-						<AddPhotoAlternateOutlinedIcon sx={{ fontSize: 16, color: "text.secondary", marginLeft: "10px" }} />
-						<Typography variant="caption" color="text.secondary">
-							Upload file
-						</Typography>
+						<Box
+							sx={{
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 0.5,
+								ml: 1.5,
+								cursor: "pointer",
+								color: "text.secondary",
+								"&:hover": {
+									color: "text.primary",
+								},
+							}}
+							onClick={handleFileUpload}
+						>
+							<AddPhotoAlternateOutlinedIcon sx={{ fontSize: 16 }} />
+							<Typography variant="caption">Upload file</Typography>
+						</Box>
 					</Box>
 
 					<DatePicker

@@ -6,3 +6,5 @@ export const DEFAULT_TASK_BACKGROUND_COLOR = "background.paper";
 export const HOST_URL = "http://localhost:8000";
 export const EMAIL_VERIFICATION_STEP = "EMAIL_VERIFICATION";
 export const RESET_PASSWORD_STEP = "RESET_PASSWORD_STEP";
+export const MAX_FILE_SIZE_MB = 50;
+export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
