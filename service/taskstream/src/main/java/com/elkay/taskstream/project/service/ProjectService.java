@@ -2,6 +2,7 @@ package com.elkay.taskstream.project.service;
 
 import com.elkay.taskstream.auth.jwt.CustomUserDetails;
 import com.elkay.taskstream.auth.jwt.JWTUtil;
+import com.elkay.taskstream.common_utils.SecurityUtils;
 import com.elkay.taskstream.exception.BadRequestException;
 import com.elkay.taskstream.exception.ForbiddenException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
@@ -39,25 +40,27 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final JWTUtil jwtUtil;
     private final HttpServletRequest request;
+    private final SecurityUtils securityUtils;
 
-    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, JWTUtil jwtUtil, HttpServletRequest request) {
+    public ProjectService(
+            ProjectRepository projectRepository,
+            TaskRepository taskRepository,
+            JWTUtil jwtUtil,
+            HttpServletRequest request,
+            SecurityUtils securityUtils
+    ) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.jwtUtil = jwtUtil;
         this.request = request;
+        this.securityUtils = securityUtils;
     }
 
-    private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
-            throw new UnauthorizedException("User not authenticated");
-        }
-        return userDetails.getUserId();
-    }
+
 
     @Transactional
     public ProjectResponse createProject(ProjectRequest projectRequest) {
-        Long authorId = getCurrentUserId();
+        Long authorId = securityUtils.getCurrentUserId();
 
         Project project = new Project(
                 projectRequest.getTitle(),
@@ -89,7 +92,7 @@ public class ProjectService {
         if (size < 1 || size > 10) { // You can tweak max size as per your requirements
             throw new BadRequestException("Page size must be between 1 and 10");
         }
-        Long authorId = getCurrentUserId();
+        Long authorId = securityUtils.getCurrentUserId();
         Pageable pageable = PageRequest.of(page - 1, size);
         return projectRepository.findByAuthorId(authorId, pageable).map(project -> mapToResponse(project, new HashMap<>()));
     }
@@ -102,7 +105,7 @@ public class ProjectService {
         if (size < 1 || size > 10) { // You can tweak max size as per your requirements
             throw new BadRequestException("Page size must be between 1 and 10");
         }
-        Long currentUserId = getCurrentUserId();
+        Long currentUserId = securityUtils.getCurrentUserId();
         Pageable pageable = PageRequest.of(page - 1, size);
         return projectRepository.findAll(pageable)
                 .map(project -> {
@@ -130,7 +133,7 @@ public class ProjectService {
         if (size < 1 || size > 10) { // You can tweak max size as per your requirements
             throw new BadRequestException("Page size must be between 1 and 10");
         }
-        Long currentUserId = getCurrentUserId();
+        Long currentUserId = securityUtils.getCurrentUserId();
         Pageable pageable = PageRequest.of(page - 1, size);
         Specification<Project> searchProjectSpecification = (root, query, cb) -> cb.conjunction();
         searchProjectSpecification = searchProjectSpecification
@@ -147,7 +150,7 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProjectById(long projectId) {
-        Long authorId = getCurrentUserId();
+        Long authorId = securityUtils.getCurrentUserId();
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         HashMap<String, Object> additionalParams = new HashMap<>();
@@ -158,7 +161,7 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest) {
-        Long authorId = getCurrentUserId();
+        Long authorId = securityUtils.getCurrentUserId();
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -186,7 +189,7 @@ public class ProjectService {
 
     @Transactional
     public void deleteProject(Long projectId) {
-        Long authorId = getCurrentUserId();
+        Long authorId = securityUtils.getCurrentUserId();
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));

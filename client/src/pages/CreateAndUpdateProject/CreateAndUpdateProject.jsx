@@ -11,7 +11,6 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
-import { isVideoUrl } from "../../api/utils/formValidation";
 import { uploadResources } from "../../utils/resourceUpload";
 import { markdownComponents } from "../../components/markdownComponents";
 
