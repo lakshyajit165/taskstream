@@ -2,6 +2,7 @@ package com.elkay.taskstream.auth.controller;
 
 import com.elkay.taskstream.auth.payload.SearchUserResponse;
 import com.elkay.taskstream.auth.service.UserService;
+import com.elkay.taskstream.common_utils.SecurityUtils;
 import com.elkay.taskstream.payload.GenericResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,9 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private UserService userService;
+    private SecurityUtils securityUtils;
 
-    public UserController(UserService userService) {
+    public UserController(
+            UserService userService,
+            SecurityUtils securityUtils) {
         this.userService = userService;
+        this.securityUtils = securityUtils;
     }
 
     @GetMapping("/search")
@@ -27,6 +32,14 @@ public class UserController {
         SearchUserResponse searchUserResponse = userService.searchUsers(name);
         return ResponseEntity.ok(
                 new GenericResponse<>("Users fetched successfully", false, searchUserResponse)
+        );
+    }
+
+    @GetMapping("/isAdmin")
+    public ResponseEntity<GenericResponse<Boolean>> isCurrentUserAdmin() {
+        Boolean isAdmin = securityUtils.isCurrentUserAnAdmin();
+        return ResponseEntity.ok(
+                new GenericResponse<>("Admin status fetched successfully", false, isAdmin)
         );
     }
 }

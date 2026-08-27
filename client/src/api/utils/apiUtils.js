@@ -76,3 +76,23 @@ export const buildQueryParams = (filters, currentPage, pageSize) => {
 
 	return params.toString();
 };
+
+const decodeJwtPayload = (token) => {
+	const payload = token.split(".")[1];
+
+	const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+
+	return JSON.parse(atob(base64));
+};
+
+export const isCurrentUserAdminFromLocal = () => {
+	const token = getAuthToken();
+
+	if (!token) {
+		return false;
+	}
+
+	const payload = decodeJwtPayload(token);
+
+	return payload.roles?.includes("ROLE_ADMIN") ?? false;
+};

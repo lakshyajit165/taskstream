@@ -13,3 +13,16 @@ export const searchUsers = async (name) => {
 	const data = await getResponse(response);
 	return data;
 };
+
+export const isCurrentUserAdminFromApi = async () => {
+	const response = await fetch(`${BASE_URL}/isAdmin`, {
+		method: "GET",
+		headers: getRequestHeaders(),
+	});
+
+	// Check response state for 401 status
+	checkResponseState(response);
+
+	const data = await getResponse(response);
+	return data;
+};

@@ -17,4 +17,17 @@ public class SecurityUtils {
         }
         return userDetails.getUserId();
     }
+
+    public boolean isCurrentUserAnAdmin() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            throw new UnauthorizedException("User not authenticated");
+        }
+
+        return userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+    }
 }
