@@ -3,6 +3,7 @@ package com.elkay.taskstream;
 import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.UserRepository;
+import com.elkay.taskstream.config.AdminConfig;
 import com.elkay.taskstream.project.payload.ProjectRequest;
 import com.elkay.taskstream.project.repository.ProjectRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +29,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -112,6 +114,9 @@ public class ProjectControllerTest {
     void setUp(@Autowired MockMvc mockMvc,
                       @Autowired ObjectMapper objectMapper) {
         try {
+            AdminConfig.setAdminEmails(
+                    List.of(ADMIN_EMAIL)
+            );
             jwtTokenAdmin = getJwtToken(ADMIN_EMAIL);
             jwtTokenUser = getJwtToken(USER_EMAIL);
         } catch (Exception e) {

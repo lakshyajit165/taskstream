@@ -19,3 +19,8 @@ spring:
   # To take up the migration scripts.
   flyway:
     enabled: true
+
+  # Dummy mail credentials used during tests to initialize EmailService
+  mail:
+    username: test@example.com
+    password: test-password

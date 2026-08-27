@@ -72,7 +72,7 @@ public class AuthService {
 
         // Determine role
         long roleId;
-        if (AdminConfig.ADMIN_EMAILS.contains(signupRequest.getEmail())) {
+        if (AdminConfig.getAdminEmails().contains(signupRequest.getEmail())) {
             // Admin
             roleId = 2L; // assuming ROLE_ADMIN seeded with ID 2
         } else {

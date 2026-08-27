@@ -3,6 +3,7 @@ package com.elkay.taskstream;
 import com.elkay.taskstream.auth.payload.LoginRequest;
 import com.elkay.taskstream.auth.payload.SignupRequest;
 import com.elkay.taskstream.auth.repository.UserRepository;
+import com.elkay.taskstream.config.AdminConfig;
 import com.elkay.taskstream.project.payload.ProjectRequest;
 import com.elkay.taskstream.project.repository.ProjectRepository;
 import com.elkay.taskstream.task.model.TaskPriority;
@@ -27,6 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -115,6 +117,9 @@ public class TaskControllerTest {
     void setUp(@Autowired MockMvc mockMvc,
                @Autowired ObjectMapper objectMapper) {
         try {
+            AdminConfig.setAdminEmails(
+                    List.of(ADMIN_EMAIL)
+            );
             // These static fields are now guaranteed to be populated
             // before createTask_Success(), etc., run.
             jwtTokenAdmin = getJwtToken(ADMIN_EMAIL);
