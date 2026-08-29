@@ -35,7 +35,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "oauth_provider", nullable = false)
+    @Column(name = "oauth_provider")
     private OAuthProvider oAuthProvider;
 
     private String providerId;
@@ -53,6 +53,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.oAuthProvider = OAuthProvider.LOCAL;
     }
 
     // getters & setters
