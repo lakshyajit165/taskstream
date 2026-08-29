@@ -1,15 +1,18 @@
-package com.elkay.taskstream.auth.oauth.github;
+package com.elkay.taskstream.auth.service;
 
 import com.elkay.taskstream.auth.model.OAuthCredentials;
 import com.elkay.taskstream.auth.oauth.OAuthProvider;
+import com.elkay.taskstream.auth.oauth.github.GithubOAuthConfiguration;
+import com.elkay.taskstream.auth.payload.OAuthConfigRequest;
 import com.elkay.taskstream.auth.repository.OAuthCredentialsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class GithubOAuthConfigurationService {
+public class OAuthService {
     private final OAuthCredentialsRepository oauthCredentialsRepository;
 
-    public GithubOAuthConfigurationService(
+    public OAuthService(
             OAuthCredentialsRepository oauthCredentialsRepository) {
         this.oauthCredentialsRepository = oauthCredentialsRepository;
     }
@@ -58,4 +61,22 @@ public class GithubOAuthConfigurationService {
                 credentials.getServerUrl()
         );
     }
+
+    @Transactional
+    public void saveOAuthCredentials(OAuthConfigRequest oauthConfigRequest) {
+
+        OAuthCredentials credentials = oauthCredentialsRepository
+                .findByProvider(oauthConfigRequest.getOauthProvider())
+                .orElseGet(OAuthCredentials::new);
+
+        credentials.setProvider(oauthConfigRequest.getOauthProvider());
+        credentials.setServerUrl(oauthConfigRequest.getServerUrl());
+        credentials.setClientId(oauthConfigRequest.getClientId());
+        credentials.setClientSecret(oauthConfigRequest.getClientSecret());
+        credentials.setOauthEnabled(true);
+
+        oauthCredentialsRepository.save(credentials);
+    }
+
+
 }
