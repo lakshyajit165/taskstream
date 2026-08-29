@@ -1,5 +1,6 @@
 package com.elkay.taskstream.auth.model;
 
+import com.elkay.taskstream.auth.oauth.OAuthProvider;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -22,7 +23,7 @@ public class User {
     @Column(unique=true, nullable=false)
     private String email;
 
-    @Column(nullable=false)
+    // password is nullable after the oauth impl
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -32,6 +33,12 @@ public class User {
             inverseJoinColumns=@JoinColumn(name="role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "oauth_provider", nullable = false)
+    private OAuthProvider oAuthProvider;
+
+    private String providerId;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -62,4 +69,20 @@ public class User {
     public void addRole(Role role) { this.roles.add(role); }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+    public OAuthProvider getoAuthProvider() {
+        return oAuthProvider;
+    }
+
+    public void setoAuthProvider(OAuthProvider oAuthProvider) {
+        this.oAuthProvider = oAuthProvider;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+
 }

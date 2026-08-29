@@ -1,6 +1,7 @@
 package com.elkay.taskstream.auth.repository;
 
 import com.elkay.taskstream.auth.model.User;
+import com.elkay.taskstream.auth.oauth.OAuthProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM users u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%'))", nativeQuery = true)
     List<User> searchUsersByName(@Param("name") String name);
+
+    Optional<User> findByOAuthProviderAndProviderId(
+            OAuthProvider authProvider,
+            String providerId
+    );
 }
