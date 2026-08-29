@@ -96,3 +96,9 @@ export const isCurrentUserAdminFromLocal = () => {
 
 	return payload.roles?.includes("ROLE_ADMIN") ?? false;
 };
+
+export const isValidURL = (value) => {
+	// Standard strict URL regex with start (^) and end ($) anchors
+	const pattern = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+	return pattern.test(value);
+};

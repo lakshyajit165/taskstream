@@ -17,7 +17,10 @@ import {
 	DialogActions,
 	ToggleButton,
 	ToggleButtonGroup,
+	FormHelperText,
+	Collapse,
 } from "@mui/material";
+
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { FaGitlab } from "react-icons/fa";
 
@@ -28,11 +31,12 @@ import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 
 import { CustomThemeContext } from "../../context/CustomThemeContext";
-
 import { isCurrentUserAdminFromLocal } from "../../api/utils/apiUtils";
 import { isCurrentUserAdminFromApi } from "../../api/user/users";
 
 import { ToastContext } from "../../context/ToastContext";
+import { saveOAuthCreds } from "../../api/auth/auth";
+import { validateOAuthSetupPayload } from "../../api/utils/formValidation";
 
 const OAUTH_PROVIDERS = {
 	GITHUB: {
@@ -61,8 +65,10 @@ const Settings = () => {
 	const [oauthClientId, setOauthClientId] = useState("");
 	const [oauthClientSecret, setOauthClientSecret] = useState("");
 
-	const [openDisableDialog, setOpenDisableDialog] = useState(false);
+	const [errors, setErrors] = useState({});
+	const [loading, setLoading] = useState(false);
 
+	const [openDisableDialog, setOpenDisableDialog] = useState(false);
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
@@ -92,6 +98,67 @@ const Settings = () => {
 		toggleTheme(event.target.value);
 	};
 
+	const validate = (fieldValues) => {
+		const validationErrors = validateOAuthSetupPayload(fieldValues, errors);
+
+		setErrors(validationErrors);
+
+		return validationErrors;
+	};
+
+	const handleOAuthFieldChange = (field, value) => {
+		const updatedValues = {
+			[field]: value,
+		};
+
+		switch (field) {
+			case "serverUrl":
+				setOauthServer(value);
+				break;
+
+			case "clientId":
+				setOauthClientId(value);
+				break;
+
+			case "clientSecret":
+				setOauthClientSecret(value);
+				break;
+
+			default:
+				break;
+		}
+
+		validate(updatedValues);
+	};
+
+	const handleSaveOAuth = async () => {
+		const oauthSetupData = {
+			oauthProvider,
+			serverUrl: oauthServer,
+			clientId: oauthClientId,
+			clientSecret: oauthClientSecret,
+		};
+
+		const validationErrors = validateOAuthSetupPayload(oauthSetupData);
+
+		setErrors(validationErrors);
+
+		if (Object.keys(validationErrors).length !== 0) {
+			return;
+		}
+
+		setLoading(true);
+
+		try {
+			const response = await saveOAuthCreds(oauthSetupData);
+			showToast(response.message || "OAuth configuration saved successfully", "success");
+		} catch (err) {
+			showToast(err.message || "Failed to save OAuth configuration", "error");
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const handleOAuthToggle = (event) => {
 		const enabled = event.target.checked;
 
@@ -112,17 +179,14 @@ const Settings = () => {
 
 		setOauthProvider(provider);
 
-		/*
-		 * Automatically change the server URL when switching providers
-		 * if the user was still using the default URL of the previous
-		 * provider.
-		 */
 		if (oauthServer === OAUTH_PROVIDERS[previousProvider].defaultServer) {
 			setOauthServer(OAUTH_PROVIDERS[provider].defaultServer);
 		}
 	};
 
 	const handleConfirmDisableOAuth = () => {
+		console.log("Disable OAuth API call");
+
 		setOauthEnabled(false);
 		setOpenDisableDialog(false);
 
@@ -131,6 +195,7 @@ const Settings = () => {
 		setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
 		setOauthClientId("");
 		setOauthClientSecret("");
+		setErrors({});
 	};
 
 	const handleCancelDisableOAuth = () => {
@@ -203,37 +268,55 @@ const Settings = () => {
 							</Box>
 
 							{/* Server URL */}
-							<TextField
-								label={selectedProvider.serverLabel}
-								placeholder={selectedProvider.serverPlaceholder}
-								value={oauthServer}
-								onChange={(event) => setOauthServer(event.target.value)}
-								fullWidth
-								helperText={selectedProvider.serverHelper}
-							/>
+							<Box>
+								<TextField
+									label={selectedProvider.serverLabel}
+									value={oauthServer}
+									onChange={(event) => handleOAuthFieldChange("serverUrl", event.target.value)}
+									error={!!errors.serverUrl}
+									helperText={errors.serverUrl || selectedProvider.serverHelper}
+									fullWidth
+								/>
+							</Box>
 
 							{/* Client ID */}
-							<TextField
-								label="Client ID"
-								value={oauthClientId}
-								onChange={(event) => setOauthClientId(event.target.value)}
-								fullWidth
-								helperText={`The OAuth App Client ID configured in your ${selectedProvider.label} server`}
-							/>
+							<Box>
+								<TextField
+									label="Client ID"
+									value={oauthClientId}
+									onChange={(event) => handleOAuthFieldChange("clientId", event.target.value)}
+									error={!!errors.clientId}
+									helperText={errors.clientId || `The OAuth App Client ID configured in your ${selectedProvider.label} server`}
+									fullWidth
+								/>
+
+								<Collapse in={!!errors.oauthClientId} timeout={300}>
+									<FormHelperText error>{errors.oauthClientId}</FormHelperText>
+								</Collapse>
+							</Box>
 
 							{/* Client Secret */}
-							<TextField
-								label="Client Secret"
-								type="password"
-								value={oauthClientSecret}
-								onChange={(event) => setOauthClientSecret(event.target.value)}
-								fullWidth
-								helperText="The OAuth Client Secret. This value will be stored securely."
-							/>
+							<Box>
+								<TextField
+									label="Client Secret"
+									type="password"
+									value={oauthClientSecret}
+									onChange={(event) => handleOAuthFieldChange("clientSecret", event.target.value)}
+									error={!!errors.clientSecret}
+									helperText={errors.clientSecret || "The OAuth Client Secret. This value will be stored securely."}
+									fullWidth
+								/>
+
+								<Collapse in={!!errors.oauthClientSecret} timeout={300}>
+									<FormHelperText error>{errors.oauthClientSecret}</FormHelperText>
+								</Collapse>
+							</Box>
 
 							{/* Save */}
 							<Box>
-								<Button variant="contained">Save</Button>
+								<Button variant="contained" loading={loading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
+									Save
+								</Button>
 							</Box>
 						</Stack>
 					)}

@@ -1,3 +1,6 @@
+import { isValidURL } from "./apiUtils";
+import { SUPPORTED_OAUTH_PROVIDERS } from "./constants";
+
 // --- Signup Validation ---
 export const validateSignup = (values, errors = {}) => {
 	let validationErrors = { ...errors };
@@ -186,3 +189,45 @@ export const validateResetPasswordPayload = (values, errors = {}) => {
 };
 
 export const isVideoUrl = (url = "") => /\.(mp4|webm|ogg|mov)$/i.test(url);
+
+export const validateOAuthSetupPayload = (values, errors = {}) => {
+	let validationErrors = { ...errors };
+
+	if ("oauthProvider" in values) {
+		if (!values.oauthProvider) {
+			validationErrors.oauthProvider = "OAuth provider is required";
+		} else if (!SUPPORTED_OAUTH_PROVIDERS.includes(values.oauthProvider)) {
+			validationErrors.oauthProvider = "OAuth provider is not valid";
+		} else {
+			delete validationErrors.oauthProvider;
+		}
+	}
+
+	if ("serverUrl" in values) {
+		if (!values.serverUrl) {
+			validationErrors.serverUrl = "Server URL is required";
+		} else if (!isValidURL(values.serverUrl)) {
+			validationErrors.serverUrl = "Server URL is not valid";
+		} else {
+			delete validationErrors.serverUrl;
+		}
+	}
+
+	if ("clientId" in values) {
+		if (!values.clientId) {
+			validationErrors.clientId = "Client ID is required";
+		} else {
+			delete validationErrors.clientId;
+		}
+	}
+
+	if ("clientSecret" in values) {
+		if (!values.clientSecret) {
+			validationErrors.clientSecret = "Client Secret is required";
+		} else {
+			delete validationErrors.clientSecret;
+		}
+	}
+
+	return validationErrors;
+};

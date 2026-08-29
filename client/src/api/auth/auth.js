@@ -54,3 +54,16 @@ export const resetPassword = async (resetPasswordData) => {
 	const data = await getResponse(response);
 	return data;
 };
+
+export const saveOAuthCreds = async (oAuthSetupData) => {
+	const response = await fetch(`${BASE_URL}/oauth2/config/save`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(oAuthSetupData),
+	});
+
+	const data = await getResponse(response);
+	return data;
+};

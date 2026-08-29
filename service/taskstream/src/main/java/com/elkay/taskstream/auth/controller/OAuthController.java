@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/v1/auth/oauth2")
+@RequestMapping("/api/v1/auth")
 public class OAuthController {
 
     private final OAuthService oAuthService;
@@ -22,7 +22,7 @@ public class OAuthController {
         this.oAuthService = oAuthService;
     }
 
-    @GetMapping("/github")
+    @GetMapping("/oauth2/github")
     public ResponseEntity<Void> githubLogin() {
 
         GithubOAuthConfiguration githubOAuthConfiguration =
@@ -47,7 +47,7 @@ public class OAuthController {
                 .build();
     }
 
-    @PostMapping("/config/save")
+    @PostMapping("/oauth2/config/save")
     public ResponseEntity<GenericResponse<Void>> saveOAuthCredentials(
             @Valid @RequestBody OAuthConfigRequest oauthConfigRequest) {
 
