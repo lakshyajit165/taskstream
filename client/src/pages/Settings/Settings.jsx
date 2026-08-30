@@ -37,6 +37,8 @@ import { isCurrentUserAdminFromApi } from "../../api/user/users";
 import { ToastContext } from "../../context/ToastContext";
 import { saveOAuthCreds } from "../../api/auth/auth";
 import { validateOAuthSetupPayload } from "../../api/utils/formValidation";
+import { getOAuthProvider } from "../../api/auth/auth";
+import { CircularProgress } from "@mui/material";
 
 const OAUTH_PROVIDERS = {
 	GITHUB: {
@@ -66,32 +68,65 @@ const Settings = () => {
 	const [oauthClientSecret, setOauthClientSecret] = useState("");
 
 	const [errors, setErrors] = useState({});
-	const [loading, setLoading] = useState(false);
+	const [saveOAuthConfigLoading, setSaveOAuthConfigLoading] = useState(false);
+	const [oAuthProviderLoading, setOAuthProviderLoading] = useState(true);
 
 	const [openDisableDialog, setOpenDisableDialog] = useState(false);
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
-		const checkAdminStatus = async () => {
+		const loadSettings = async () => {
 			const isAdminAccordingToJwt = isCurrentUserAdminFromLocal();
 
 			if (!isAdminAccordingToJwt) {
 				setIsAdmin(false);
+				setOAuthProviderLoading(false);
 				return;
 			}
 
 			try {
-				const response = await isCurrentUserAdminFromApi();
-				const isAdminAccordingToApi = response.data === true;
+				const adminResponse = await isCurrentUserAdminFromApi();
+				const isAdminAccordingToApi = adminResponse.data === true;
 
 				setIsAdmin(isAdminAccordingToApi);
+
+				if (!isAdminAccordingToApi) {
+					setOAuthProviderLoading(false);
+					return;
+				}
+
+				const oauthResponse = await getOAuthProvider();
+				const provider = oauthResponse.data;
+
+				if (provider === "GITHUB") {
+					setOauthEnabled(true);
+					setOauthProvider("GITHUB");
+					setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
+					setOauthClientId("********");
+					setOauthClientSecret("********");
+				} else if (provider === "GITLAB") {
+					setOauthEnabled(true);
+					setOauthProvider("GITLAB");
+					setOauthServer(OAUTH_PROVIDERS.GITLAB.defaultServer);
+					setOauthClientId("********");
+					setOauthClientSecret("********");
+				} else {
+					setOauthEnabled(false);
+					setOauthProvider("GITHUB");
+					setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
+					setOauthClientId("");
+					setOauthClientSecret("");
+				}
 			} catch (err) {
-				showToast(err.message || "Failed to fetch admin details", "error");
+				showToast(err.message || "Failed to load settings", "error");
+
 				setIsAdmin(false);
+			} finally {
+				setOAuthProviderLoading(false);
 			}
 		};
 
-		checkAdminStatus();
+		loadSettings();
 	}, []);
 
 	const handleChange = (event) => {
@@ -147,7 +182,7 @@ const Settings = () => {
 			return;
 		}
 
-		setLoading(true);
+		setSaveOAuthConfigLoading(true);
 
 		try {
 			const response = await saveOAuthCreds(oauthSetupData);
@@ -155,7 +190,7 @@ const Settings = () => {
 		} catch (err) {
 			showToast(err.message || "Failed to save OAuth configuration", "error");
 		} finally {
-			setLoading(false);
+			setSaveOAuthConfigLoading(false);
 		}
 	};
 
@@ -261,7 +296,7 @@ const Settings = () => {
 									</ToggleButton>
 
 									<ToggleButton value="GITLAB" aria-label="GitLab">
-										<FaGitlab size={22} style={{ marginRight: 8 }} />
+										<FaGitlab size={22} style={{ marginRight: 8 }} color="orange" />
 										GitLab
 									</ToggleButton>
 								</ToggleButtonGroup>
@@ -283,6 +318,7 @@ const Settings = () => {
 							<Box>
 								<TextField
 									label="Client ID"
+									type="password"
 									value={oauthClientId}
 									onChange={(event) => handleOAuthFieldChange("clientId", event.target.value)}
 									error={!!errors.clientId}
@@ -314,7 +350,7 @@ const Settings = () => {
 
 							{/* Save */}
 							<Box>
-								<Button variant="contained" loading={loading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
+								<Button variant="contained" loading={saveOAuthConfigLoading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
 									Save
 								</Button>
 							</Box>

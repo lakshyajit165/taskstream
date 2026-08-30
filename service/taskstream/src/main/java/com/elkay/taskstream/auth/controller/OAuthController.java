@@ -1,5 +1,6 @@
 package com.elkay.taskstream.auth.controller;
 
+import com.elkay.taskstream.auth.oauth.OAuthProvider;
 import com.elkay.taskstream.auth.oauth.github.GithubOAuthConfiguration;
 import com.elkay.taskstream.auth.payload.OAuthConfigRequest;
 import com.elkay.taskstream.auth.service.OAuthService;
@@ -7,6 +8,7 @@ import com.elkay.taskstream.auth.oauth.github.GithubOAuthUrls;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -47,6 +49,22 @@ public class OAuthController {
                 .build();
     }
 
+    @GetMapping("/oauth2/provider")
+    public ResponseEntity<GenericResponse<OAuthProvider>> getOAuthProvider() {
+
+        OAuthProvider provider =
+                oAuthService.getConfiguredOAuthProvider();
+
+        return ResponseEntity.ok(
+                new GenericResponse<>(
+                        "OAuth provider fetched successfully",
+                        false,
+                        provider
+                )
+        );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/oauth2/config/save")
     public ResponseEntity<GenericResponse<Void>> saveOAuthCredentials(
             @Valid @RequestBody OAuthConfigRequest oauthConfigRequest) {

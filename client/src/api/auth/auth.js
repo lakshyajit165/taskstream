@@ -1,5 +1,6 @@
 import { getResponse } from "../utils/apiUtils";
 import { HOST_URL } from "../utils/constants";
+import { getRequestHeaders } from "../utils/apiUtils";
 
 const BASE_URL = `${HOST_URL}/api/v1/auth`;
 
@@ -58,12 +59,21 @@ export const resetPassword = async (resetPasswordData) => {
 export const saveOAuthCreds = async (oAuthSetupData) => {
 	const response = await fetch(`${BASE_URL}/oauth2/config/save`, {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
+		headers: getRequestHeaders(),
 		body: JSON.stringify(oAuthSetupData),
 	});
 
+	const data = await getResponse(response);
+	return data;
+};
+
+export const getOAuthProvider = async () => {
+	const response = await fetch(`${BASE_URL}/oauth2/provider`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 	const data = await getResponse(response);
 	return data;
 };

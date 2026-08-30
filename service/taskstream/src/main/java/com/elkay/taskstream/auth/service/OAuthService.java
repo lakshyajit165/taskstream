@@ -65,11 +65,17 @@ public class OAuthService {
     @Transactional
     public void saveOAuthCredentials(OAuthConfigRequest oauthConfigRequest) {
 
+        // Disable any currently active OAuth provider
+        oauthCredentialsRepository
+                .findAllByOauthEnabledTrue()
+                .forEach(credentials -> credentials.setOauthEnabled(false));
+
+        // Create or update the selected provider
         OAuthCredentials credentials = oauthCredentialsRepository
-                .findByProvider(oauthConfigRequest.getOauthProvider())
+                .findByProvider(oauthConfigRequest.getOAuthProvider())
                 .orElseGet(OAuthCredentials::new);
 
-        credentials.setProvider(oauthConfigRequest.getOauthProvider());
+        credentials.setProvider(oauthConfigRequest.getOAuthProvider());
         credentials.setServerUrl(oauthConfigRequest.getServerUrl());
         credentials.setClientId(oauthConfigRequest.getClientId());
         credentials.setClientSecret(oauthConfigRequest.getClientSecret());
@@ -78,5 +84,12 @@ public class OAuthService {
         oauthCredentialsRepository.save(credentials);
     }
 
+    @Transactional(readOnly = true)
+    public OAuthProvider getConfiguredOAuthProvider() {
+        return oauthCredentialsRepository
+                .findByOauthEnabledTrue()
+                .map(OAuthCredentials::getProvider)
+                .orElse(OAuthProvider.LOCAL);
+    }
 
 }

@@ -35,11 +35,11 @@ public class OAuthConfigRequest {
         this.clientSecret = clientSecret;
     }
 
-    public OAuthProvider getOauthProvider() {
+    public OAuthProvider getOAuthProvider() {
         return oauthProvider;
     }
 
-    public void setOauthProvider(OAuthProvider oauthProvider) {
+    public void setOAuthProvider(OAuthProvider oauthProvider) {
         this.oauthProvider = oauthProvider;
     }
 
