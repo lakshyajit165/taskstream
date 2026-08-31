@@ -14,10 +14,13 @@ public class OAuthConfigRequest {
     @NotBlank(message = "Server URL is required")
     private String serverUrl;
 
-    @NotBlank(message = "Client ID is required")
+    /**
+     * The clientId and clientSecret fields are NON Null at table level
+     * but optional at the field level because a user might modify only 1 value
+     * from the client side
+     * */
     private String clientId;
 
-    @NotBlank(message = "Client Secret is required")
     private String clientSecret;
 
     public OAuthConfigRequest() {

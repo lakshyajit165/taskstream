@@ -35,9 +35,8 @@ import { isCurrentUserAdminFromLocal } from "../../api/utils/apiUtils";
 import { isCurrentUserAdminFromApi } from "../../api/user/users";
 
 import { ToastContext } from "../../context/ToastContext";
-import { saveOAuthCreds } from "../../api/auth/auth";
+import { saveOAuthCreds, getOAuthProvider } from "../../api/auth/auth";
 import { validateOAuthSetupPayload } from "../../api/utils/formValidation";
-import { getOAuthProvider } from "../../api/auth/auth";
 import { CircularProgress } from "@mui/material";
 
 const OAUTH_PROVIDERS = {
@@ -66,6 +65,10 @@ const Settings = () => {
 	const [oauthServer, setOauthServer] = useState(OAUTH_PROVIDERS.GITHUB.defaultServer);
 	const [oauthClientId, setOauthClientId] = useState("");
 	const [oauthClientSecret, setOauthClientSecret] = useState("");
+
+	// Tracks whether the user has actually entered a new credential.
+	const [clientIdModified, setClientIdModified] = useState(false);
+	const [clientSecretModified, setClientSecretModified] = useState(false);
 
 	const [errors, setErrors] = useState({});
 	const [saveOAuthConfigLoading, setSaveOAuthConfigLoading] = useState(false);
@@ -102,20 +105,33 @@ const Settings = () => {
 					setOauthEnabled(true);
 					setOauthProvider("GITHUB");
 					setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
+
+					// Never load the real credentials into the frontend.
 					setOauthClientId("********");
 					setOauthClientSecret("********");
+
+					setClientIdModified(false);
+					setClientSecretModified(false);
 				} else if (provider === "GITLAB") {
 					setOauthEnabled(true);
 					setOauthProvider("GITLAB");
 					setOauthServer(OAUTH_PROVIDERS.GITLAB.defaultServer);
+
+					// Never load the real credentials into the frontend.
 					setOauthClientId("********");
 					setOauthClientSecret("********");
+
+					setClientIdModified(false);
+					setClientSecretModified(false);
 				} else {
 					setOauthEnabled(false);
 					setOauthProvider("GITHUB");
 					setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
 					setOauthClientId("");
 					setOauthClientSecret("");
+
+					setClientIdModified(false);
+					setClientSecretModified(false);
 				}
 			} catch (err) {
 				showToast(err.message || "Failed to load settings", "error");
@@ -153,10 +169,12 @@ const Settings = () => {
 
 			case "clientId":
 				setOauthClientId(value);
+				setClientIdModified(true);
 				break;
 
 			case "clientSecret":
 				setOauthClientSecret(value);
+				setClientSecretModified(true);
 				break;
 
 			default:
@@ -167,12 +185,41 @@ const Settings = () => {
 	};
 
 	const handleSaveOAuth = async () => {
+		/*
+		 * Do not send oauthClientId/oauthClientSecret blindly.
+		 *
+		 * They may contain "********" when an existing configuration
+		 * is loaded. Only send a credential if the user actually
+		 * modified that field.
+		 */
 		const oauthSetupData = {
 			oauthProvider,
 			serverUrl: oauthServer,
-			clientId: oauthClientId,
-			clientSecret: oauthClientSecret,
 		};
+
+		if (clientIdModified) {
+			oauthSetupData.clientId = oauthClientId;
+		}
+
+		if (clientSecretModified) {
+			oauthSetupData.clientSecret = oauthClientSecret;
+		}
+
+		/*
+		 * Neither credential was changed.
+		 *
+		 * This prevents the masked values from being submitted.
+		 */
+		const noCredentialsProvided = !clientIdModified && !clientSecretModified;
+
+		if (noCredentialsProvided) {
+			setErrors({
+				clientId: "Client ID is not valid",
+				clientSecret: "Client Secret is not valid",
+			});
+
+			return;
+		}
 
 		const validationErrors = validateOAuthSetupPayload(oauthSetupData);
 
@@ -186,7 +233,19 @@ const Settings = () => {
 
 		try {
 			const response = await saveOAuthCreds(oauthSetupData);
+
 			showToast(response.message || "OAuth configuration saved successfully", "success");
+
+			/*
+			 * Do not keep the newly entered credentials in the
+			 * frontend state after saving.
+			 */
+			setOauthClientId("********");
+			setOauthClientSecret("********");
+
+			setClientIdModified(false);
+			setClientSecretModified(false);
+			setErrors({});
 		} catch (err) {
 			showToast(err.message || "Failed to save OAuth configuration", "error");
 		} finally {
@@ -217,6 +276,18 @@ const Settings = () => {
 		if (oauthServer === OAUTH_PROVIDERS[previousProvider].defaultServer) {
 			setOauthServer(OAUTH_PROVIDERS[provider].defaultServer);
 		}
+
+		/*
+		 * The masked credentials currently displayed belong to the
+		 * previous provider. Clear them when switching provider.
+		 */
+		setOauthClientId("");
+		setOauthClientSecret("");
+
+		setClientIdModified(false);
+		setClientSecretModified(false);
+
+		setErrors({});
 	};
 
 	const handleConfirmDisableOAuth = () => {
@@ -230,6 +301,10 @@ const Settings = () => {
 		setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
 		setOauthClientId("");
 		setOauthClientSecret("");
+
+		setClientIdModified(false);
+		setClientSecretModified(false);
+
 		setErrors({});
 	};
 
@@ -279,82 +354,111 @@ const Settings = () => {
 
 					<Divider sx={{ my: 1 }} />
 
-					<FormControlLabel control={<Switch checked={oauthEnabled} onChange={handleOAuthToggle} />} label="Enable OAuth" />
+					{oAuthProviderLoading ? (
+						<Stack direction="row" spacing={1.5} alignItems="center" sx={{ py: 3 }}>
+							<CircularProgress size={22} />
 
-					{oauthEnabled && (
-						<Stack spacing={3} sx={{ mt: 3 }}>
-							{/* OAuth Provider */}
-							<Box>
-								<Typography variant="subtitle2" sx={{ mb: 1 }}>
-									OAuth Provider
-								</Typography>
-
-								<ToggleButtonGroup value={oauthProvider} exclusive onChange={handleProviderChange} fullWidth aria-label="OAuth provider">
-									<ToggleButton value="GITHUB" aria-label="GitHub">
-										<GitHubIcon sx={{ mr: 1 }} />
-										GitHub
-									</ToggleButton>
-
-									<ToggleButton value="GITLAB" aria-label="GitLab">
-										<FaGitlab size={22} style={{ marginRight: 8 }} color="orange" />
-										GitLab
-									</ToggleButton>
-								</ToggleButtonGroup>
-							</Box>
-
-							{/* Server URL */}
-							<Box>
-								<TextField
-									label={selectedProvider.serverLabel}
-									value={oauthServer}
-									onChange={(event) => handleOAuthFieldChange("serverUrl", event.target.value)}
-									error={!!errors.serverUrl}
-									helperText={errors.serverUrl || selectedProvider.serverHelper}
-									fullWidth
-								/>
-							</Box>
-
-							{/* Client ID */}
-							<Box>
-								<TextField
-									label="Client ID"
-									type="password"
-									value={oauthClientId}
-									onChange={(event) => handleOAuthFieldChange("clientId", event.target.value)}
-									error={!!errors.clientId}
-									helperText={errors.clientId || `The OAuth App Client ID configured in your ${selectedProvider.label} server`}
-									fullWidth
-								/>
-
-								<Collapse in={!!errors.oauthClientId} timeout={300}>
-									<FormHelperText error>{errors.oauthClientId}</FormHelperText>
-								</Collapse>
-							</Box>
-
-							{/* Client Secret */}
-							<Box>
-								<TextField
-									label="Client Secret"
-									type="password"
-									value={oauthClientSecret}
-									onChange={(event) => handleOAuthFieldChange("clientSecret", event.target.value)}
-									error={!!errors.clientSecret}
-									helperText={errors.clientSecret || "The OAuth Client Secret. This value will be stored securely."}
-									fullWidth
-								/>
-
-								<Collapse in={!!errors.oauthClientSecret} timeout={300}>
-									<FormHelperText error>{errors.oauthClientSecret}</FormHelperText>
-								</Collapse>
-							</Box>
-
-							{/* Save */}
-							<Box>
-								<Button variant="contained" loading={saveOAuthConfigLoading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
-									Save
-								</Button>
-							</Box>
+							<Typography variant="body2" color="text.secondary">
+								Loading OAuth configuration...
+							</Typography>
 						</Stack>
+					) : (
+						<>
+							<FormControlLabel control={<Switch checked={oauthEnabled} onChange={handleOAuthToggle} />} label="Enable OAuth" />
+
+							{oauthEnabled && (
+								<Stack spacing={3} sx={{ mt: 3 }}>
+									{/* OAuth Provider */}
+									<Box>
+										<Typography variant="subtitle2" sx={{ mb: 1 }}>
+											OAuth Provider
+										</Typography>
+
+										<ToggleButtonGroup value={oauthProvider} exclusive onChange={handleProviderChange} fullWidth aria-label="OAuth provider">
+											<ToggleButton value="GITHUB" aria-label="GitHub">
+												<GitHubIcon sx={{ mr: 1 }} />
+												GitHub
+											</ToggleButton>
+
+											<ToggleButton value="GITLAB" aria-label="GitLab">
+												<FaGitlab
+													size={22}
+													style={{
+														marginRight: 8,
+													}}
+													color="orange"
+												/>
+												GitLab
+											</ToggleButton>
+										</ToggleButtonGroup>
+									</Box>
+
+									{/* Server URL */}
+									<Box>
+										<TextField
+											label={selectedProvider.serverLabel}
+											placeholder={selectedProvider.serverPlaceholder}
+											value={oauthServer}
+											onChange={(event) => handleOAuthFieldChange("serverUrl", event.target.value)}
+											error={!!errors.serverUrl}
+											helperText={errors.serverUrl || selectedProvider.serverHelper}
+											fullWidth
+										/>
+									</Box>
+
+									{/* Client ID */}
+									<Box>
+										<TextField
+											label="Client ID"
+											type="password"
+											value={oauthClientId}
+											onFocus={() => {
+												if (!clientIdModified) {
+													setOauthClientId("");
+												}
+											}}
+											onChange={(event) => handleOAuthFieldChange("clientId", event.target.value)}
+											error={!!errors.clientId}
+											helperText={errors.clientId || `The OAuth App Client ID configured in your ${selectedProvider.label} server`}
+											fullWidth
+										/>
+
+										<Collapse in={!!errors.oauthClientId} timeout={300}>
+											<FormHelperText error>{errors.oauthClientId}</FormHelperText>
+										</Collapse>
+									</Box>
+
+									{/* Client Secret */}
+									<Box>
+										<TextField
+											label="Client Secret"
+											type="password"
+											value={oauthClientSecret}
+											onFocus={() => {
+												if (!clientSecretModified) {
+													setOauthClientSecret("");
+												}
+											}}
+											onChange={(event) => handleOAuthFieldChange("clientSecret", event.target.value)}
+											error={!!errors.clientSecret}
+											helperText={errors.clientSecret || "The OAuth Client Secret. This value will be stored securely."}
+											fullWidth
+										/>
+
+										<Collapse in={!!errors.oauthClientSecret} timeout={300}>
+											<FormHelperText error>{errors.oauthClientSecret}</FormHelperText>
+										</Collapse>
+									</Box>
+
+									{/* Save */}
+									<Box>
+										<Button variant="contained" loading={saveOAuthConfigLoading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
+											Save
+										</Button>
+									</Box>
+								</Stack>
+							)}
+						</>
 					)}
 				</Box>
 			)}

@@ -65,20 +65,36 @@ public class OAuthService {
     @Transactional
     public void saveOAuthCredentials(OAuthConfigRequest oauthConfigRequest) {
 
-        // Disable any currently active OAuth provider
-        oauthCredentialsRepository
-                .findAllByOauthEnabledTrue()
-                .forEach(credentials -> credentials.setOauthEnabled(false));
-
-        // Create or update the selected provider
         OAuthCredentials credentials = oauthCredentialsRepository
                 .findByProvider(oauthConfigRequest.getOAuthProvider())
                 .orElseGet(OAuthCredentials::new);
 
+        boolean newConfiguration = credentials.getId() == null;
+
+        if (newConfiguration) {
+            if (oauthConfigRequest.getClientId() == null
+                    || oauthConfigRequest.getClientSecret() == null) {
+                throw new IllegalArgumentException(
+                        "Client ID and Client Secret are required for new OAuth configuration"
+                );
+            }
+        }
+
+        // Disable any currently active OAuth provider
+        disableActiveOAuthCredentials();
+
+
         credentials.setProvider(oauthConfigRequest.getOAuthProvider());
         credentials.setServerUrl(oauthConfigRequest.getServerUrl());
-        credentials.setClientId(oauthConfigRequest.getClientId());
-        credentials.setClientSecret(oauthConfigRequest.getClientSecret());
+
+        if (oauthConfigRequest.getClientId() != null) {
+            credentials.setClientId(oauthConfigRequest.getClientId());
+        }
+
+        if (oauthConfigRequest.getClientSecret() != null) {
+            credentials.setClientSecret(oauthConfigRequest.getClientSecret());
+        }
+
         credentials.setOauthEnabled(true);
 
         oauthCredentialsRepository.save(credentials);
@@ -90,6 +106,19 @@ public class OAuthService {
                 .findByOauthEnabledTrue()
                 .map(OAuthCredentials::getProvider)
                 .orElse(OAuthProvider.LOCAL);
+    }
+
+    @Transactional
+    public void disableOAuthCredentials() {
+        disableActiveOAuthCredentials();
+    }
+
+    private void disableActiveOAuthCredentials() {
+        oauthCredentialsRepository
+                .findAllByOauthEnabledTrue()
+                .forEach(activeCredentials ->
+                        activeCredentials.setOauthEnabled(false)
+                );
     }
 
 }

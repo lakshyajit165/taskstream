@@ -79,4 +79,18 @@ public class OAuthController {
                 )
         );
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/oauth2/config/disable")
+    public ResponseEntity<GenericResponse<Void>> disableOAuthCredentials() {
+
+        oAuthService.disableOAuthCredentials();
+        return ResponseEntity.ok(
+                new GenericResponse<>(
+                        "OAuth configuration disabled successfully",
+                        false,
+                        null
+                )
+        );
+    }
 }
