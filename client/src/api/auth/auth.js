@@ -82,7 +82,6 @@ export const disableOAuthCreds = async () => {
 	const response = await fetch(`${BASE_URL}/oauth2/config/disable`, {
 		method: "POST",
 		headers: getRequestHeaders(),
-		body: JSON.stringify({}),
 	});
 
 	const data = await getResponse(response);

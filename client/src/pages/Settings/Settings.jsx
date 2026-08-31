@@ -35,7 +35,7 @@ import { isCurrentUserAdminFromLocal } from "../../api/utils/apiUtils";
 import { isCurrentUserAdminFromApi } from "../../api/user/users";
 
 import { ToastContext } from "../../context/ToastContext";
-import { saveOAuthCreds, getOAuthProvider } from "../../api/auth/auth";
+import { saveOAuthCreds, getOAuthProvider, disableOAuthCreds } from "../../api/auth/auth";
 import { validateOAuthSetupPayload } from "../../api/utils/formValidation";
 import { CircularProgress } from "@mui/material";
 
@@ -290,22 +290,28 @@ const Settings = () => {
 		setErrors({});
 	};
 
-	const handleConfirmDisableOAuth = () => {
-		console.log("Disable OAuth API call");
+	const handleConfirmDisableOAuth = async () => {
+		try {
+			await disableOAuthCreds();
 
-		setOauthEnabled(false);
-		setOpenDisableDialog(false);
+			showToast("OAuth configuration disabled successfully", "success");
 
-		// Reset OAuth configuration.
-		setOauthProvider("GITHUB");
-		setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
-		setOauthClientId("");
-		setOauthClientSecret("");
+			setOauthEnabled(false);
+			setOpenDisableDialog(false);
 
-		setClientIdModified(false);
-		setClientSecretModified(false);
+			// Reset OAuth configuration.
+			setOauthProvider("GITHUB");
+			setOauthServer(OAUTH_PROVIDERS.GITHUB.defaultServer);
+			setOauthClientId("");
+			setOauthClientSecret("");
 
-		setErrors({});
+			setClientIdModified(false);
+			setClientSecretModified(false);
+
+			setErrors({});
+		} catch (err) {
+			showToast(err.message || "Failed to disable OAuth configuration", "error");
+		}
 	};
 
 	const handleCancelDisableOAuth = () => {
