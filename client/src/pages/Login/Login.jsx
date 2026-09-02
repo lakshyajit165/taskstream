@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Box, IconButton, Button, TextField, Typography, Paper, Link, Divider, FormHelperText, Collapse } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { login } from "../../api/auth/auth";
+import { getOAuthProvider, login } from "../../api/auth/auth";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { validateLogin } from "../../api/utils/formValidation";
@@ -11,6 +11,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { AuthContext } from "../../context/AuthContext";
 import Stack from "@mui/material/Stack";
 import ProductDescription from "../../components/ProductDescription";
+import { FaGitlab } from "react-icons/fa";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 const Login = () => {
 	const { showToast } = useContext(ToastContext);
@@ -22,8 +24,10 @@ const Login = () => {
 		password: "",
 	});
 	const [errors, setErrors] = useState({});
-	const [loading, setLoading] = useState(false);
+	const [loginLoading, setLoginLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
+	const [oAuthProviderLoading, setOAuthProviderLoading] = useState(false);
+	const [oAuthProvider, setOAuthProvider] = useState(false);
 
 	const validate = (fieldValues = loginPayload) => {
 		let validationErrors = validateLogin(fieldValues);
@@ -43,19 +47,35 @@ const Login = () => {
 		const validationErrors = validate(loginPayload);
 
 		if (Object.keys(validationErrors).length === 0) {
-			setLoading(true);
+			setLoginLoading(true);
 			try {
 				const loginResponse = await login(loginPayload);
 				setLoggedinState(loginResponse.data.token);
 				showToast(loginResponse.message, "success");
-				setLoading(false);
+				setLoginLoading(false);
 				navigate("/");
 			} catch (error) {
 				showToast(error.message || "Error logging in user", "error");
-				setLoading(false);
+				setLoginLoading(false);
 			}
 		}
 	};
+
+	useEffect(() => {
+		const fetchOAuthProvider = async () => {
+			setOAuthProviderLoading(true);
+			try {
+				const response = await getOAuthProvider();
+				setOAuthProvider(response.data);
+			} catch (error) {
+				showToast(error.message || "Error fetching OAuth provider");
+			} finally {
+				setOAuthProviderLoading(false);
+			}
+		};
+
+		fetchOAuthProvider();
+	}, []);
 
 	return (
 		<Box
@@ -128,9 +148,54 @@ const Login = () => {
 							</Link>
 						</Box>
 
-						<Button loading={loading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
-							Login
-						</Button>
+						<Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
+							<Button loading={loginLoading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained">
+								Login
+							</Button>
+
+							{oAuthProvider === "GITHUB" && (
+								<Button
+									fullWidth
+									variant="contained"
+									disableElevation
+									startIcon={<GitHubIcon />}
+									onClick={() => {
+										window.location.href = "http://localhost:8000/api/v1/auth/oauth2/github";
+									}}
+									sx={{
+										backgroundColor: "white",
+										color: "black",
+										"&:hover": {
+											backgroundColor: "#f5f5f5",
+										},
+									}}
+								>
+									Login with GitHub
+								</Button>
+							)}
+
+							{oAuthProvider === "GITLAB" && (
+								<Button
+									fullWidth
+									variant="contained"
+									startIcon={<FaGitlab color="orange" />}
+									onClick={() => {
+										window.location.href = "http://localhost:8000/api/v1/auth/oauth2/gitlab";
+									}}
+									sx={{
+										backgroundColor: "white",
+										color: "black",
+										boxShadow: 3,
+										"&:hover": {
+											backgroundColor: "#f5f5f5",
+											boxShadow: 5,
+										},
+									}}
+								>
+									Login with GitLab
+								</Button>
+							)}
+						</Stack>
 					</form>
 					<Typography variant="body2" sx={{ mt: 2 }}>
 						Don't have an account?{" "}

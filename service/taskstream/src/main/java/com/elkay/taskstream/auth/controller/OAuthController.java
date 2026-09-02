@@ -50,8 +50,7 @@ public class OAuthController {
     }
 
     @GetMapping("/oauth2/provider")
-    public ResponseEntity<GenericResponse<OAuthProvider>> getOAuthProvider() {
-
+    public ResponseEntity<GenericResponse<OAuthProvider>> getOAuthProvider() throws InterruptedException {
         OAuthProvider provider =
                 oAuthService.getConfiguredOAuthProvider();
 
