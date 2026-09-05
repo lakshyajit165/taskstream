@@ -20,6 +20,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import { CustomThemeProvider } from "./providers/CustomThemeProvider";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import OAuthCallback from "./pages/OAuth/OAuthCallback";
 
 function App() {
 	return (
@@ -35,6 +36,7 @@ function App() {
 									<Route path="/login" element={<Login />} />
 									<Route path="/signup" element={<Signup />} />
 									<Route path="/forgot_password" element={<ForgotPassword />} />
+									<Route path="/oauth2/callback" element={<OAuthCallback />} />
 								</Route>
 
 								{/* 2. PROTECTED ROUTES: Layout and Content */}
@@ -50,7 +52,6 @@ function App() {
 										<Route path="projects/:id" element={<ProjectDetails />} />
 										<Route path="projects/edit/:id" element={<CreateAndUpdateProject />} />
 										<Route path="tasks/:id" element={<TaskDetails />} />
-
 										{/* 3. NESTED NOT FOUND: This catches bad URLs while *inside* the Drawer layout */}
 										{/* If the user is logged in but navigates to /bad-url, DrawerMenu renders <Outlet /> (NotFound) */}
 										<Route path="*" element={<NotFound />} />

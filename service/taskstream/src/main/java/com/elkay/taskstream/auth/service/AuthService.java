@@ -100,7 +100,7 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
 
         // Validate password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (user.getPassword() == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new BadRequestException("Password doesn't match");
         }
 

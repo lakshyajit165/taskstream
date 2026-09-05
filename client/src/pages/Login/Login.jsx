@@ -148,54 +148,59 @@ const Login = () => {
 							</Link>
 						</Box>
 
-						<Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
-							<Button loading={loginLoading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained">
-								Login
-							</Button>
+						<Button loading={loginLoading} loadingIndicator="Logging in..." type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+							Login
+						</Button>
 
-							{oAuthProvider === "GITHUB" && (
-								<Button
-									fullWidth
-									variant="contained"
-									disableElevation
-									startIcon={<GitHubIcon />}
-									onClick={() => {
-										window.location.href = "http://localhost:8000/api/v1/auth/oauth2/github";
-									}}
-									sx={{
-										backgroundColor: "white",
-										color: "black",
-										"&:hover": {
-											backgroundColor: "#f5f5f5",
-										},
-									}}
-								>
-									Login with GitHub
-								</Button>
-							)}
+						{(oAuthProvider === "GITHUB" || oAuthProvider === "GITLAB") && (
+							<>
+								<Divider sx={{ my: 2 }}>OR</Divider>
 
-							{oAuthProvider === "GITLAB" && (
-								<Button
-									fullWidth
-									variant="contained"
-									startIcon={<FaGitlab color="orange" />}
-									onClick={() => {
-										window.location.href = "http://localhost:8000/api/v1/auth/oauth2/gitlab";
-									}}
-									sx={{
-										backgroundColor: "white",
-										color: "black",
-										boxShadow: 3,
-										"&:hover": {
-											backgroundColor: "#f5f5f5",
-											boxShadow: 5,
-										},
-									}}
-								>
-									Login with GitLab
-								</Button>
-							)}
-						</Stack>
+								{oAuthProvider === "GITHUB" && (
+									<Button
+										fullWidth
+										variant="outlined"
+										startIcon={<GitHubIcon />}
+										onClick={() => {
+											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/github";
+										}}
+										sx={{
+											color: "text.primary",
+											borderColor: "divider",
+											textTransform: "none",
+											"&:hover": {
+												borderColor: "text.primary",
+												backgroundColor: "action.hover",
+											},
+										}}
+									>
+										Login with GitHub
+									</Button>
+								)}
+
+								{oAuthProvider === "GITLAB" && (
+									<Button
+										fullWidth
+										variant="outlined"
+										startIcon={<FaGitlab color="orange" />}
+										onClick={() => {
+											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/gitlab";
+										}}
+										sx={{
+											color: "text.primary",
+											borderColor: "divider",
+											textTransform: "none",
+											"&:hover": {
+												borderColor: "text.primary",
+												backgroundColor: "action.hover",
+											},
+										}}
+									>
+										Sign in with GitLab
+									</Button>
+								)}
+							</>
+						)}
 					</form>
 					<Typography variant="body2" sx={{ mt: 2 }}>
 						Don't have an account?{" "}

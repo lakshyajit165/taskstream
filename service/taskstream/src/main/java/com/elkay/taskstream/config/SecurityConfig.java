@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/send_verification_code",
                                 "/api/v1/auth/reset_password",
                                 "/api/v1/auth/oauth2/github",
+                                "/api/v1/auth/oauth2/github/callback",
                                 "/api/v1/auth/oauth2/provider",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

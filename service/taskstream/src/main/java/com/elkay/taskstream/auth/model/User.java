@@ -34,11 +34,6 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "oauth_provider")
-    private OAuthProvider oAuthProvider;
-
-    private String providerId;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -48,12 +43,14 @@ public class User {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @OneToMany( mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true )
+    private Set<OAuthIdentity> oauthIdentities = new HashSet<>();
+
     public User() {}
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.oAuthProvider = OAuthProvider.LOCAL;
     }
 
     // getters & setters
@@ -70,20 +67,22 @@ public class User {
     public void addRole(Role role) { this.roles.add(role); }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
-    public OAuthProvider getoAuthProvider() {
-        return oAuthProvider;
+
+
+    public Set<OAuthIdentity> getOauthIdentities() {
+        return oauthIdentities;
     }
 
-    public void setoAuthProvider(OAuthProvider oAuthProvider) {
-        this.oAuthProvider = oAuthProvider;
+    public void setOauthIdentities(Set<OAuthIdentity> oauthIdentities) {
+        this.oauthIdentities = oauthIdentities;
     }
 
-    public String getProviderId() {
-        return providerId;
+    public void addOAuthIdentity(OAuthIdentity oauthIdentity) {
+        oauthIdentities.add(oauthIdentity); oauthIdentity.setUser(this);
     }
 
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
+    public void removeOAuthIdentity(OAuthIdentity oauthIdentity) {
+        oauthIdentities.remove(oauthIdentity);
+        oauthIdentity.setUser(null);
     }
-
 }
