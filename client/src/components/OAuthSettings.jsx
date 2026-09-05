@@ -19,6 +19,7 @@ import {
 	CircularProgress,
 	Collapse,
 	FormHelperText,
+	styled,
 } from "@mui/material";
 
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -46,6 +47,62 @@ const OAUTH_PROVIDERS = {
 		serverHelper: "Use https://gitlab.com or your self-hosted GitLab URL",
 	},
 };
+
+const IOSSwitch = styled((props) => <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />)(({ theme }) => ({
+	width: 42,
+	height: 26,
+	padding: 0,
+
+	"& .MuiSwitch-switchBase": {
+		padding: 0,
+		margin: 2,
+		transitionDuration: "300ms",
+
+		"&.Mui-checked": {
+			transform: "translateX(16px)",
+			color: "#fff",
+
+			"& + .MuiSwitch-track": {
+				backgroundColor: theme.palette.primary.main,
+				opacity: 1,
+				border: 0,
+			},
+
+			"&.Mui-disabled + .MuiSwitch-track": {
+				opacity: 0.5,
+			},
+		},
+
+		"&.Mui-focusVisible .MuiSwitch-thumb": {
+			color: theme.palette.primary.main,
+			border: "6px solid #fff",
+		},
+
+		"&.Mui-disabled .MuiSwitch-thumb": {
+			color: theme.palette.grey[300],
+		},
+
+		"&.Mui-disabled + .MuiSwitch-track": {
+			backgroundColor: theme.palette.grey[400],
+			opacity: 0.7,
+		},
+	},
+
+	"& .MuiSwitch-thumb": {
+		boxSizing: "border-box",
+		width: 22,
+		height: 22,
+	},
+
+	"& .MuiSwitch-track": {
+		borderRadius: 26 / 2,
+		backgroundColor: theme.palette.grey[400],
+		opacity: 1,
+		transition: theme.transitions.create(["background-color"], {
+			duration: 500,
+		}),
+	},
+}));
 
 const OAuthSettings = () => {
 	const { showToast } = useContext(ToastContext);
@@ -304,9 +361,13 @@ const OAuthSettings = () => {
 
 	return (
 		<Box sx={{ my: 4 }}>
-			<Typography variant="h6" component="h2" gutterBottom>
-				Authentication & Authorization
-			</Typography>
+			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+				<Typography variant="h6" component="h2">
+					Enable OAuth
+				</Typography>
+
+				{!oAuthProviderLoading && <FormControlLabel control={<IOSSwitch checked={oauthEnabled} onChange={handleOAuthToggle} />} sx={{ mr: 0 }} />}
+			</Box>
 
 			<Divider sx={{ my: 1 }} />
 
@@ -320,8 +381,6 @@ const OAuthSettings = () => {
 				</Stack>
 			) : (
 				<>
-					<FormControlLabel control={<Switch checked={oauthEnabled} onChange={handleOAuthToggle} />} label="Enable OAuth" />
-
 					{oauthEnabled && (
 						<Stack spacing={3} sx={{ mt: 3 }}>
 							{/* OAuth Provider */}
@@ -427,12 +486,16 @@ const OAuthSettings = () => {
 					</DialogContentText>
 				</DialogContent>
 
-				<DialogActions>
-					<Button onClick={handleCancelDisableOAuth}>Cancel</Button>
-
+				<DialogActions
+					sx={{
+						justifyContent: "flex-start",
+						padding: "22px",
+					}}
+				>
 					<Button onClick={handleConfirmDisableOAuth} color="error" variant="contained">
 						Disable
 					</Button>
+					<Button onClick={handleCancelDisableOAuth}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
 		</Box>
