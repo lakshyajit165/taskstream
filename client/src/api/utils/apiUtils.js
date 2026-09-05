@@ -77,12 +77,30 @@ export const buildQueryParams = (filters, currentPage, pageSize) => {
 	return params.toString();
 };
 
-const decodeJwtPayload = (token) => {
+export const decodeJwtPayload = (token) => {
 	const payload = token.split(".")[1];
 
 	const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
 
 	return JSON.parse(atob(base64));
+};
+
+export const getUserFromToken = (token) => {
+	if (!token) {
+		return null;
+	}
+	try {
+		const payload = decodeJwtPayload(token);
+		return {
+			id: payload.userId,
+			email: payload.sub,
+			name: payload.name,
+			roles: payload.roles || [],
+		};
+	} catch (error) {
+		console.error("Failed to decode JWT payload", error);
+		return null;
+	}
 };
 
 export const isCurrentUserAdminFromLocal = () => {

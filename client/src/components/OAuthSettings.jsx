@@ -467,8 +467,8 @@ const OAuthSettings = () => {
 
 							{/* Save */}
 							<Box>
-								<Button variant="contained" loading={saveOAuthConfigLoading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
-									Save
+								<Button variant="text" loading={saveOAuthConfigLoading} loadingIndicator="Saving..." onClick={handleSaveOAuth}>
+									Save OAuth Credentials
 								</Button>
 							</Box>
 						</Stack>

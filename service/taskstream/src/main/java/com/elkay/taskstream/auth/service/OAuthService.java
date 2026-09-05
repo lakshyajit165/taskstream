@@ -484,7 +484,7 @@ public class OAuthService {
 
         OAuthUserInfo oauthUserInfo = authenticateGithub(code);
         User user = resolveUser(OAuthProvider.GITHUB, oauthUserInfo);
-        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
+        return jwtUtil.generateToken(user);
     }
 
     @Transactional
@@ -492,7 +492,7 @@ public class OAuthService {
 
         OAuthUserInfo oauthUserInfo = authenticateGithub(code);
         User user = registerUser(OAuthProvider.GITHUB, oauthUserInfo);
-        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
+        return jwtUtil.generateToken(user);
     }
 
 

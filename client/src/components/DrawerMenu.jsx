@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
-import { Box, Drawer, CssBaseline, Toolbar, Typography, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, AppBar } from "@mui/material";
+
+import { Box, Drawer, CssBaseline, Toolbar, Typography, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, AppBar, Avatar } from "@mui/material";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
@@ -7,14 +9,16 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+
 import { ToastContext } from "../context/ToastContext";
 import { ProjectContext } from "../context/ProjectContext";
 import { AuthContext } from "../context/AuthContext";
@@ -24,26 +28,44 @@ const drawerWidth = 240;
 const DrawerMenu = () => {
 	const { showToast } = useContext(ToastContext);
 	const { setSelectedProject } = useContext(ProjectContext);
-	const { setLogoutState } = useContext(AuthContext);
+	const { user, setLogoutState } = useContext(AuthContext);
+
 	const navigate = useNavigate();
+
 	const [drawerOpen, setDrawerOpen] = React.useState(false);
 	const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
+
 	const location = useLocation();
 
 	const handleDrawerOpen = () => setDrawerOpen(true);
+
 	const handleDrawerClose = () => setDrawerOpen(false);
 
 	const handleLogoutDialogOpen = () => {
 		handleDrawerClose();
 		setLogoutDialogOpen(true);
 	};
+
 	const handleLogoutDialogClose = () => setLogoutDialogOpen(false);
 
 	const handleLogout = () => {
 		setLogoutState();
-		setSelectedProject(null); // clear the global state for selected project
+		setSelectedProject(null);
 		navigate("/login");
 		showToast("Logout successful", "success");
+	};
+
+	const getInitials = (name) => {
+		if (!name) {
+			return "";
+		}
+
+		return name
+			.trim()
+			.split(/\s+/)
+			.slice(0, 2)
+			.map((part) => part.charAt(0).toUpperCase())
+			.join("");
 	};
 
 	return (
@@ -55,9 +77,24 @@ const DrawerMenu = () => {
 					<IconButton color="inherit" edge="start" onClick={handleDrawerOpen} sx={{ mr: 2 }}>
 						<MenuIcon />
 					</IconButton>
+
 					<Typography variant="h6" noWrap sx={{ fontWeight: "bold" }}>
 						taskstream_
 					</Typography>
+
+					<Avatar
+						sx={{
+							ml: "auto",
+							width: 36,
+							height: 36,
+							fontSize: "0.9rem",
+							fontWeight: "bold",
+							color: "black",
+							backgroundColor: "#fff",
+						}}
+					>
+						{getInitials(user?.name)}
+					</Avatar>
 				</Toolbar>
 			</AppBar>
 
@@ -69,8 +106,8 @@ const DrawerMenu = () => {
 				sx={{
 					"& .MuiDrawer-paper": {
 						width: drawerWidth,
-						display: "flex", // ➡️ Make drawer a flex container
-						flexDirection: "column", // ➡️ Stack children vertically
+						display: "flex",
+						flexDirection: "column",
 					},
 				}}
 			>
@@ -82,7 +119,6 @@ const DrawerMenu = () => {
 
 				<Divider />
 
-				{/* This Box contains all items that should be at the top */}
 				<Box sx={{ flexGrow: 1 }}>
 					<List>
 						<ListItem disablePadding>
@@ -93,6 +129,7 @@ const DrawerMenu = () => {
 								<ListItemText primary="Home" />
 							</ListItemButton>
 						</ListItem>
+
 						<ListItem disablePadding>
 							<ListItemButton component={Link} to="/projects" onClick={handleDrawerClose} selected={location.pathname.startsWith("/projects")}>
 								<ListItemIcon>
@@ -101,6 +138,7 @@ const DrawerMenu = () => {
 								<ListItemText primary="Projects" />
 							</ListItemButton>
 						</ListItem>
+
 						<ListItem disablePadding>
 							<ListItemButton component={Link} to="/settings" onClick={handleDrawerClose} selected={location.pathname.startsWith("/settings")}>
 								<ListItemIcon>
@@ -112,9 +150,9 @@ const DrawerMenu = () => {
 					</List>
 				</Box>
 
-				{/* This Box contains the item you want at the bottom */}
 				<Box>
 					<Divider />
+
 					<List>
 						<ListItem disablePadding>
 							<ListItemButton onClick={handleLogoutDialogOpen}>
@@ -140,9 +178,11 @@ const DrawerMenu = () => {
 				}}
 			>
 				<DialogTitle id="alert-dialog-title">{"Logout of TaskStream"}</DialogTitle>
+
 				<DialogContent>
 					<DialogContentText id="alert-dialog-description">Are you sure you want to log out?</DialogContentText>
 				</DialogContent>
+
 				<DialogActions
 					sx={{
 						justifyContent: "flex-start",
@@ -152,6 +192,7 @@ const DrawerMenu = () => {
 					<Button variant="contained" onClick={handleLogout}>
 						Yes
 					</Button>
+
 					<Button variant="outlined" onClick={handleLogoutDialogClose} autoFocus>
 						Cancel
 					</Button>

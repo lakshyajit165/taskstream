@@ -1,6 +1,7 @@
 package com.elkay.taskstream.auth.jwt;
 
 import com.elkay.taskstream.auth.model.Role;
+import com.elkay.taskstream.auth.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,14 +19,15 @@ public class JWTUtil {
     private final MacAlgorithm signatureAlgorithm = Jwts.SIG.HS256;
     private final SecretKey secretKey = signatureAlgorithm.key().build();
 
-    public String generateToken(Long userId, String email, Set<Role> roles) {
+    public String generateToken(User user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + 3600_000); // 1 hour
 
         return Jwts.builder()
-                .subject(email)
-                .claim("userId", userId)
-                .claim("roles", roles.stream().map(Role::getName).collect(Collectors.toList()))
+                .subject(user.getEmail())
+                .claim("userId", user.getId())
+                .claim("name", user.getName())
+                .claim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(secretKey, signatureAlgorithm)
