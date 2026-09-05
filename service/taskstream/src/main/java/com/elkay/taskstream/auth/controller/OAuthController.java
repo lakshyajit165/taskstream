@@ -1,12 +1,9 @@
 package com.elkay.taskstream.auth.controller;
 
 import com.elkay.taskstream.auth.oauth.OAuthProvider;
-import com.elkay.taskstream.auth.oauth.github.GithubOAuthConfiguration;
 import com.elkay.taskstream.auth.oauth.github.model.OAuthMode;
-import com.elkay.taskstream.auth.oauth.github.model.OAuthUserInfo;
 import com.elkay.taskstream.auth.payload.OAuthConfigRequest;
 import com.elkay.taskstream.auth.service.OAuthService;
-import com.elkay.taskstream.auth.oauth.github.GithubOAuthUrls;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,76 +77,43 @@ public class OAuthController {
 
     @GetMapping("/oauth2/github")
     public ResponseEntity<Void> githubLogin(
-            @RequestParam(defaultValue = "LOGIN") OAuthMode mode,
-            HttpServletResponse response) {
+            @RequestParam(defaultValue = "LOGIN") OAuthMode mode, HttpServletResponse response) {
 
         String state = oAuthService.generateOAuthState();
 
-        ResponseCookie stateCookie = ResponseCookie.from(
-                        "oauth_state",
-                        state
-                )
-                .httpOnly(true)
-                .secure(false) // true in production
-                .sameSite("Lax")
-                .path("/api/v1/auth/oauth2/github")
-                .maxAge(Duration.ofMinutes(5))
-                .build();
+        ResponseCookie stateCookie = ResponseCookie.from("oauth_state", state)
+                                        .httpOnly(true)
+                                        .secure(false) // true in production
+                                        .sameSite("Lax")
+                                        .path("/api/v1/auth/oauth2/github")
+                                        .maxAge(Duration.ofMinutes(5))
+                                        .build();
 
-        ResponseCookie modeCookie = ResponseCookie.from(
-                        "oauth_mode",
-                        mode.name()
-                )
-                .httpOnly(true)
-                .secure(false) // true in production
-                .sameSite("Lax")
-                .path("/api/v1/auth/oauth2/github")
-                .maxAge(Duration.ofMinutes(5))
-                .build();
+        ResponseCookie modeCookie = ResponseCookie.from("oauth_mode", mode.name())
+                                        .httpOnly(true)
+                                        .secure(false) // true in production
+                                        .sameSite("Lax")
+                                        .path("/api/v1/auth/oauth2/github")
+                                        .maxAge(Duration.ofMinutes(5))
+                                        .build();
 
-        response.addHeader(
-                HttpHeaders.SET_COOKIE,
-                stateCookie.toString()
-        );
+        response.addHeader(HttpHeaders.SET_COOKIE, stateCookie.toString());
 
-        response.addHeader(
-                HttpHeaders.SET_COOKIE,
-                modeCookie.toString()
-        );
+        response.addHeader(HttpHeaders.SET_COOKIE, modeCookie.toString());
 
-        String authorizationUrl =
-                oAuthService.buildGithubAuthorizationUrl(
-                        state,
-                        mode
-                );
+        String authorizationUrl = oAuthService.buildGithubAuthorizationUrl(state, mode);
 
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .location(URI.create(authorizationUrl))
-                .build();
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(authorizationUrl)).build();
     }
 
     @GetMapping("/oauth2/github/callback")
     public ResponseEntity<Void> githubCallback(
-            @RequestParam String code,
-            @RequestParam String state,
-            @CookieValue(
-                    name = "oauth_state",
-                    required = false
-            ) String storedState,
-            @CookieValue(
-                    name = "oauth_mode",
-                    required = false
-            ) String storedMode,
-            HttpServletResponse response) {
+            @RequestParam String code, @RequestParam String state,
+            @CookieValue(name = "oauth_state", required = false) String storedState,
+            @CookieValue(name = "oauth_mode", required = false) String storedMode, HttpServletResponse response) {
 
-        oAuthService.validateOAuthState(
-                state,
-                storedState
-        );
-
+        oAuthService.validateOAuthState(state, storedState);
         OAuthMode mode;
-
         try {
             mode = OAuthMode.valueOf(storedMode);
         } catch (Exception ex) {
@@ -157,35 +121,20 @@ public class OAuthController {
                     "Invalid OAuth mode"
             );
         }
-
         try {
-
             String jwt;
-
             if (mode == OAuthMode.SIGNUP) {
-
-                jwt = oAuthService
-                        .authenticateGithubAndGenerateSignupToken(
-                                code
-                        );
-
+                jwt = oAuthService.authenticateGithubAndGenerateSignupToken(code);
             } else {
-
-                jwt = oAuthService
-                        .authenticateGithubAndGenerateToken(
-                                code
-                        );
+                jwt = oAuthService.authenticateGithubAndGenerateToken(code);
             }
-
             clearOAuthCookies(response);
-
             String frontendUrl =
                     "http://localhost:5173/oauth2/callback?token="
                             + URLEncoder.encode(
                             jwt,
                             StandardCharsets.UTF_8
                     );
-
             return ResponseEntity
                     .status(HttpStatus.FOUND)
                     .location(URI.create(frontendUrl))

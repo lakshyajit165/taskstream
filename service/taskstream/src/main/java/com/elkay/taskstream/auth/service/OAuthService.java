@@ -114,15 +114,10 @@ public class OAuthService {
     }
 
     @Transactional
-    public void saveOAuthCredentials(
-            OAuthConfigRequest oauthConfigRequest) {
+    public void saveOAuthCredentials(OAuthConfigRequest oauthConfigRequest) {
 
-        OAuthCredentials credentials =
-                oauthCredentialsRepository
-                        .findByProvider(
-                                oauthConfigRequest.getOAuthProvider()
-                        )
-                        .orElseGet(OAuthCredentials::new);
+        OAuthCredentials credentials = oauthCredentialsRepository.findByProvider(oauthConfigRequest.getOAuthProvider())
+                                        .orElseGet(OAuthCredentials::new);
 
         boolean newConfiguration = credentials.getId() == null;
 
@@ -137,24 +132,16 @@ public class OAuthService {
 
         disableActiveOAuthCredentials();
 
-        credentials.setProvider(
-                oauthConfigRequest.getOAuthProvider()
-        );
+        credentials.setProvider(oauthConfigRequest.getOAuthProvider());
 
-        credentials.setServerUrl(
-                oauthConfigRequest.getServerUrl()
-        );
+        credentials.setServerUrl(oauthConfigRequest.getServerUrl());
 
         if (oauthConfigRequest.getClientId() != null) {
-            credentials.setClientId(
-                    oauthConfigRequest.getClientId()
-            );
+            credentials.setClientId(oauthConfigRequest.getClientId());
         }
 
         if (oauthConfigRequest.getClientSecret() != null) {
-            credentials.setClientSecret(
-                    oauthConfigRequest.getClientSecret()
-            );
+            credentials.setClientSecret(oauthConfigRequest.getClientSecret());
         }
 
         credentials.setOauthEnabled(true);
@@ -165,10 +152,9 @@ public class OAuthService {
     @Transactional(readOnly = true)
     public OAuthProvider getConfiguredOAuthProvider() {
 
-        return oauthCredentialsRepository
-                .findByOauthEnabledTrue()
-                .map(OAuthCredentials::getProvider)
-                .orElse(OAuthProvider.LOCAL);
+        return oauthCredentialsRepository.findByOauthEnabledTrue()
+                                            .map(OAuthCredentials::getProvider)
+                                            .orElse(OAuthProvider.LOCAL);
     }
 
     @Transactional
@@ -178,20 +164,16 @@ public class OAuthService {
 
     @Transactional
     public User registerUser(OAuthProvider provider, OAuthUserInfo oauthUserInfo) {
+
         if (oauthUserInfo.providerId() == null || oauthUserInfo.providerId().isBlank()) {
             throw new IllegalStateException("OAuth provider ID is missing");
         }
-
         if (oauthUserInfo.email() == null || oauthUserInfo.email().isBlank()) {
             throw new IllegalStateException("OAuth email is missing");
         }
-
         // Check whether this OAuth identity already exists.
-        boolean identityExists = oauthIdentityRepository.findByProviderAndProviderId(
-                                            provider,
-                                            oauthUserInfo.providerId()
-                                    )
-                                    .isPresent();
+        boolean identityExists = oauthIdentityRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
+                                                        .isPresent();
 
         if (identityExists) {
             throw new ResourceAlreadyExistsException("An account already exists with this GitHub account. Please sign in instead.");
@@ -242,12 +224,7 @@ public class OAuthService {
     }
 
     private void disableActiveOAuthCredentials() {
-
-        oauthCredentialsRepository
-                .findAllByOauthEnabledTrue()
-                .forEach(activeCredentials ->
-                        activeCredentials.setOauthEnabled(false)
-                );
+        oauthCredentialsRepository.findAllByOauthEnabledTrue().forEach(activeCredentials -> activeCredentials.setOauthEnabled(false));
     }
 
     /*
@@ -257,16 +234,13 @@ public class OAuthService {
      */
 
     @Transactional
-    public User resolveUser(
-            OAuthProvider provider,
-            OAuthUserInfo oauthUserInfo) {
+    public User resolveUser(OAuthProvider provider, OAuthUserInfo oauthUserInfo) {
 
         if (oauthUserInfo.providerId() == null || oauthUserInfo.providerId().isBlank()) {
             throw new IllegalStateException(
                     "OAuth provider ID is missing"
             );
         }
-
         if (oauthUserInfo.email() == null || oauthUserInfo.email().isBlank()) {
             throw new IllegalStateException(
                     "OAuth email is missing"
@@ -302,11 +276,7 @@ public class OAuthService {
         }
 
         // 3. Create a new OAuth-only user
-        User user = new User(
-                oauthUserInfo.name(),
-                oauthUserInfo.email(),
-                null
-        );
+        User user = new User(oauthUserInfo.name(), oauthUserInfo.email(), null);
 
         long roleId;
 
@@ -510,32 +480,18 @@ public class OAuthService {
 
 
     @Transactional
-    public String authenticateGithubAndGenerateToken(
-            String code) {
+    public String authenticateGithubAndGenerateToken(String code) {
 
-        OAuthUserInfo oauthUserInfo =
-                authenticateGithub(code);
-
-        User user =
-                resolveUser(
-                        OAuthProvider.GITHUB,
-                        oauthUserInfo
-                );
-
-        return jwtUtil.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRoles()
-        );
+        OAuthUserInfo oauthUserInfo = authenticateGithub(code);
+        User user = resolveUser(OAuthProvider.GITHUB, oauthUserInfo);
+        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
     }
 
     @Transactional
     public String authenticateGithubAndGenerateSignupToken(String code) {
 
         OAuthUserInfo oauthUserInfo = authenticateGithub(code);
-
         User user = registerUser(OAuthProvider.GITHUB, oauthUserInfo);
-
         return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
     }
 
