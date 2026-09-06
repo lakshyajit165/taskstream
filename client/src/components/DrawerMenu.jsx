@@ -23,6 +23,8 @@ import { ToastContext } from "../context/ToastContext";
 import { ProjectContext } from "../context/ProjectContext";
 import { AuthContext } from "../context/AuthContext";
 
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+
 const drawerWidth = 240;
 
 const DrawerMenu = () => {
@@ -138,7 +140,15 @@ const DrawerMenu = () => {
 								<ListItemText primary="Projects" />
 							</ListItemButton>
 						</ListItem>
+						<ListItem disablePadding>
+							<ListItemButton component={Link} to="/documentation" onClick={handleDrawerClose} selected={location.pathname.startsWith("/documentation")}>
+								<ListItemIcon>
+									<LibraryBooksIcon />
+								</ListItemIcon>
 
+								<ListItemText primary="Documentation" />
+							</ListItemButton>
+						</ListItem>
 						<ListItem disablePadding>
 							<ListItemButton component={Link} to="/settings" onClick={handleDrawerClose} selected={location.pathname.startsWith("/settings")}>
 								<ListItemIcon>

@@ -152,7 +152,7 @@ const Login = () => {
 							Login
 						</Button>
 
-						{(oAuthProvider === "GITHUB" || oAuthProvider === "GITLAB") && (
+						{(oAuthProvider === "GITHUB" || oAuthProvider === "GITLAB") && !oAuthProviderLoading && (
 							<>
 								<Divider sx={{ my: 2 }}>OR</Divider>
 
