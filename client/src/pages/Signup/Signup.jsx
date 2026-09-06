@@ -21,6 +21,7 @@ import ProductDescription from "../../components/ProductDescription";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
 import { FaGitlab } from "react-icons/fa";
+import { validateSignup } from "../../api/utils/formValidation";
 
 const Signup = () => {
 	const { showToast } = useContext(ToastContext);
@@ -46,40 +47,8 @@ const Signup = () => {
 	const [oAuthProvider, setOAuthProvider] = useState(false);
 
 	const validate = (fieldValues = signupPayload) => {
-		let validationErrors = { ...errors };
-
-		if ("name" in fieldValues) {
-			if (!fieldValues.name) {
-				validationErrors.name = "Name is required";
-			} else if (fieldValues.name.length < 2) {
-				validationErrors.name = "Name must be at least 2 characters";
-			} else {
-				delete validationErrors.name;
-			}
-		}
-
-		if ("email" in fieldValues) {
-			if (!fieldValues.email) {
-				validationErrors.email = "Email is required";
-			} else if (!/\S+@\S+\.\S+/.test(fieldValues.email)) {
-				validationErrors.email = "Email is not valid";
-			} else {
-				delete validationErrors.email;
-			}
-		}
-
-		if ("password" in fieldValues) {
-			if (!fieldValues.password) {
-				validationErrors.password = "Password is required";
-			} else if (fieldValues.password.length < 6) {
-				validationErrors.password = "Password must be at least 6 characters";
-			} else {
-				delete validationErrors.password;
-			}
-		}
-
+		let validationErrors = validateSignup(fieldValues);
 		setErrors(validationErrors);
-
 		return validationErrors;
 	};
 
@@ -101,22 +70,21 @@ const Signup = () => {
 
 		const validationErrors = validate(signupPayload);
 
-		if (Object.keys(validationErrors).length === 0) {
-			setLoading(true);
+		if (Object.keys(validationErrors).length !== 0) {
+			return;
+		}
 
-			try {
-				const data = await signup(signupPayload);
+		setLoading(true);
 
-				showToast(data.message || "Signup successful", "success");
+		try {
+			const data = await signup(signupPayload);
 
-				setLoading(false);
-
-				navigate("/login");
-			} catch (error) {
-				setLoading(false);
-
-				showToast(error.message || "Error signing up user", "error");
-			}
+			showToast(data.message || "Signup successful", "success");
+			navigate("/login");
+		} catch (error) {
+			showToast(error.message || "Error signing up user", "error");
+		} finally {
+			setLoading(false);
 		}
 	};
 
