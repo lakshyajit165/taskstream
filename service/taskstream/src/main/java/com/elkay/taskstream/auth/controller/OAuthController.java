@@ -4,6 +4,7 @@ import com.elkay.taskstream.auth.oauth.OAuthProvider;
 import com.elkay.taskstream.auth.oauth.github.model.OAuthMode;
 import com.elkay.taskstream.auth.payload.OAuthConfigRequest;
 import com.elkay.taskstream.auth.service.OAuthService;
+import com.elkay.taskstream.auth.utils.OAuthUtils;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -79,7 +80,7 @@ public class OAuthController {
     public ResponseEntity<Void> githubLogin(
             @RequestParam(defaultValue = "LOGIN") OAuthMode mode, HttpServletResponse response) {
 
-        String state = oAuthService.generateOAuthState();
+        String state = OAuthUtils.generateOAuthState();
 
         ResponseCookie stateCookie = ResponseCookie.from("oauth_state", state)
                                         .httpOnly(true)
@@ -112,7 +113,7 @@ public class OAuthController {
             @CookieValue(name = "oauth_state", required = false) String storedState,
             @CookieValue(name = "oauth_mode", required = false) String storedMode, HttpServletResponse response) {
 
-        oAuthService.validateOAuthState(state, storedState);
+        OAuthUtils.validateState(state, storedState);
         OAuthMode mode;
         try {
             mode = OAuthMode.valueOf(storedMode);

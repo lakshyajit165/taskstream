@@ -369,8 +369,6 @@ const OAuthSettings = () => {
 				{!oAuthProviderLoading && <FormControlLabel control={<IOSSwitch checked={oauthEnabled} onChange={handleOAuthToggle} />} sx={{ mr: 0 }} />}
 			</Box>
 
-			<Divider sx={{ my: 1 }} />
-
 			{oAuthProviderLoading ? (
 				<Stack direction="row" spacing={1.5} alignItems="center" sx={{ py: 3 }}>
 					<CircularProgress size={22} />

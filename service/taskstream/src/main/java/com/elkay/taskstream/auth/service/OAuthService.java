@@ -18,6 +18,7 @@ import com.elkay.taskstream.auth.repository.OAuthCredentialsRepository;
 import com.elkay.taskstream.auth.repository.OAuthIdentityRepository;
 import com.elkay.taskstream.auth.repository.RoleRepository;
 import com.elkay.taskstream.auth.repository.UserRepository;
+import com.elkay.taskstream.auth.utils.OAuthUtils;
 import com.elkay.taskstream.config.AdminConfig;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
@@ -365,15 +366,6 @@ public class OAuthService {
         return email;
     }
 
-    public String generateOAuthState() {
-        byte[] state = new byte[32];
-        secureRandom.nextBytes(state);
-
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(state);
-    }
-
     public String buildGithubAuthorizationUrl(
             String state,
             OAuthMode mode) {
@@ -388,40 +380,16 @@ public class OAuthService {
                 configuration.serverUrl()
         )
                 + "?client_id="
-                + urlEncode(configuration.clientId())
+                + OAuthUtils.urlEncode(configuration.clientId())
                 + "&redirect_uri="
-                + urlEncode(redirectUri)
+                + OAuthUtils.urlEncode(redirectUri)
                 + "&scope="
-                + urlEncode("read:user user:email")
+                + OAuthUtils.urlEncode("read:user user:email")
                 + "&state="
-                + urlEncode(state);
+                + OAuthUtils.urlEncode(state);
     }
 
-    private String urlEncode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
 
-    public void validateOAuthState(
-            String state,
-            String storedState) {
-
-        if (state == null || storedState == null) {
-            throw new IllegalArgumentException(
-                    "Invalid OAuth state"
-            );
-        }
-
-        boolean valid = MessageDigest.isEqual(
-                state.getBytes(StandardCharsets.UTF_8),
-                storedState.getBytes(StandardCharsets.UTF_8)
-        );
-
-        if (!valid) {
-            throw new IllegalArgumentException(
-                    "Invalid OAuth state"
-            );
-        }
-    }
 
     public OAuthUserInfo authenticateGithub(String code) {
 

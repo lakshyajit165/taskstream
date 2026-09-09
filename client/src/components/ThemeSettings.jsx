@@ -37,8 +37,6 @@ const ThemeSettings = () => {
 				Theme
 			</Typography>
 
-			<Divider sx={{ my: 1 }} />
-
 			<RadioGroup aria-labelledby="theme-settings" name="theme-settings" value={mode} onChange={handleChange}>
 				<FormControlLabel value="light" control={<Radio />} label={LightLabel} />
 

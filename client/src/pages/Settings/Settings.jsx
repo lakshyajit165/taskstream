@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 
-import { Container } from "@mui/material";
+import { Container, Divider } from "@mui/material";
 
 import { isCurrentUserAdminFromLocal } from "../../api/utils/apiUtils";
 import { isCurrentUserAdminFromApi } from "../../api/user/users";
@@ -47,7 +47,7 @@ const Settings = () => {
 	return (
 		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
 			<ThemeSettings />
-
+			<Divider sx={{ my: 1 }} />
 			{!adminCheckLoading && isAdmin && <OAuthSettings />}
 		</Container>
 	);
