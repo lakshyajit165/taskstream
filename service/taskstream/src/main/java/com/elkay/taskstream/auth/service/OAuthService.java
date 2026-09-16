@@ -22,6 +22,7 @@ import com.elkay.taskstream.auth.utils.OAuthUtils;
 import com.elkay.taskstream.config.AdminConfig;
 import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,9 @@ public class OAuthService {
     private final JWTUtil jwtUtil;
     private final SecureRandom secureRandom = new SecureRandom();
     private final GithubOAuthClient githubOAuthClient;
+
+    @Value("${spring.application.server_domain}")
+    private String serverDomain;
 
     public OAuthService(
             OAuthCredentialsRepository oauthCredentialsRepository,
@@ -373,8 +377,8 @@ public class OAuthService {
         GithubOAuthConfiguration configuration =
                 getConfiguration();
 
-        String redirectUri =
-                "http://localhost:8000/api/v1/auth/oauth2/github/callback";
+        String redirectUri = serverDomain +
+                "/api/v1/auth/oauth2/github/callback";
 
         return GithubOAuthUrls.authorizationUrl(
                 configuration.serverUrl()
@@ -396,8 +400,8 @@ public class OAuthService {
         GithubOAuthConfiguration configuration =
                 getConfiguration();
 
-        String redirectUri =
-                "http://localhost:8000/api/v1/auth/oauth2/github/callback";
+        String redirectUri = serverDomain +
+                "/api/v1/auth/oauth2/github/callback";
 
         String accessToken =
                 githubOAuthClient.exchangeCodeForAccessToken(

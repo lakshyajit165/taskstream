@@ -9,6 +9,7 @@ import com.elkay.taskstream.exception.ResourceAlreadyExistsException;
 import com.elkay.taskstream.payload.GenericResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -24,6 +25,9 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class OAuthController {
+
+    @Value("${spring.application.client_domain}")
+    private String clientDomain;
 
     private final OAuthService oAuthService;
 
@@ -145,8 +149,8 @@ public class OAuthController {
 
             clearOAuthCookies(response);
 
-            String frontendUrl =
-                    "http://localhost:5173/signup?oauthError="
+            String frontendUrl = clientDomain +
+                    "/signup?oauthError="
                             + URLEncoder.encode(
                             ex.getMessage(),
                             StandardCharsets.UTF_8

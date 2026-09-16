@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: taskstream
+    client_domain: ${CLIENT_DOMAIN}
+    server_domain: ${SERVER_DOMAIN}
 
   datasource:
     url: jdbc:postgresql://localhost:5432/taskstream_db
