@@ -1,6 +1,12 @@
 # src/test/resources/application-test.yml
 
 spring:
+  # Test-only URLs used to initialize security/OAuth configuration without requiring
+  # CLIENT_DOMAIN or SERVER_DOMAIN environment variables or contacting real services.
+  application:
+    client_domain: http://localhost:5173
+    server_domain: http://localhost:8000
+
   # CRITICAL: Stop Spring's general runner from interfering
   sql:
     init:

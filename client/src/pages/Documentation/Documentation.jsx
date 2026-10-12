@@ -29,15 +29,7 @@ const DocLink = ({ id, children, nested = false }) => (
 );
 const Documentation = () => {
 	return (
-		<Container maxWidth="lg" sx={{ py: 4 }}>
-			<Typography variant="h4" component="h1" sx={{ fontWeight: "bold", mb: 1 }}>
-				Documentation
-			</Typography>
-
-			<Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-				Guides and setup instructions for configuring and using TaskStream.
-			</Typography>
-
+		<Container maxWidth="md" sx={{ py: 4 }}>
 			<Stack direction={{ xs: "column", md: "row" }} spacing={4} alignItems="flex-start">
 				<Paper
 					elevation={0}
@@ -91,6 +83,15 @@ const Documentation = () => {
 						minWidth: 0,
 					}}
 				>
+					<Box id="heading">
+						<Typography variant="h4" component="h1" sx={{ fontWeight: "bold", mb: 1 }}>
+							Documentation
+						</Typography>
+
+						<Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+							Guides and setup instructions for configuring and using TaskStream.
+						</Typography>
+					</Box>
 					<Box id="oauth-setup" sx={{ scrollMarginTop: 90 }}>
 						<Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
 							OAuth Setup
