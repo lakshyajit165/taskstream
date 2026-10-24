@@ -12,6 +12,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Stack from "@mui/material/Stack";
 import ProductDescription from "../../components/ProductDescription";
 import { FaGitlab } from "react-icons/fa";
+import { HOST_URL } from "../../api/utils/constants";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
 const Login = () => {
@@ -162,7 +163,7 @@ const Login = () => {
 										variant="outlined"
 										startIcon={<GitHubIcon />}
 										onClick={() => {
-											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/github";
+											window.location.href = `${HOST_URL}/api/v1/auth/oauth2/github`;
 										}}
 										sx={{
 											color: "text.primary",
@@ -184,7 +185,7 @@ const Login = () => {
 										variant="outlined"
 										startIcon={<FaGitlab color="orange" />}
 										onClick={() => {
-											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/gitlab";
+											window.location.href = `${HOST_URL}/api/v1/auth/oauth2/gitlab`;
 										}}
 										sx={{
 											color: "text.primary",

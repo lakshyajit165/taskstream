@@ -1,3 +1,11 @@
 .DS_Store
 /taskstream_data_backup
 /data_seeder
+
+# Local environment files may contain credentials.
+.env
+.env.*
+!.env.example
+
+# Local database backups may contain application data.
+*.dump

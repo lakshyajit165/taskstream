@@ -12,12 +12,11 @@ spring:
     init:
       mode: never
 
-  # 2. Reset the database schema for every test run
+  # Flyway owns schema creation in tests. Never let Hibernate drop tables when a
+  # test context closes, especially if a test accidentally reaches a local DB.
   jpa:
     hibernate:
-      # CRITICAL: Forces Hibernate to recreate the entire schema (all tables)
-      # from scratch for every test run, ensuring a clean state.
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true

@@ -8,11 +8,11 @@ spring:
     server_domain: ${SERVER_DOMAIN}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/taskstream_db
+    url:  ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/taskstream_db}
     driver-class-name: org.postgresql.Driver
     platform: postgres
-    username: postgres
-    password: postgres123
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres123}
 
   jpa:
     hibernate:
@@ -55,6 +55,15 @@ logging:
       flywaydb: INFO
 
 aws:
-  region: ap-south-1
+  region: ${AWS_REGION:ap-south-1}
   s3:
-    bucket: taskstream-resources
+    bucket: ${AWS_S3_BUCKET:taskstream-resources}
+
+app:
+  oauth:
+    secure-cookies: ${OAUTH_SECURE_COOKIES:false}
+
+security:
+  jwt:
+    # Set JWT_SECRET from a secrets manager in deployed environments.
+    secret: ${JWT_SECRET:}

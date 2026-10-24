@@ -5,7 +5,10 @@ import com.elkay.taskstream.auth.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.MacAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -17,7 +20,13 @@ import java.util.stream.Collectors;
 @Service
 public class JWTUtil {
     private final MacAlgorithm signatureAlgorithm = Jwts.SIG.HS256;
-    private final SecretKey secretKey = signatureAlgorithm.key().build();
+    private final SecretKey secretKey;
+
+    public JWTUtil(@Value("${security.jwt.secret:}") String encodedSecret) {
+        this.secretKey = encodedSecret == null || encodedSecret.isBlank()
+                ? signatureAlgorithm.key().build()
+                : Keys.hmacShaKeyFor(Decoders.BASE64.decode(encodedSecret));
+    }
 
     public String generateToken(User user) {
         Date now = new Date();

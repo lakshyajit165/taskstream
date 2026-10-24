@@ -21,6 +21,7 @@ import ProductDescription from "../../components/ProductDescription";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
 import { FaGitlab } from "react-icons/fa";
+import { HOST_URL } from "../../api/utils/constants";
 import { validateSignup } from "../../api/utils/formValidation";
 
 const Signup = () => {
@@ -214,7 +215,7 @@ const Signup = () => {
 										variant="outlined"
 										startIcon={<GitHubIcon />}
 										onClick={() => {
-											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/github?mode=SIGNUP";
+											window.location.href = `${HOST_URL}/api/v1/auth/oauth2/github?mode=SIGNUP`;
 										}}
 										sx={{
 											color: "text.primary",
@@ -236,7 +237,7 @@ const Signup = () => {
 										variant="outlined"
 										startIcon={<FaGitlab color="orange" />}
 										onClick={() => {
-											window.location.href = "http://localhost:8000/api/v1/auth/oauth2/gitlab?mode=SIGNUP";
+											window.location.href = `${HOST_URL}/api/v1/auth/oauth2/gitlab?mode=SIGNUP`;
 										}}
 										sx={{
 											color: "text.primary",

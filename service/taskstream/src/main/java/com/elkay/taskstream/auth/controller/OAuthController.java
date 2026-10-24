@@ -29,6 +29,9 @@ public class OAuthController {
     @Value("${spring.application.client_domain}")
     private String clientDomain;
 
+    @Value("${app.oauth.secure-cookies:false}")
+    private boolean secureOAuthCookies;
+
     private final OAuthService oAuthService;
 
     public OAuthController(
@@ -88,7 +91,7 @@ public class OAuthController {
 
         ResponseCookie stateCookie = ResponseCookie.from("oauth_state", state)
                                         .httpOnly(true)
-                                        .secure(false) // true in production
+                                        .secure(secureOAuthCookies)
                                         .sameSite("Lax")
                                         .path("/api/v1/auth/oauth2/github")
                                         .maxAge(Duration.ofMinutes(5))
@@ -96,7 +99,7 @@ public class OAuthController {
 
         ResponseCookie modeCookie = ResponseCookie.from("oauth_mode", mode.name())
                                         .httpOnly(true)
-                                        .secure(false) // true in production
+                                        .secure(secureOAuthCookies)
                                         .sameSite("Lax")
                                         .path("/api/v1/auth/oauth2/github")
                                         .maxAge(Duration.ofMinutes(5))
@@ -134,8 +137,8 @@ public class OAuthController {
                 jwt = oAuthService.authenticateGithubAndGenerateToken(code);
             }
             clearOAuthCookies(response);
-            String frontendUrl =
-                    "http://localhost:5173/oauth2/callback?token="
+            String frontendUrl = clientDomain.replaceAll("/+$", "")
+                    + "/oauth2/callback?token="
                             + URLEncoder.encode(
                             jwt,
                             StandardCharsets.UTF_8
@@ -149,7 +152,7 @@ public class OAuthController {
 
             clearOAuthCookies(response);
 
-            String frontendUrl = clientDomain +
+            String frontendUrl = clientDomain.replaceAll("/+$", "") +
                     "/signup?oauthError="
                             + URLEncoder.encode(
                             ex.getMessage(),
@@ -173,7 +176,7 @@ public class OAuthController {
                                 ""
                         )
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(secureOAuthCookies)
                         .sameSite("Lax")
                         .path("/api/v1/auth/oauth2/github")
                         .maxAge(0)
@@ -185,7 +188,7 @@ public class OAuthController {
                                 ""
                         )
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(secureOAuthCookies)
                         .sameSite("Lax")
                         .path("/api/v1/auth/oauth2/github")
                         .maxAge(0)
