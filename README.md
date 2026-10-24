@@ -7,10 +7,10 @@ The app workflow builds the React production assets. The service workflow runs t
 
 Add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets in GitHub Actions. The token should have permission to push to the `taskstream-app` and `taskstream-service` repositories in that Docker Hub account.
 
-The existing [docker-compose.yml](docker-compose.yml) remains the local, build-from-source setup. For a production-style deployment using the published images and a version-pinned PostgreSQL image, provide `DOCKERHUB_USERNAME`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `JWT_SECRET`, `AWS_REGION`, `SENDER_EMAIL`, `SENDER_EMAIL_PASSWORD`, `CLIENT_DOMAIN`, and `SERVER_DOMAIN` in your environment or an ignored `.env` file. The command below derives the image tag from the current Git commit, matching the tag created by the publish workflow:
+The existing [docker-compose.yml](docker-compose.yml) remains the local, build-from-source setup. For a production-style deployment using the latest published app and service images and a version-pinned PostgreSQL image, provide `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `JWT_SECRET`, `AWS_REGION`, `SENDER_EMAIL`, `SENDER_EMAIL_PASSWORD`, `CLIENT_DOMAIN`, and `SERVER_DOMAIN` in your environment or an ignored `.env` file. Compose always pulls the latest app and service images when starting them:
 
 ```sh
-TASKSTREAM_VERSION="sha-$(git rev-parse HEAD)" docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 The production Compose file uses the `prod` Spring profile and requires a stable `JWT_SECRET`. For AWS access, provide the server with an IAM role or another supported AWS credentials provider. Put the services behind a load balancer or reverse proxy for public HTTPS.

@@ -15,7 +15,8 @@ services:
     restart: unless-stopped
 
   server:
-    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/taskstream-service:${TASKSTREAM_VERSION:?Set TASKSTREAM_VERSION to a published sha tag}
+    image: lakshyajit165/taskstream-service:latest
+    pull_policy: always
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:?Set POSTGRES_DB in your environment or .env}
@@ -36,7 +37,8 @@ services:
     restart: unless-stopped
 
   client:
-    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/taskstream-app:${TASKSTREAM_VERSION:?Set TASKSTREAM_VERSION to a published sha tag}
+    image: lakshyajit165/taskstream-app:latest
+    pull_policy: always
     ports:
       - "80:80"
     depends_on:
