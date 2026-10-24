@@ -1,0 +1,125 @@
+name: taskstream-publish
+
+on:
+  workflow_run:
+    workflows: [taskstream-app, taskstream-service]
+    branches: [main, master]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  verify-checks:
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      both_checks_passed: ${{ steps.check.outputs.both_checks_passed }}
+      image_tag: ${{ steps.check.outputs.image_tag }}
+    steps:
+      - name: Confirm both CI workflows passed for this commit
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sourceRun = context.payload.workflow_run;
+            const workflowFiles = [
+              ".github/workflows/taskstream-app.yml",
+              ".github/workflows/taskstream-service.yml",
+            ];
+            const workflows = await github.rest.actions.listRepoWorkflows({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+
+            let bothChecksPassed = true;
+            for (const workflowFile of workflowFiles) {
+              const workflow = workflows.data.workflows.find((item) => item.path === workflowFile);
+              if (!workflow) {
+                core.info(`Workflow not found: ${workflowFile}`);
+                bothChecksPassed = false;
+                continue;
+              }
+
+              const result = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflow.id,
+                head_sha: sourceRun.head_sha,
+                per_page: 100,
+              });
+              const matchingRuns = result.data.workflow_runs
+                .filter((run) => run.event === "push" && run.head_branch === sourceRun.head_branch)
+                .sort((left, right) => new Date(right.created_at) - new Date(left.created_at));
+              const latestRun = matchingRuns[0];
+
+              if (!latestRun || latestRun.status !== "completed" || latestRun.conclusion !== "success") {
+                core.info(`Required workflow has not passed for ${sourceRun.head_sha}: ${workflow.name}`);
+                bothChecksPassed = false;
+              }
+            }
+
+            core.setOutput("both_checks_passed", String(bothChecksPassed));
+            core.setOutput("image_tag", `sha-${sourceRun.head_sha}`);
+
+  publish-app:
+    needs: verify-checks
+    if: needs.verify-checks.outputs.both_checks_passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push TaskStream app
+        uses: docker/build-push-action@v6
+        with:
+          context: ./client
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/taskstream-app:${{ needs.verify-checks.outputs.image_tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/taskstream-app:latest
+          cache-from: type=gha,scope=taskstream-app
+          cache-to: type=gha,mode=max,scope=taskstream-app
+
+  publish-service:
+    needs: verify-checks
+    if: needs.verify-checks.outputs.both_checks_passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push TaskStream service
+        uses: docker/build-push-action@v6
+        with:
+          context: ./service/taskstream
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/taskstream-service:${{ needs.verify-checks.outputs.image_tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/taskstream-service:latest
+          cache-from: type=gha,scope=taskstream-service
+          cache-to: type=gha,mode=max,scope=taskstream-service

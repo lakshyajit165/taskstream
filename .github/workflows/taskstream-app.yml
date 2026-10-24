@@ -5,12 +5,18 @@ on:
     branches: [main, master]
     paths:
       - "client/**"
+      - "service/**"
       - ".github/workflows/taskstream-app.yml"
+      - ".github/workflows/taskstream-service.yml"
+      - ".github/workflows/taskstream-publish.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "client/**"
+      - "service/**"
       - ".github/workflows/taskstream-app.yml"
+      - ".github/workflows/taskstream-service.yml"
+      - ".github/workflows/taskstream-publish.yml"
 
 permissions:
   contents: read

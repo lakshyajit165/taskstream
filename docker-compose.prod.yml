@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in your environment or .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in your environment or .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment or .env}
+    volumes:
+      - taskstream-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  server:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/taskstream-service:${TASKSTREAM_VERSION:?Set TASKSTREAM_VERSION to a published sha tag}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:?Set POSTGRES_DB in your environment or .env}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:?Set POSTGRES_USER in your environment or .env}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment or .env}
+      CLIENT_DOMAIN: ${CLIENT_DOMAIN:?Set CLIENT_DOMAIN in your environment or .env}
+      SERVER_DOMAIN: ${SERVER_DOMAIN:?Set SERVER_DOMAIN in your environment or .env}
+      SENDER_EMAIL: ${SENDER_EMAIL:?Set SENDER_EMAIL in your environment or .env}
+      SENDER_EMAIL_PASSWORD: ${SENDER_EMAIL_PASSWORD:?Set SENDER_EMAIL_PASSWORD in your environment or .env}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-taskstream-resources}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your environment or .env}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME}/taskstream-app:${TASKSTREAM_VERSION:?Set TASKSTREAM_VERSION to a published sha tag}
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  taskstream-db-data:
