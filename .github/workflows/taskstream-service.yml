@@ -1,0 +1,38 @@
+name: taskstream-service
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "service/**"
+      - ".github/workflows/taskstream-service.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "service/**"
+      - ".github/workflows/taskstream-service.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Spring Boot tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: service/taskstream
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: service/taskstream/pom.xml
+
+      - name: Run Spring Boot tests
+        run: ./mvnw --batch-mode test
