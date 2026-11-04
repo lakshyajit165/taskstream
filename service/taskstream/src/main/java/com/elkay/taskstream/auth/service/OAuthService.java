@@ -5,14 +5,15 @@ import com.elkay.taskstream.auth.model.OAuthCredentials;
 import com.elkay.taskstream.auth.model.OAuthIdentity;
 import com.elkay.taskstream.auth.model.Role;
 import com.elkay.taskstream.auth.model.User;
+import com.elkay.taskstream.auth.oauth.OAuthConfiguration;
 import com.elkay.taskstream.auth.oauth.OAuthProvider;
 import com.elkay.taskstream.auth.oauth.github.GithubOAuthClient;
-import com.elkay.taskstream.auth.oauth.github.GithubOAuthConfiguration;
 import com.elkay.taskstream.auth.oauth.github.GithubOAuthUrls;
 import com.elkay.taskstream.auth.oauth.github.model.GithubEmail;
 import com.elkay.taskstream.auth.oauth.github.model.GithubUser;
 import com.elkay.taskstream.auth.oauth.github.model.OAuthMode;
 import com.elkay.taskstream.auth.oauth.github.model.OAuthUserInfo;
+import com.elkay.taskstream.auth.oauth.gitlab.GitlabOAuthClient;
 import com.elkay.taskstream.auth.payload.OAuthConfigRequest;
 import com.elkay.taskstream.auth.repository.OAuthCredentialsRepository;
 import com.elkay.taskstream.auth.repository.OAuthIdentityRepository;
@@ -45,6 +46,7 @@ public class OAuthService {
     private final JWTUtil jwtUtil;
     private final SecureRandom secureRandom = new SecureRandom();
     private final GithubOAuthClient githubOAuthClient;
+    private final GitlabOAuthClient gitlabOAuthClient;
 
     @Value("${spring.application.server_domain}")
     private String serverDomain;
@@ -54,7 +56,7 @@ public class OAuthService {
             OAuthIdentityRepository oauthIdentityRepository,
             UserRepository userRepository,
             RoleRepository roleRepository,
-            JWTUtil jwtUtil, GithubOAuthClient githubOAuthClient) {
+            JWTUtil jwtUtil, GithubOAuthClient githubOAuthClient, GitlabOAuthClient gitlabOAuthClient) {
 
         this.oauthCredentialsRepository = oauthCredentialsRepository;
         this.oauthIdentityRepository = oauthIdentityRepository;
@@ -62,6 +64,7 @@ public class OAuthService {
         this.roleRepository = roleRepository;
         this.jwtUtil = jwtUtil;
         this.githubOAuthClient = githubOAuthClient;
+        this.gitlabOAuthClient = gitlabOAuthClient;
     }
 
     /*
@@ -70,20 +73,19 @@ public class OAuthService {
      * -------------------------------------------------------------------------
      */
 
-    public GithubOAuthConfiguration getConfiguration() {
-
+    public OAuthConfiguration getProviderConfiguration(OAuthProvider provider) {
         OAuthCredentials credentials =
                 oauthCredentialsRepository
-                        .findByProvider(OAuthProvider.GITHUB)
+                        .findByProvider(provider)
                         .orElseThrow(() ->
                                 new IllegalStateException(
-                                        "GitHub OAuth configuration not found"
+                                        provider + " OAuth configuration not found"
                                 )
                         );
 
         if (!credentials.isOauthEnabled()) {
             throw new IllegalStateException(
-                    "GitHub OAuth is not enabled"
+                    provider + " OAuth is not enabled"
             );
         }
 
@@ -91,7 +93,7 @@ public class OAuthService {
                 || credentials.getClientId().isBlank()) {
 
             throw new IllegalStateException(
-                    "GitHub OAuth client ID is not configured"
+                    provider + " OAuth client ID is not configured"
             );
         }
 
@@ -99,7 +101,7 @@ public class OAuthService {
                 || credentials.getClientSecret().isBlank()) {
 
             throw new IllegalStateException(
-                    "GitHub OAuth client secret is not configured"
+                    provider + " OAuth client secret is not configured"
             );
         }
 
@@ -107,14 +109,14 @@ public class OAuthService {
                 || credentials.getServerUrl().isBlank()) {
 
             throw new IllegalStateException(
-                    "GitHub OAuth server URL is not configured"
+                    provider + " OAuth server URL is not configured"
             );
         }
 
-        return new GithubOAuthConfiguration(
+        return new OAuthConfiguration(
                 credentials.getClientId(),
                 credentials.getClientSecret(),
-                credentials.getServerUrl()
+                credentials.getServerUrl().replaceAll("/+$", "")
         );
     }
 
@@ -374,8 +376,7 @@ public class OAuthService {
             String state,
             OAuthMode mode) {
 
-        GithubOAuthConfiguration configuration =
-                getConfiguration();
+        OAuthConfiguration configuration = getProviderConfiguration(OAuthProvider.GITHUB);
 
         String redirectUri = serverDomain +
                 "/api/v1/auth/oauth2/github/callback";
@@ -393,12 +394,9 @@ public class OAuthService {
                 + OAuthUtils.urlEncode(state);
     }
 
-
-
     public OAuthUserInfo authenticateGithub(String code) {
 
-        GithubOAuthConfiguration configuration =
-                getConfiguration();
+        OAuthConfiguration configuration = getProviderConfiguration(OAuthProvider.GITHUB);
 
         String redirectUri = serverDomain +
                 "/api/v1/auth/oauth2/github/callback";
@@ -464,6 +462,34 @@ public class OAuthService {
 
         OAuthUserInfo oauthUserInfo = authenticateGithub(code);
         User user = registerUser(OAuthProvider.GITHUB, oauthUserInfo);
+        return jwtUtil.generateToken(user);
+    }
+
+    public String buildGitlabAuthorizationUrl(String state, OAuthMode mode) {
+        OAuthConfiguration configuration = getProviderConfiguration(OAuthProvider.GITLAB);
+        String redirectUri = serverDomain + "/api/v1/auth/oauth2/gitlab/callback";
+        return configuration.serverUrl() + "/oauth/authorize"
+                + "?client_id=" + OAuthUtils.urlEncode(configuration.clientId())
+                + "&redirect_uri=" + OAuthUtils.urlEncode(redirectUri)
+                + "&response_type=code&scope=" + OAuthUtils.urlEncode("read_user")
+                + "&state=" + OAuthUtils.urlEncode(state);
+    }
+
+    public OAuthUserInfo authenticateGitlab(String code) {
+        OAuthConfiguration configuration = getProviderConfiguration(OAuthProvider.GITLAB);
+        String redirectUri = serverDomain + "/api/v1/auth/oauth2/gitlab/callback";
+        return gitlabOAuthClient.authenticate(configuration, code, redirectUri);
+    }
+
+    @Transactional
+    public String authenticateGitlabAndGenerateToken(String code) {
+        User user = resolveUser(OAuthProvider.GITLAB, authenticateGitlab(code));
+        return jwtUtil.generateToken(user);
+    }
+
+    @Transactional
+    public String authenticateGitlabAndGenerateSignupToken(String code) {
+        User user = registerUser(OAuthProvider.GITLAB, authenticateGitlab(code));
         return jwtUtil.generateToken(user);
     }
 

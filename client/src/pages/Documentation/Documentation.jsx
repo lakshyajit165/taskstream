@@ -52,6 +52,9 @@ const Documentation = () => {
 							<DocLink id="github-setup" nested>
 								GitHub OAuth App
 							</DocLink>
+							<DocLink id="gitlab-setup" nested>
+								GitLab OAuth App
+							</DocLink>
 
 							<DocLink id="taskstream-config" nested>
 								TaskStream Configuration
@@ -100,6 +103,23 @@ const Documentation = () => {
 						<Typography color="text.secondary" sx={{ mb: 3 }}>
 							TaskStream supports OAuth-based authentication through external identity providers. OAuth configuration is managed from the TaskStream Settings page.
 						</Typography>
+					</Box>
+
+					<Divider sx={{ my: 4 }} />
+
+					<Box id="gitlab-setup" sx={{ scrollMarginTop: 90 }}>
+						<Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+							Create a GitLab OAuth application
+						</Typography>
+						<Typography color="text.secondary" sx={{ mb: 2 }}>
+							In GitLab, open your avatar menu → Edit profile → Access → Applications, then add a new application. Use the TaskStream callback URL below, enable the <strong>read_user</strong> scope, and save it. GitLab displays the Application ID and Secret; enter these as Client ID and Client Secret in TaskStream Settings, select GitLab, and use your GitLab server URL (https://gitlab.com for GitLab.com).
+						</Typography>
+						<Typography component="div" sx={{ mb: 2 }}>
+							<strong>Callback URL:</strong> <code>https://YOUR_TASKSTREAM_API/api/v1/auth/oauth2/gitlab/callback</code>
+						</Typography>
+						<Link href="https://docs.gitlab.com/integration/oauth_provider/" target="_blank" rel="noopener noreferrer" underline="hover">
+							GitLab: Configure OAuth as an identity provider →
+						</Link>
 					</Box>
 
 					<Divider sx={{ my: 4 }} />

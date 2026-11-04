@@ -166,6 +166,60 @@ public class OAuthController {
         }
     }
 
+    @GetMapping("/oauth2/gitlab")
+    public ResponseEntity<Void> gitlabLogin(
+            @RequestParam(defaultValue = "LOGIN") OAuthMode mode, HttpServletResponse response) {
+        String state = OAuthUtils.generateOAuthState();
+        response.addHeader(HttpHeaders.SET_COOKIE, oauthCookie("oauth_state", state, "/api/v1/auth/oauth2/gitlab", 300).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, oauthCookie("oauth_mode", mode.name(), "/api/v1/auth/oauth2/gitlab", 300).toString());
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(oAuthService.buildGitlabAuthorizationUrl(state, mode)))
+                .build();
+    }
+
+    @GetMapping("/oauth2/gitlab/callback")
+    public ResponseEntity<Void> gitlabCallback(
+            @RequestParam String code, @RequestParam String state,
+            @CookieValue(name = "oauth_state", required = false) String storedState,
+            @CookieValue(name = "oauth_mode", required = false) String storedMode,
+            HttpServletResponse response) {
+        OAuthUtils.validateState(state, storedState);
+        OAuthMode mode;
+        try {
+            mode = OAuthMode.valueOf(storedMode);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Invalid OAuth mode");
+        }
+        try {
+            String jwt = mode == OAuthMode.SIGNUP
+                    ? oAuthService.authenticateGitlabAndGenerateSignupToken(code)
+                    : oAuthService.authenticateGitlabAndGenerateToken(code);
+            clearOAuthCookies(response, "/api/v1/auth/oauth2/gitlab");
+            return redirectWithToken(jwt);
+        } catch (ResourceAlreadyExistsException ex) {
+            clearOAuthCookies(response, "/api/v1/auth/oauth2/gitlab");
+            String frontendUrl = clientDomain.replaceAll("/+$", "") + "/signup?oauthError="
+                    + URLEncoder.encode(ex.getMessage(), StandardCharsets.UTF_8);
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(frontendUrl)).build();
+        }
+    }
+
+    private ResponseCookie oauthCookie(String name, String value, String path, int maxAgeSeconds) {
+        return ResponseCookie.from(name, value).httpOnly(true).secure(secureOAuthCookies)
+                .sameSite("Lax").path(path).maxAge(Duration.ofSeconds(maxAgeSeconds)).build();
+    }
+
+    private ResponseEntity<Void> redirectWithToken(String jwt) {
+        String frontendUrl = clientDomain.replaceAll("/+$", "") + "/oauth2/callback?token="
+                + URLEncoder.encode(jwt, StandardCharsets.UTF_8);
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(frontendUrl)).build();
+    }
+
+    private void clearOAuthCookies(HttpServletResponse response, String path) {
+        response.addHeader(HttpHeaders.SET_COOKIE, oauthCookie("oauth_state", "", path, 0).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, oauthCookie("oauth_mode", "", path, 0).toString());
+    }
+
 
     private void clearOAuthCookies(
             HttpServletResponse response) {

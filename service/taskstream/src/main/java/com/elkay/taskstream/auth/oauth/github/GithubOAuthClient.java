@@ -1,5 +1,6 @@
 package com.elkay.taskstream.auth.oauth.github;
 
+import com.elkay.taskstream.auth.oauth.OAuthConfiguration;
 import com.elkay.taskstream.auth.oauth.github.model.GithubEmail;
 import com.elkay.taskstream.auth.oauth.github.model.GithubUser;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +25,7 @@ public class GithubOAuthClient {
      * Exchanges the GitHub authorization code for an access token.
      */
     public String exchangeCodeForAccessToken(
-            GithubOAuthConfiguration configuration,
+            OAuthConfiguration configuration,
             String code,
             String redirectUri) {
 
@@ -58,7 +59,7 @@ public class GithubOAuthClient {
      * Fetches the authenticated GitHub user's profile.
      */
     public GithubUser getUser(
-            GithubOAuthConfiguration configuration,
+            OAuthConfiguration configuration,
             String accessToken) {
 
         return restClient
@@ -80,7 +81,7 @@ public class GithubOAuthClient {
      * is private, so we use the emails endpoint.
      */
     public GithubEmail[] getUserEmails(
-            GithubOAuthConfiguration configuration,
+            OAuthConfiguration configuration,
             String accessToken) {
 
         return restClient
@@ -99,7 +100,7 @@ public class GithubOAuthClient {
      * Finds the primary verified email.
      */
     public String getPrimaryVerifiedEmail(
-            GithubOAuthConfiguration configuration,
+            OAuthConfiguration configuration,
             String accessToken) {
 
         GithubEmail[] emails =
