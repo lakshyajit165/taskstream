@@ -29,61 +29,65 @@ const DocLink = ({ id, children, nested = false }) => (
 );
 const Documentation = () => {
 	return (
-		<Container maxWidth="md" sx={{ py: 4 }}>
-			<Stack direction={{ xs: "column", md: "row" }} spacing={4} alignItems="flex-start">
-				<Paper
-					elevation={0}
-					variant="outlined"
+		<Container maxWidth="lg" sx={{ py: 4 }}>
+			<Stack
+				direction={{ xs: "column", md: "row" }}
+				spacing={4}
+				alignItems={{ xs: "stretch", md: "flex-start" }}
+			>
+				<Box
+					component="nav"
+					aria-label="Documentation sections"
 					sx={{
-						width: { xs: "100%", md: 220 },
+						width: { xs: "100%", md: 240 },
 						flexShrink: 0,
 						position: { md: "sticky" },
 						top: { md: 90 },
 					}}
 				>
-					<Box sx={{ p: 2 }}>
-						<Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-							On this page
-						</Typography>
+					<Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
+						On this page
+					</Typography>
 
-						<Stack spacing={0.5}>
-							<DocLink id="oauth-setup">OAuth Setup</DocLink>
+					<Stack spacing={0.75}>
+						<DocLink id="oauth-setup">OAuth Setup</DocLink>
 
-							<DocLink id="github-setup" nested>
-								GitHub OAuth App
-							</DocLink>
-							<DocLink id="gitlab-setup" nested>
-								GitLab OAuth App
-							</DocLink>
+						<DocLink id="github-setup" nested>
+							GitHub OAuth App
+						</DocLink>
+						<DocLink id="gitlab-setup" nested>
+							GitLab OAuth App
+						</DocLink>
 
-							<DocLink id="taskstream-config" nested>
-								TaskStream Configuration
-							</DocLink>
+						<DocLink id="taskstream-config" nested>
+							TaskStream Configuration
+						</DocLink>
 
-							<DocLink id="callback-url" nested>
-								Callback URL
-							</DocLink>
+						<DocLink id="callback-url" nested>
+							Callback URL
+						</DocLink>
 
-							<DocLink id="oauth-scopes" nested>
-								Required Scopes
-							</DocLink>
+						<DocLink id="oauth-scopes" nested>
+							Required Scopes
+						</DocLink>
 
-							<DocLink id="oauth-flow" nested>
-								OAuth Flow
-							</DocLink>
+						<DocLink id="oauth-flow" nested>
+							OAuth Flow
+						</DocLink>
 
-							<DocLink id="github-docs" nested>
-								GitHub Documentation
-							</DocLink>
-						</Stack>
-					</Box>
-				</Paper>
+						<DocLink id="github-docs" nested>
+							GitHub Documentation
+						</DocLink>
+					</Stack>
+				</Box>
 
 				<Paper
 					elevation={0}
 					sx={{
-						flexGrow: 1,
+						width: "100%",
+						flex: { xs: "0 1 auto", md: "1 1 0%" },
 						minWidth: 0,
+						boxSizing: "border-box",
 					}}
 				>
 					<Box id="heading">
@@ -112,9 +116,11 @@ const Documentation = () => {
 							Create a GitLab OAuth application
 						</Typography>
 						<Typography color="text.secondary" sx={{ mb: 2 }}>
-							In GitLab, open your avatar menu → Edit profile → Access → Applications, then add a new application. Use the TaskStream callback URL below, enable the <strong>read_user</strong> scope, and save it. GitLab displays the Application ID and Secret; enter these as Client ID and Client Secret in TaskStream Settings, select GitLab, and use your GitLab server URL (https://gitlab.com for GitLab.com).
+							In GitLab, open your avatar menu → Edit profile → Access → Applications, then add a new application. Use the TaskStream callback URL below, enable the{" "}
+							<strong>read_user</strong> scope, and save it. GitLab displays the Application ID and Secret; enter these as Client ID and Client Secret in TaskStream Settings, select
+							GitLab, and use your GitLab server URL (https://gitlab.com for GitLab.com).
 						</Typography>
-						<Typography component="div" sx={{ mb: 2 }}>
+						<Typography component="div" sx={{ mb: 2, overflowWrap: "anywhere" }}>
 							<strong>Callback URL:</strong> <code>https://YOUR_TASKSTREAM_API/api/v1/auth/oauth2/gitlab/callback</code>
 						</Typography>
 						<Link href="https://docs.gitlab.com/integration/oauth_provider/" target="_blank" rel="noopener noreferrer" underline="hover">

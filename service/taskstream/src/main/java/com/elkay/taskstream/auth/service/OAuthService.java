@@ -183,7 +183,7 @@ public class OAuthService {
                                                         .isPresent();
 
         if (identityExists) {
-            throw new ResourceAlreadyExistsException("An account already exists with this GitHub account. Please sign in instead.");
+            throw new ResourceAlreadyExistsException(String.format("An account already exists for this %s account. Please log in instead.", provider));
         }
 
         // Check whether a Taskstream account already exists

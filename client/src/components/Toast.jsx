@@ -8,7 +8,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import InfoIcon from "@mui/icons-material/Info";
 
-const maxMessageLength = 50;
+const maxMessageLength = 100;
 function SlideTransition(props) {
 	return <Slide {...props} direction="up" />;
 }
@@ -29,6 +29,7 @@ const Toast = ({ open, onClose, severity = "info", message }) => {
 		}
 		return str;
 	};
+	const fullMessage = typeof message === "string" ? message : String(message ?? "");
 
 	// choose icon based on severity
 	const getIcon = () => {
@@ -48,11 +49,13 @@ const Toast = ({ open, onClose, severity = "info", message }) => {
 			open={open}
 			autoHideDuration={3000}
 			onClose={onClose}
-			anchorOrigin={{ vertical: "bottom", horizontal: "middle" }}
+			anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
 			message={
-				<Box sx={{ display: "flex", alignItems: "center" }}>
+				<Box sx={{ display: "flex", alignItems: "center", minWidth: 0, gap: 1 }}>
 					{getIcon()}
-					{truncate(message)}
+					<Box component="span" sx={{ minWidth: 0, whiteSpace: "normal", overflowWrap: "anywhere" }}>
+						{truncate(fullMessage)}
+					</Box>
 				</Box>
 			}
 			action={action}
@@ -63,12 +66,26 @@ const Toast = ({ open, onClose, severity = "info", message }) => {
 					sx: {
 						// Apply fixed width (or minWidth/maxWidth range)
 						width: {
-							xs: "100%", // Full width on small screens
-							sm: "400px", // Fixed width on larger screens
+							xs: "calc(100vw - 32px)",
+							sm: "400px",
 						},
-						// 1. Vertically center the message and action (x icon)
+						maxWidth: "calc(100vw - 32px)",
+						boxSizing: "border-box",
 						display: "flex",
-						alignItems: "center", // Centers children (message and action) vertically
+						flexWrap: "nowrap",
+						alignItems: "center",
+						"& .MuiSnackbarContent-message": {
+							flex: "1 1 0%",
+							minWidth: 0,
+							padding: "8px 0",
+						},
+						"& .MuiSnackbarContent-action": {
+							display: "flex",
+							alignItems: "center",
+							alignSelf: "center",
+							flex: "0 0 auto",
+							marginLeft: 1,
+						},
 					},
 				},
 			}}
