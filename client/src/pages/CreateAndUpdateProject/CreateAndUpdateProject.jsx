@@ -7,12 +7,11 @@ import { ToastContext } from "../../context/ToastContext";
 import { getProjectById, createProject, updateProject } from "../../api/project/projects";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { validateProject } from "../../api/utils/formValidation";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { uploadResources } from "../../utils/resourceUpload";
 import { markdownComponents } from "../../components/markdownComponents";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
 const CreateAndUpdateProject = () => {
 	const { showToast } = useContext(ToastContext);
@@ -230,171 +229,150 @@ const CreateAndUpdateProject = () => {
 	};
 
 	return (
-		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
-			<Box sx={{ my: 2 }}>
-				{/* Heading with image on right */}
-				<Box
-					sx={{
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}
-				>
-					<Typography variant="h5" component="h5" gutterBottom>
-						{isEdit ? "Edit Project" : "Create Project"}
-					</Typography>
+		<Container maxWidth={false} sx={{ width: "100%", maxWidth: { xs: "100%", sm: "800px" }, py: { xs: 2, sm: 4 }, boxSizing: "border-box" }}>
+			<Box sx={{ mb: 3 }}>
+				<Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 1.5, mb: 0.75 }}>
+					<DescriptionOutlinedIcon color="primary" sx={{ fontSize: 28, flexShrink: 0 }} />
+					<Box sx={{ minWidth: 0 }}>
+						<Typography variant="h5" component="h1" sx={{ fontWeight: 600, fontSize: { xs: "1.45rem", sm: "1.75rem" }, lineHeight: 1.25 }}>
+							{isEdit ? "Edit project" : "Create a project"}
+						</Typography>
+						<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+							{isEdit ? "Update the project details and keep your team aligned." : "Set up a shared space for your team's work."}
+						</Typography>
+					</Box>
 				</Box>
+			</Box>
 
-				<form onSubmit={handleSubmit}>
-					{/** hidden file input */}
-					<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} onChange={handleFileChange} />
-					{/* Title */}
-					<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} margin="normal" />
-					<Collapse in={!!errors.title}>
-						<FormHelperText error>{errors.title}</FormHelperText>
-					</Collapse>
-					{/* Markdown-enabled Description */}
-					<Box sx={{ mb: 1 }}>
-						<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ mb: 2 }}>
-							<Tab value="write" label="Write" icon={<EditNoteIcon />} iconPosition="start" />
-							<Tab value="preview" label="Preview" icon={<ViewHeadlineIcon />} iconPosition="start" />
-						</Tabs>
-						{tab === "write" ? (
-							<>
-								<TextField
-									label="Project description"
-									name="description"
-									multiline
-									rows={8}
-									fullWidth
-									inputRef={descriptionRef}
-									value={projectPayload.description}
-									onChange={handleInputChange}
-									error={!!errors.description}
-								/>
-								<Collapse in={!!errors.description}>
-									<FormHelperText error>{errors.description}</FormHelperText>
-								</Collapse>
-							</>
-						) : (
-							<Box
-								sx={(theme) => ({
+			<form onSubmit={handleSubmit}>
+				<Box sx={{ py: { xs: 0, sm: 1 } }}>
+						<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} onChange={handleFileChange} />
+						<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} />
+						<Collapse in={!!errors.title}>
+							<FormHelperText error>{errors.title}</FormHelperText>
+						</Collapse>
+
+						<Box sx={{ mt: { xs: 2.5, sm: 3 } }}>
+							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1, flexWrap: "wrap", mb: 1 }}>
+								<Box>
+									<Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Description</Typography>
+									<Typography variant="body2" color="text.secondary">Add context, goals, and useful project notes.</Typography>
+								</Box>
+								<Stack direction="row" spacing={0.5}>
+								<Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ minHeight: 36, "& .MuiTabs-indicator": { height: 2, borderRadius: 1 }, "& .MuiTab-root": { minHeight: 36, minWidth: 64, px: 1, color: "text.secondary", textTransform: "none" }, "& .MuiTab-root.Mui-selected": { color: "primary.main", fontWeight: 600 } }}>
+									<Tab value="write" label="Write" />
+									<Tab value="preview" label="Preview" />
+									</Tabs>
+								</Stack>
+							</Box>
+							{tab === "write" ? (
+								<>
+									<TextField
+										label="Project description"
+										name="description"
+										multiline
+									rows={6}
+										fullWidth
+										inputRef={descriptionRef}
+										value={projectPayload.description}
+										onChange={handleInputChange}
+										error={!!errors.description}
+									/>
+									<Collapse in={!!errors.description}>
+										<FormHelperText error>{errors.description}</FormHelperText>
+									</Collapse>
+								</>
+							) : (
+								<Box sx={(theme) => ({
 									border: `1px solid ${theme.palette.divider}`,
 									borderRadius: 1,
-									p: 2,
-									height: "184px", // MUI ~23px per row * 8 = 184px
-									overflowY: "auto", // ✅ Scroll when content exceeds
-									backgroundColor: "inherit",
+									p: { xs: 1.5, sm: 2 },
+									minHeight: 184,
+									maxHeight: 320,
+									overflowY: "auto",
 									color: theme.palette.text.primary,
-								})}
-							>
-								<ReactMarkdown components={markdownComponents}>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
+									"& *": { overflowWrap: "anywhere", wordBreak: "break-word" },
+									"& img": { maxWidth: "100%", height: "auto" },
+								})}>
+									<ReactMarkdown components={markdownComponents}>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
+								</Box>
+							)}
+							<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, flexWrap: "wrap", mt: 0.75 }}>
+								<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary" }}>
+									<CodeIcon sx={{ fontSize: 17 }} />
+									<Typography variant="caption">Markdown is enabled</Typography>
+								</Box>
+								<Button size="small" onClick={handleFileUpload} startIcon={<AddPhotoAlternateOutlinedIcon />} sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}>
+									Upload file
+								</Button>
 							</Box>
-						)}
-					</Box>
-					<Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
-						<CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-						<Typography variant="caption" color="text.secondary">
-							Markdown is enabled
-						</Typography>
-						<Box
-							sx={{
-								display: "inline-flex",
-								alignItems: "center",
-								gap: 0.5,
-								ml: 1.5,
-								cursor: "pointer",
-								color: "text.secondary",
-								"&:hover": {
-									color: "text.primary",
-								},
-							}}
-							onClick={handleFileUpload}
-						>
-							<AddPhotoAlternateOutlinedIcon sx={{ fontSize: 16 }} />
-							<Typography variant="caption">Upload file</Typography>
+						</Box>
+
+						<Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, gap: { xs: 1.5, sm: 2 }, alignItems: "start", mt: { xs: 2.5, sm: 3 } }}>
+							<Box sx={{ minWidth: 0 }}>
+								<DatePicker
+									label="Due date"
+									format="dd/MM/yyyy"
+									minDate={new Date()}
+									value={projectPayload.dueDate ? new Date(projectPayload.dueDate) : null}
+									onChange={(newValue) => {
+										const newDueDate = newValue ? newValue.toISOString() : "";
+										// 1. Update payload
+										setProjectPayload((prev) => ({
+											...prev,
+											dueDate: newDueDate,
+										}));
+
+										// 2. Validate just the dueDate field
+										const fieldErrors = validateProject({ dueDate: newDueDate });
+
+										// 3. Merge/clear errors
+										setErrors((prevErrors) => {
+											const newErrors = { ...prevErrors };
+											if (fieldErrors.dueDate) {
+												newErrors.dueDate = fieldErrors.dueDate;
+											} else {
+												delete newErrors.dueDate; // Remove error if valid
+											}
+											return newErrors;
+										});
+									}}
+									slotProps={{ textField: { fullWidth: true, margin: "none", error: !!errors.dueDate } }}
+								/>
+								<Collapse in={!!errors.dueDate}>
+									<FormHelperText error>{errors.dueDate}</FormHelperText>
+								</Collapse>
+							</Box>
+							<Box sx={{ minWidth: 0 }}>
+								<TextField
+									label="Add tags"
+									placeholder="Press Enter or comma to add"
+									fullWidth
+									value={tagInput}
+									onChange={(e) => setTagInput(e.target.value)}
+									onKeyDown={handleAddTag}
+									error={!!errors.tags}
+								/>
+								<Collapse in={!!errors.tags}>
+									<FormHelperText error>{errors.tags}</FormHelperText>
+								</Collapse>
+								<Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: 1, minWidth: 0 }}>
+									{projectPayload.tags.map((tag, index) => (
+										<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" sx={{ maxWidth: "100%" }} />
+									))}
+								</Stack>
 						</Box>
 					</Box>
-
-					<DatePicker
-						label="Due Date"
-						format="dd/MM/yyyy"
-						minDate={new Date()}
-						value={projectPayload.dueDate ? new Date(projectPayload.dueDate) : null}
-						// onChange={(newValue) => setDueDate(newValue ? newValue.toISOString() : "")}
-						onChange={(newValue) => {
-							const newDueDate = newValue ? newValue.toISOString() : "";
-
-							// 1. Update payload
-							setProjectPayload((prev) => ({
-								...prev,
-								dueDate: newDueDate,
-							}));
-
-							// 2. Validate just the dueDate field
-							const fieldErrors = validateProject({ dueDate: newDueDate });
-
-							// 3. Merge/clear errors
-							setErrors((prevErrors) => {
-								const newErrors = { ...prevErrors };
-								if (fieldErrors.dueDate) {
-									newErrors.dueDate = fieldErrors.dueDate;
-								} else {
-									delete newErrors.dueDate; // Remove error if valid
-								}
-								return newErrors;
-							});
-						}}
-						slotProps={{
-							textField: {
-								fullWidth: true,
-								margin: "normal",
-								error: !!errors.dueDate,
-							},
-						}}
-					/>
-					<Collapse in={!!errors.dueDate}>
-						<FormHelperText error>{errors.dueDate}</FormHelperText>
-					</Collapse>
-					{/* Tags */}
-					<TextField
-						label="Tags"
-						placeholder="Type a tag and press Enter or Comma"
-						fullWidth
-						value={tagInput}
-						onChange={(e) => setTagInput(e.target.value)}
-						onKeyDown={handleAddTag}
-						// sx={{ mb: 2 }}
-						error={!!errors.tags}
-						margin="normal"
-					/>
-					<Collapse in={!!errors.tags}>
-						<FormHelperText error>{errors.tags}</FormHelperText>
-					</Collapse>
-					<Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1.5, columnGap: 1, mb: 3 }}>
-						{projectPayload.tags.map((tag, index) => (
-							<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" style={{ borderRadius: "5px" }} />
-						))}
-					</Stack>
-
-					{/* Buttons */}
-					<Box sx={{ display: "flex", gap: 2 }}>
-						<Button type="submit" variant="contained" color="primary" disabled={loading}>
-							{loading ? ( // <--- CONDITIONAL CONTENT
-								<Box sx={{ display: "flex", alignItems: "center" }}>
-									<CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-									Saving...
-								</Box>
-							) : (
-								"Submit"
-							)}
+					<Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1, mt: 2, flexDirection: "row", flexWrap: "wrap" }}>
+						<Button size="small" type="submit" variant="contained" color="primary" disabled={loading} sx={{ minHeight: 36, px: 2, boxShadow: "none", whiteSpace: "nowrap", "&:hover": { boxShadow: "none" } }}>
+							{loading ? <Box sx={{ display: "flex", alignItems: "center" }}><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />Saving...</Box> : "Save"}
 						</Button>
-						<Button variant="outlined" onClick={() => navigate(-1)}>
+						<Button size="small" variant="text" onClick={() => navigate(-1)} sx={{ minHeight: 36, color: "text.secondary" }}>
 							Cancel
 						</Button>
 					</Box>
-				</form>
-			</Box>
+				</Box>
+			</form>
 		</Container>
 	);
 };
