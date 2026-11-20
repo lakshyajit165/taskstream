@@ -2,13 +2,12 @@ import React, { useState, useEffect, useContext, useRef, useCallback } from "rea
 import { getProjects } from "../../api/project/projects";
 import { ToastContext } from "../../context/ToastContext";
 import { useNavigate } from "react-router-dom";
-import { Container, Box, Typography, CircularProgress, Pagination, Stack, Chip, List, ListItem, ListItemText, Grid, TextField, IconButton } from "@mui/material";
+import { Container, Box, Typography, CircularProgress, Pagination, Stack, Chip, List, ListItemButton, Paper, TextField, IconButton } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import noDataImg from "../../assets/no_data.png";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link as RouterLink } from "react-router-dom";
-import { Divider } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 import TuneIcon from "@mui/icons-material/Tune";
 import Dialog from "@mui/material/Dialog";
@@ -82,6 +81,7 @@ const Projects = () => {
 	const handleSearchTextChange = useCallback(
 		async (event) => {
 			const newSearchText = event.target.value;
+			const searchFiltersForRequest = { ...searchFilters, searchText: newSearchText };
 
 			// Immediately update the display state (the input field)
 			setSearchFilters((filters) => {
@@ -97,16 +97,14 @@ const Projects = () => {
 			if (!newSearchText.trim()) {
 				// If query is cleared, fetch immediately to reset the list
 				if (searchFilters.searchText.trim()) {
-					await fetchProjects(searchFilters);
+					await fetchProjects(searchFiltersForRequest);
 				}
 				return;
 			}
 
 			// Set a new timer
 			searchTimeoutRef.current = setTimeout(() => {
-				// Note: fetchProjects will use the `searchFilters.searchText` value
-				// which was already updated by setSearchFilters above.
-				fetchProjects(searchFilters);
+				fetchProjects(searchFiltersForRequest);
 			}, 500); // Debounce delay of 500ms
 		},
 		[searchFilters, fetchProjects],
@@ -241,13 +239,17 @@ const Projects = () => {
 	);
 
 	return (
-		<Container sx={{ maxWidth: { xs: 400, sm: 600 } }}>
-			<Box sx={{ my: 4 }}>
-				{/* --- HEADER: Search Field (Full Width) + Icon Buttons --- */}
-				<Box sx={{ mb: 3 }}>
-					{/* Flex layout for search + buttons */}
-					<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-						{/* Search Field expands to fill available space */}
+		<Container maxWidth={false} sx={{ width: "100%", maxWidth: { xs: "100%", sm: "820px" }, py: { xs: 2.5, sm: 4 } }}>
+			<Box sx={{ mb: { xs: 3, sm: 4 } }}>
+				<Box sx={{ mb: 2.5 }}>
+					<Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: { xs: "1.75rem", sm: "2rem" } }}>
+						Projects
+					</Typography>
+					<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+						Manage your project spaces and keep work organized.
+					</Typography>
+				</Box>
+				<Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
 						<TextField
 							fullWidth
 							variant="outlined"
@@ -264,41 +266,24 @@ const Projects = () => {
 									),
 								},
 							}}
-							sx={{ flexGrow: 1 }}
+							sx={{ flex: "1 1 260px", minWidth: { xs: "100%", sm: 240 } }}
 						/>
-
-						{/* Add Button */}
 						<IconButton
 							component={RouterLink}
 							to="/projects/new"
 							color="primary"
 							aria-label="Create new project"
-							size="small"
-							sx={{
-								borderRadius: 1,
-								border: "1px solid",
-								borderColor: "primary.main",
-								p: "6px",
-								flexShrink: 0, // prevents shrinking
-							}}
+						sx={{ width: 40, height: 40, flexShrink: 0, border: 1, borderColor: "divider", borderRadius: 1 }}
 						>
 							<AddIcon />
 						</IconButton>
-
-						{/* Filter Button */}
 						<Badge badgeContent={dialogFilterCount} color="primary">
 							<IconButton
-								color=""
+								color="default"
 								aria-label="Toggle filters"
 								onClick={handleFilterDialogOpen}
 								size="small"
-								sx={{
-									borderRadius: 1,
-									border: "1px solid",
-									borderColor: "divider",
-									p: "6px",
-									flexShrink: 0,
-								}}
+								sx={{ minWidth: 40, minHeight: 40, border: 1, borderColor: "divider", borderRadius: 1 }}
 							>
 								<TuneIcon />
 							</IconButton>
@@ -306,94 +291,58 @@ const Projects = () => {
 					</Box>
 				</Box>
 
-				{/* --- END HEADER --- */}
-
-				{/* Content */}
 				{loading ? (
-					<Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+					<Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
 						<CircularProgress />
 					</Box>
 				) : (
 					<>
 						{projects.length === 0 ? (
-							<Box sx={{ my: 4, textAlign: "center" }}>
+							<Box sx={{ py: { xs: 4, sm: 6 }, px: 2, textAlign: "center" }}>
 								<img src={noDataImg} alt="No projects illustration" style={{ maxWidth: "300px", marginBottom: "16px" }} />
-								<Typography variant="body1" color="text.secondary">
-									No projects found. Please create one to get started or modify the search filters.
+								<Typography variant="h6" component="p" sx={{ fontWeight: 600, mb: 0.75 }}>
+									No projects found
+								</Typography>
+								<Typography variant="body2" color="text.secondary">
+									Create a project to get started, or adjust your search and filters.
 								</Typography>
 							</Box>
 						) : (
-							<List disablePadding>
-								{projects.map((project, index) => (
-									<React.Fragment key={project.id}>
-										<ListItem
-											button
-											alignItems="flex-start"
-											onClick={() => navigate(`/projects/${project.id}`)}
-											sx={{
-												px: 2,
-												py: 2,
-												"&:hover": {
-													backgroundColor: (theme) => theme.palette.action.hover,
-												},
-											}}
-										>
-											<ListItemText
-												primary={
-													<Typography variant="h6" component="h2" sx={{ mb: 0 }}>
+							<List disablePadding component="ul" sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+								{projects.map((project) => (
+									<Paper key={project.id} component="li" variant="outlined" sx={{ listStyle: "none", overflow: "hidden", borderLeft: 3, borderLeftColor: "primary.main", transition: "box-shadow 150ms ease", "&:hover": { boxShadow: 1 } }}>
+										<ListItemButton onClick={() => navigate(`/projects/${project.id}`)} sx={{ p: { xs: 1.75, sm: 2.25 }, alignItems: "flex-start", "&:hover": { bgcolor: "transparent" } }}>
+											<Box sx={{ flex: 1, minWidth: 0 }}>
+												<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5, flexWrap: "wrap" }}>
+													<Typography variant="h6" component="h2" sx={{ fontWeight: 600, lineHeight: 1.35, overflowWrap: "anywhere" }}>
 														{project.title}
 													</Typography>
-												}
-												// FIX: Use secondaryTypographyProps to change the wrapper from <p> to <span>
-												secondaryTypographyProps={{
-													component: "span",
-												}}
-												secondary={
-													<Box>
-														{/* Description */}
-														<ProjectDescription description={project.description} />
-
-														{/* Due Date */}
-														<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-															Due: {new Date(project.dueDate).toLocaleDateString()}
-														</Typography>
-
-														{/* Tags */}
-														{project.tags && project.tags.length > 0 && (
-															<Stack
-																direction="row"
-																spacing={1}
-																sx={{
-																	flexWrap: "wrap",
-																	rowGap: 1,
-																	columnGap: 1,
-																	mt: 1,
-																}}
-															>
-																{project.tags.map((tag, tagIndex) => (
-																	<Chip key={tagIndex} label={tag} size="small" color="info" variant="outlined" style={{ borderRadius: "5px" }} />
-																))}
-															</Stack>
-														)}
-													</Box>
-												}
-											/>
-										</ListItem>
-										{/* Add a divider between list items for better separation */}
-										{index < projects.length - 1 && <Divider component="li" variant="fullWidth" />}
-									</React.Fragment>
+													<Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+														Due {new Date(project.dueDate).toLocaleDateString()}
+													</Typography>
+												</Box>
+												<ProjectDescription description={project.description} />
+												{project.tags && project.tags.length > 0 && (
+													<Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.75, mt: 1.25 }}>
+														{project.tags.map((tag, tagIndex) => (
+															<Chip key={tagIndex} label={tag} size="small" variant="outlined" />
+														))}
+													</Stack>
+												)}
+											</Box>
+										</ListItemButton>
+									</Paper>
 								))}
 							</List>
 						)}
 
 						{totalPages > 1 && (
-							<Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+							<Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
 								<Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
 							</Box>
 						)}
 					</>
 				)}
-			</Box>
 			<Dialog open={openFilterDialog} onClose={handleFilterDialogClose} maxWidth="sm" fullWidth>
 				<DialogTitle>Filter Projects</DialogTitle>
 				<DialogContent>

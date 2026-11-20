@@ -180,8 +180,22 @@ const CreateAndUpdateTask = (props) => {
 		// onClose();
 	};
 	return (
-		<Dialog fullScreen open={open} onClose={onClose}>
-			<AppBar elevation={0} sx={{ position: "relative", borderBottom: 1, borderColor: "divider" }}>
+		<Dialog
+			fullScreen
+			open={open}
+			onClose={onClose}
+			slotProps={{
+				paper: {
+					sx: {
+						display: "flex",
+						flexDirection: "column",
+						minHeight: 0,
+						overflow: "hidden",
+					},
+				},
+			}}
+		>
+			<AppBar elevation={0} sx={{ position: "relative", flexShrink: 0, borderBottom: 1, borderColor: "divider" }}>
 				<Toolbar sx={{ minHeight: { xs: 60, sm: 68 }, px: { xs: 1.5, sm: 3 } }}>
 					<IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
 						<CloseIcon />
@@ -208,15 +222,27 @@ const CreateAndUpdateTask = (props) => {
 					</Button>
 				</Toolbar>
 			</AppBar>
-			<Box sx={{ flex: 1, overflowY: "auto", bgcolor: "background.default" }}>
-			<Container maxWidth={false} sx={{ width: "100%", maxWidth: { xs: "100%", sm: "800px" }, py: { xs: 2, sm: 3 }, boxSizing: "border-box" }}>
+			<Box
+				sx={{
+					flex: "1 1 0%",
+					minHeight: 0,
+					overflowY: "auto",
+					overflowX: "hidden",
+					overscrollBehaviorY: "contain",
+					WebkitOverflowScrolling: "touch",
+					bgcolor: "background.default",
+				}}
+			>
+			<Container maxWidth={false} sx={{ width: "100%", maxWidth: { xs: "100%", sm: "800px" }, pt: { xs: 3, sm: 4 }, pb: { xs: 2, sm: 3 }, boxSizing: "border-box" }}>
 				<form onSubmit={submitTask}>
 					<Box>
 					{/* Title */}
-					<TextField fullWidth label="Task title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} />
-					<Collapse in={!!errors.title}>
-						<FormHelperText error>{errors.title}</FormHelperText>
-					</Collapse>
+					<Box sx={{ position: "relative" }}>
+						<TextField fullWidth label="Task title" name="title" value={taskPayload.title} onChange={handleInputChange} error={!!errors.title} />
+						<Collapse in={!!errors.title} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+							<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.title}</FormHelperText>
+						</Collapse>
+					</Box>
 					{/* Markdown-enabled Description */}
 					<Box sx={{ mt: { xs: 2.5, sm: 3 }, mb: 0.25, minWidth: 0 }}>
 						<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1, flexWrap: "wrap", mb: 1 }}>
@@ -230,6 +256,7 @@ const CreateAndUpdateTask = (props) => {
 						</Box>
 						{tab === "write" ? (
 							<>
+								<Box sx={{ position: "relative", mb: 2.5 }}>
 								<TextField
 									label="Task description"
 									name="description"
@@ -240,37 +267,46 @@ const CreateAndUpdateTask = (props) => {
 									onChange={handleInputChange}
 									error={!!errors.description}
 								/>
-								<Collapse in={!!errors.description}>
-									<FormHelperText error>{errors.description}</FormHelperText>
-								</Collapse>
+								<Box sx={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+									<Collapse in={!!errors.description} sx={{ flex: 1, minWidth: 0 }}>
+										<FormHelperText error sx={{ m: 0, lineHeight: "14px" }}>{errors.description}</FormHelperText>
+									</Collapse>
+									<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary", flexShrink: 0 }}>
+										<CodeIcon sx={{ fontSize: 17 }} />
+										<Typography variant="caption">Markdown is enabled</Typography>
+									</Box>
+								</Box>
+								</Box>
 							</>
 						) : (
-							<Box
-								sx={(theme) => ({
-									border: `1px solid ${theme.palette.divider}`,
-									borderRadius: 1,
-									p: 2,
-									minHeight: 184,
-									maxHeight: 320,
-									overflowY: "auto",
-									overflowWrap: "anywhere",
-									"& img": { maxWidth: "100%", height: "auto" },
-									color: theme.palette.text.primary,
-								})}
-							>
-								<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
-							</Box>
+							<>
+								<Box
+									sx={(theme) => ({
+										border: `1px solid ${theme.palette.divider}`,
+										borderRadius: 1,
+										p: 2,
+										minHeight: 184,
+										maxHeight: 320,
+										overflowY: "auto",
+										overflowWrap: "anywhere",
+										"& img": { maxWidth: "100%", height: "auto" },
+										color: theme.palette.text.primary,
+									})}
+								>
+									<ReactMarkdown>{taskPayload.description || "Nothing to preview"}</ReactMarkdown>
+								</Box>
+								<Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+									<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary" }}>
+										<CodeIcon sx={{ fontSize: 17 }} />
+										<Typography variant="caption">Markdown is enabled</Typography>
+									</Box>
+								</Box>
+							</>
 						)}
 					</Box>
-					<Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.75 }}>
-						<CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-						<Typography variant="caption" color="text.secondary">
-							Markdown is enabled
-						</Typography>
-					</Box>
 					<Typography variant="subtitle2" color="text.secondary" sx={{ mt: { xs: 2.5, sm: 3 }, mb: 1, fontWeight: 600 }}>Planning and assignment</Typography>
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, rowGap: { xs: 1.5, sm: 2 }, columnGap: { xs: 0, sm: 2 }, alignItems: "start" }}>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, rowGap: 2.5, columnGap: { xs: 0, sm: 2 }, alignItems: "start" }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* Due date */}
 					<DatePicker
 						label="Due Date"
@@ -309,15 +345,15 @@ const CreateAndUpdateTask = (props) => {
 							},
 						}}
 					/>
-					<Collapse in={!!errors.dueDate}>
-						<FormHelperText error>{errors.dueDate}</FormHelperText>
+					<Collapse in={!!errors.dueDate} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+						<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.dueDate}</FormHelperText>
 					</Collapse>
 					</Box>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* State (read-only) */}
 					<TextField fullWidth label="State" value={taskState || ""} readOnly />
 					</Box>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* Priority */}
 					<FormControl fullWidth error={!!errors.priority}>
 						<InputLabel>Priority</InputLabel>
@@ -327,11 +363,11 @@ const CreateAndUpdateTask = (props) => {
 							<MenuItem value="HIGH">High</MenuItem>
 						</Select>
 					</FormControl>
-					<Collapse in={!!errors.priority}>
-						<FormHelperText error>{errors.priority}</FormHelperText>
+					<Collapse in={!!errors.priority} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+						<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.priority}</FormHelperText>
 					</Collapse>
 					</Box>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* Type */}
 					<FormControl fullWidth error={!!errors.type}>
 						<InputLabel>Type</InputLabel>
@@ -343,11 +379,11 @@ const CreateAndUpdateTask = (props) => {
 							<MenuItem value="FORWARDPORT">ForwardPort</MenuItem>
 						</Select>
 					</FormControl>
-					<Collapse in={!!errors.type}>
-						<FormHelperText error>{errors.type}</FormHelperText>
+					<Collapse in={!!errors.type} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+						<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.type}</FormHelperText>
 					</Collapse>
 					</Box>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* Assigned to */}
 					<Autocomplete
 						fullWidth
@@ -403,11 +439,11 @@ const CreateAndUpdateTask = (props) => {
 							/>
 						)}
 					/>
-					<Collapse in={!!errors.assignedTo}>
-						<FormHelperText error>{errors.assignedTo}</FormHelperText>
+					<Collapse in={!!errors.assignedTo} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+						<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.assignedTo}</FormHelperText>
 					</Collapse>
 					</Box>
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ minWidth: 0, position: "relative" }}>
 					{/* Target Version */}
 					<TextField
 						fullWidth
@@ -418,13 +454,13 @@ const CreateAndUpdateTask = (props) => {
 						error={!!errors.targetVersion}
 						margin="none"
 					/>
-					<Collapse in={!!errors.targetVersion}>
-						<FormHelperText error>{errors.targetVersion}</FormHelperText>
+					<Collapse in={!!errors.targetVersion} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+						<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.targetVersion}</FormHelperText>
 					</Collapse>
 					</Box>
 					</Box>
 					{/* Restricted Edit */}
-					<Box sx={{ display: "flex", alignItems: "center", mt: 1.5 }}>
+					<Box sx={{ display: "flex", alignItems: "center", mt: 2.5 }}>
 						<FormControlLabel control={<Checkbox checked={taskPayload.restrictedEdit} onChange={handleRestrictedEditChange} name="restrictedEdit" />} label="Restricted Edit" />
 						<Tooltip title={<Typography sx={{ fontSize: "14px" }}>If checked, only task owners can modify this task.</Typography>} arrow>
 							<InfoIcon color="action" sx={{ fontSize: 25 }} />

@@ -114,34 +114,37 @@ const Login = () => {
 					</Typography>
 
 					<form onSubmit={userLogin} noValidate>
-						<TextField fullWidth label="Email" name="email" margin="normal" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
-						<Collapse in={!!errors.email} timeout={300}>
-							<FormHelperText error>{errors.email}</FormHelperText>
-						</Collapse>
-						<TextField
-							fullWidth
-							label="Password"
-							name="password"
-							margin="normal"
-							type={showPassword ? "text" : "password"}
-							slotProps={{
-								input: {
-									endAdornment: (
-										<InputAdornment position="end">
-											<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
-												{showPassword ? <Visibility /> : <VisibilityOff />}
-											</IconButton>
-										</InputAdornment>
-									),
-								},
-							}}
-							value={loginPayload.password}
-							onChange={handleInputChange}
-							error={!!errors.password}
-						/>
-						<Collapse in={!!errors.password} timeout={300}>
-							<FormHelperText error>{errors.password}</FormHelperText>
-						</Collapse>
+						<Box sx={{ position: "relative", mt: 2, mb: 4 }}>
+							<TextField fullWidth label="Email" name="email" type="email" value={loginPayload.email} onChange={handleInputChange} error={!!errors.email} />
+							<Collapse in={!!errors.email} timeout={300} sx={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 1 }}>
+								<FormHelperText error sx={{ m: 0, lineHeight: "14px", whiteSpace: "nowrap" }}>{errors.email}</FormHelperText>
+							</Collapse>
+						</Box>
+						<Box sx={{ position: "relative", mb: 3 }}>
+							<TextField
+								fullWidth
+								label="Password"
+								name="password"
+								type={showPassword ? "text" : "password"}
+								slotProps={{
+									input: {
+										endAdornment: (
+											<InputAdornment position="end">
+												<IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={() => setShowPassword(!showPassword)} edge="end">
+													{showPassword ? <Visibility /> : <VisibilityOff />}
+												</IconButton>
+											</InputAdornment>
+										),
+									},
+								}}
+								value={loginPayload.password}
+								onChange={handleInputChange}
+								error={!!errors.password}
+							/>
+							<Collapse in={!!errors.password} timeout={300} sx={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 1 }}>
+								<FormHelperText error sx={{ m: 0, lineHeight: "14px", whiteSpace: "nowrap" }}>{errors.password}</FormHelperText>
+							</Collapse>
+						</Box>
 
 						<Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
 							<Link component={RouterLink} to="/forgot_password" variant="body2">

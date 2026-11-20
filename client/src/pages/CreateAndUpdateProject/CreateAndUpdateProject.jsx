@@ -230,7 +230,7 @@ const CreateAndUpdateProject = () => {
 
 	return (
 		<Container maxWidth={false} sx={{ width: "100%", maxWidth: { xs: "100%", sm: "800px" }, py: { xs: 2, sm: 4 }, boxSizing: "border-box" }}>
-			<Box sx={{ mb: 3 }}>
+			<Box sx={{ mb: 4 }}>
 				<Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 1.5, mb: 0.75 }}>
 					<DescriptionOutlinedIcon color="primary" sx={{ fontSize: 28, flexShrink: 0 }} />
 					<Box sx={{ minWidth: 0 }}>
@@ -247,10 +247,12 @@ const CreateAndUpdateProject = () => {
 			<form onSubmit={handleSubmit}>
 				<Box sx={{ py: { xs: 0, sm: 1 } }}>
 						<input type="file" hidden multiple accept="image/*,video/*" ref={fileInputRef} onChange={handleFileChange} />
-						<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} />
-						<Collapse in={!!errors.title}>
-							<FormHelperText error>{errors.title}</FormHelperText>
-						</Collapse>
+						<Box sx={{ position: "relative" }}>
+							<TextField label="Project title" fullWidth name="title" value={projectPayload.title} onChange={handleInputChange} error={!!errors.title} />
+							<Collapse in={!!errors.title} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+								<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.title}</FormHelperText>
+							</Collapse>
+						</Box>
 
 						<Box sx={{ mt: { xs: 2.5, sm: 3 } }}>
 							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1, flexWrap: "wrap", mb: 1 }}>
@@ -267,6 +269,7 @@ const CreateAndUpdateProject = () => {
 							</Box>
 							{tab === "write" ? (
 								<>
+									<Box sx={{ position: "relative", mb: 2.5 }}>
 									<TextField
 										label="Project description"
 										name="description"
@@ -278,9 +281,16 @@ const CreateAndUpdateProject = () => {
 										onChange={handleInputChange}
 										error={!!errors.description}
 									/>
-									<Collapse in={!!errors.description}>
-										<FormHelperText error>{errors.description}</FormHelperText>
-									</Collapse>
+										<Box sx={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+											<Collapse in={!!errors.description} sx={{ flex: 1, minWidth: 0 }}>
+												<FormHelperText error sx={{ m: 0, lineHeight: "14px" }}>{errors.description}</FormHelperText>
+											</Collapse>
+											<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary", flexShrink: 0 }}>
+												<CodeIcon sx={{ fontSize: 17 }} />
+												<Typography variant="caption">Markdown is enabled</Typography>
+											</Box>
+										</Box>
+									</Box>
 								</>
 							) : (
 								<Box sx={(theme) => ({
@@ -297,19 +307,23 @@ const CreateAndUpdateProject = () => {
 									<ReactMarkdown components={markdownComponents}>{projectPayload.description || "Nothing to preview"}</ReactMarkdown>
 								</Box>
 							)}
-							<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, flexWrap: "wrap", mt: 0.75 }}>
-								<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary" }}>
-									<CodeIcon sx={{ fontSize: 17 }} />
-									<Typography variant="caption">Markdown is enabled</Typography>
+							{tab === "preview" && (
+								<Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+									<Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "text.secondary" }}>
+										<CodeIcon sx={{ fontSize: 17 }} />
+										<Typography variant="caption">Markdown is enabled</Typography>
+									</Box>
 								</Box>
+							)}
+							<Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 1, flexWrap: "wrap", mt: 0.5 }}>
 								<Button size="small" onClick={handleFileUpload} startIcon={<AddPhotoAlternateOutlinedIcon />} sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}>
 									Upload file
 								</Button>
 							</Box>
 						</Box>
 
-						<Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, gap: { xs: 1.5, sm: 2 }, alignItems: "start", mt: { xs: 2.5, sm: 3 } }}>
-							<Box sx={{ minWidth: 0 }}>
+							<Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, gap: { xs: 2.5, sm: 2 }, alignItems: "start", mt: 1 }}>
+							<Box sx={{ minWidth: 0, position: "relative" }}>
 								<DatePicker
 									label="Due date"
 									format="dd/MM/yyyy"
@@ -339,11 +353,11 @@ const CreateAndUpdateProject = () => {
 									}}
 									slotProps={{ textField: { fullWidth: true, margin: "none", error: !!errors.dueDate } }}
 								/>
-								<Collapse in={!!errors.dueDate}>
-									<FormHelperText error>{errors.dueDate}</FormHelperText>
+								<Collapse in={!!errors.dueDate} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+									<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.dueDate}</FormHelperText>
 								</Collapse>
 							</Box>
-							<Box sx={{ minWidth: 0 }}>
+							<Box sx={{ minWidth: 0, position: "relative" }}>
 								<TextField
 									label="Add tags"
 									placeholder="Press Enter or comma to add"
@@ -353,17 +367,17 @@ const CreateAndUpdateProject = () => {
 									onKeyDown={handleAddTag}
 									error={!!errors.tags}
 								/>
-								<Collapse in={!!errors.tags}>
-									<FormHelperText error>{errors.tags}</FormHelperText>
+								<Collapse in={!!errors.tags} sx={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 1 }}>
+									<FormHelperText error sx={{ m: 0, lineHeight: "16px" }}>{errors.tags}</FormHelperText>
 								</Collapse>
-								<Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: 1, minWidth: 0 }}>
+								<Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: 2.5, minWidth: 0 }}>
 									{projectPayload.tags.map((tag, index) => (
 										<Chip key={index} label={tag} onDelete={() => handleDeleteTag(tag)} color="primary" variant="outlined" sx={{ maxWidth: "100%" }} />
 									))}
 								</Stack>
 						</Box>
 					</Box>
-					<Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1, mt: 2, flexDirection: "row", flexWrap: "wrap" }}>
+					<Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1, mt: 2.5, flexDirection: "row", flexWrap: "wrap" }}>
 						<Button size="small" type="submit" variant="contained" color="primary" disabled={loading} sx={{ minHeight: 36, px: 2, boxShadow: "none", whiteSpace: "nowrap", "&:hover": { boxShadow: "none" } }}>
 							{loading ? <Box sx={{ display: "flex", alignItems: "center" }}><CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />Saving...</Box> : "Save"}
 						</Button>

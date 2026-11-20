@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Box, Container, Divider, Link, Paper, Stack, Typography } from "@mui/material";
 
@@ -9,75 +9,103 @@ const scrollToSection = (sectionId) => {
 	});
 };
 
-const DocLink = ({ id, children, nested = false }) => (
+const docSections = [
+	{ id: "oauth-setup", label: "OAuth Setup" },
+	{ id: "gitlab-setup", label: "GitLab OAuth App" },
+	{ id: "github-setup", label: "GitHub OAuth App" },
+	{ id: "taskstream-config", label: "TaskStream Configuration" },
+	{ id: "callback-url", label: "Callback URL" },
+	{ id: "oauth-scopes", label: "Required Scopes" },
+	{ id: "oauth-flow", label: "OAuth Flow" },
+	{ id: "github-docs", label: "GitHub Documentation" },
+];
+
+const DocLink = ({ id, children, active, onNavigate }) => (
 	<Link
 		component="button"
-		onClick={() => scrollToSection(id)}
-		underline="hover"
-		color={nested ? "text.secondary" : "text.primary"}
+		onClick={() => {
+			onNavigate(id);
+			scrollToSection(id);
+		}}
+		underline="none"
+		color={active ? "text.primary" : "primary.main"}
 		sx={{
 			display: "block",
 			width: "100%",
 			textAlign: "left",
 			cursor: "pointer",
-			fontWeight: nested ? "normal" : 600,
-			pl: nested ? 2 : 0,
+			fontWeight: active ? 700 : 400,
+			lineHeight: 1.4,
+			py: 1,
+			pl: 1.5,
+			borderLeft: "2px solid",
+			borderColor: active ? "text.primary" : "transparent",
+			transition: "color 150ms ease, border-color 150ms ease",
+			"&:hover": { color: "text.primary", textDecoration: "none" },
 		}}
 	>
 		{children}
 	</Link>
 );
 const Documentation = () => {
+	const [activeSection, setActiveSection] = useState("oauth-setup");
+
+	useEffect(() => {
+		if (!("IntersectionObserver" in window)) return undefined;
+
+		const visibleSections = new Set();
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						visibleSections.add(entry.target.id);
+					} else {
+						visibleSections.delete(entry.target.id);
+					}
+				});
+
+				const topSection = [...visibleSections]
+					.map((id) => document.getElementById(id))
+					.filter(Boolean)
+					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
+				if (topSection) setActiveSection(topSection.id);
+			},
+			{ rootMargin: "-100px 0px -70% 0px", threshold: 0 },
+		);
+
+		docSections.forEach(({ id }) => {
+			const section = document.getElementById(id);
+			if (section) observer.observe(section);
+		});
+
+		return () => observer.disconnect();
+	}, []);
+
 	return (
 		<Container maxWidth="lg" sx={{ py: 4 }}>
 			<Stack
-				direction={{ xs: "column", md: "row" }}
-				spacing={4}
-				alignItems={{ xs: "stretch", md: "flex-start" }}
+				direction={{ xs: "column", lg: "row" }}
+				spacing={{ xs: 4, lg: 5 }}
+				justifyContent="center"
+				alignItems={{ xs: "stretch", lg: "flex-start" }}
 			>
 				<Box
 					component="nav"
 					aria-label="Documentation sections"
 					sx={{
-						width: { xs: "100%", md: 240 },
+						width: { xs: "100%", md: 250 },
 						flexShrink: 0,
-						position: { md: "sticky" },
-						top: { md: 90 },
+						position: { lg: "sticky" },
+						top: { lg: 90 },
+						mx: { xs: 0, md: "auto", lg: 0 },
 					}}
 				>
-					<Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-						On this page
-					</Typography>
-
-					<Stack spacing={0.75}>
-						<DocLink id="oauth-setup">OAuth Setup</DocLink>
-
-						<DocLink id="github-setup" nested>
-							GitHub OAuth App
-						</DocLink>
-						<DocLink id="gitlab-setup" nested>
-							GitLab OAuth App
-						</DocLink>
-
-						<DocLink id="taskstream-config" nested>
-							TaskStream Configuration
-						</DocLink>
-
-						<DocLink id="callback-url" nested>
-							Callback URL
-						</DocLink>
-
-						<DocLink id="oauth-scopes" nested>
-							Required Scopes
-						</DocLink>
-
-						<DocLink id="oauth-flow" nested>
-							OAuth Flow
-						</DocLink>
-
-						<DocLink id="github-docs" nested>
-							GitHub Documentation
-						</DocLink>
+					<Stack spacing={0.5}>
+						{docSections.map(({ id, label }) => (
+							<DocLink key={id} id={id} active={activeSection === id} onNavigate={setActiveSection}>
+								{label}
+							</DocLink>
+						))}
 					</Stack>
 				</Box>
 
@@ -85,9 +113,11 @@ const Documentation = () => {
 					elevation={0}
 					sx={{
 						width: "100%",
-						flex: { xs: "0 1 auto", md: "1 1 0%" },
+						maxWidth: { md: 700 },
+						flex: { xs: "0 1 auto", lg: "1 1 0%" },
 						minWidth: 0,
 						boxSizing: "border-box",
+						mx: { xs: "auto", lg: 0 },
 					}}
 				>
 					<Box id="heading">
