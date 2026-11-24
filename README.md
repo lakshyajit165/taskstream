@@ -3,6 +3,8 @@
 ![taskstream-app](https://github.com/lakshyajit165/taskstream/actions/workflows/taskstream-app.yml/badge.svg?branch=master)
 ![taskstream-service](https://github.com/lakshyajit165/taskstream/actions/workflows/taskstream-service.yml/badge.svg?branch=master)
 
+Looking for Docker setup details? See [DOCKER.md](DOCKER.md).
+
 The app workflow builds the React production assets. The service workflow runs the Spring Boot test suite. Both run for pull requests and pushes to `main` or `master` when either `client/` or `service/` changes. After a push to `main` or `master`, the Docker publish workflow checks that both workflows passed for the same commit before pushing the app and service images to Docker Hub. It tags each image with `sha-<commit>` and `latest`.
 
 Add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets in GitHub Actions. The token should have permission to push to the `taskstream-app` and `taskstream-service` repositories in that Docker Hub account.
